@@ -1,0 +1,14 @@
+{
+  "name": "@streamflow/db",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "drizzle-orm": "^0.40.0",
+    "postgres": "^3.4.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.40.0",
+    "typescript": "^5.0.0"
+  }
+}
