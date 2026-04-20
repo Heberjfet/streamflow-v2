@@ -18,7 +18,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
   fastify.get('/', async (request, reply) => {
     try {
       const categories = await fastify.db.query.categories.findMany({
-        orderBy: (categories: any, { asc }: any) => [asc(categories.name)]
+        orderBy: [fastify.schema.categories.name]
       });
 
       return reply.send(categories);
@@ -54,7 +54,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
 
       const category = await fastify.db.query.categories.findFirst({
-        where: (categories: any, { eq }: any) => eq(categories.id, id)
+        where: fastify.eq(fastify.schema.categories.id, id)
       });
 
       if (!category) {
@@ -73,14 +73,14 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
       const { name, description } = request.body;
 
-      const updates: any = { updatedAt: new Date() };
+      const updates: any = {};
       if (name !== undefined) updates.name = name;
       if (description !== undefined) updates.description = description;
 
       const [category] = await fastify.db
         .update(fastify.schema.categories)
         .set(updates)
-        .where((categories: any) => eq(categories.id, id))
+        .where(fastify.eq(fastify.schema.categories.id, id))
         .returning();
 
       if (!category) {
@@ -100,7 +100,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
 
       await fastify.db
         .delete(fastify.schema.categories)
-        .where((categories: any) => eq(categories.id, id));
+        .where(fastify.eq(fastify.schema.categories.id, id));
 
       return reply.status(204).send();
     } catch (error) {

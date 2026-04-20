@@ -4,9 +4,9 @@ import { promises as fs } from 'fs';
 import { TranscodeJobData, RENDITIONS } from '../types';
 import { ffmpegService } from '../services/ffmpeg.service';
 import { s3Service } from '../services/s3.service';
-import { Pool } from 'postgres';
+import postgres from 'postgres';
 
-const dbPool = new Pool({ connectionString: process.env.DATABASE_URL });
+const sql = postgres(process.env.DATABASE_URL || '', { max: 1 });
 
 async function updateAssetStatus(
   assetId: string,
@@ -19,7 +19,7 @@ async function updateAssetStatus(
     SET status = $1, output_key = $2, error_message = $3, updated_at = NOW()
     WHERE id = $4
   `;
-  await dbPool.query(query, [status, outputKey, error, assetId]);
+  await sql.unsafe(query, [status, outputKey ?? null, error ?? null, assetId]);
 }
 
 export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<void> {

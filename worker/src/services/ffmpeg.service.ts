@@ -117,7 +117,7 @@ export class FFmpegService {
 
             const spriteContent = thumbs.map((file, i) => {
               const start = i * interval;
-              return `thumb_${String(i).padStart(4, '0')}.jpg\n${start.toFixed(3)}`);
+              return `thumb_${String(i).padStart(4, '0')}.jpg\n${start.toFixed(3)}`;
             });
 
             await fs.writeFile(outputPath, spriteContent.join('\n\n'));

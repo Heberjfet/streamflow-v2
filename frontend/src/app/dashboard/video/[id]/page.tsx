@@ -24,8 +24,8 @@ export default function VideoDetailPage() {
   const [asset, setAsset] = useState<Asset | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [hlsUrl, setHlsUrl] = useState<string | null>(null)
-  const [mp4Url, setMp4Url] = useState<string | null>(null)
+  const [hlsUrl, setHlsUrl] = useState<string | undefined>(undefined)
+  const [mp4Url, setMp4Url] = useState<string | undefined>(undefined)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function VideoDetailPage() {
           const { data: playbackData } = await getPlayback(data.playbackId)
           if (playbackData) {
             setHlsUrl(playbackData.hlsUrl)
-            setMp4Url(playbackData.mp4Url || null)
+            setMp4Url(playbackData.mp4Url || undefined)
           }
         }
       } else {
@@ -130,8 +130,8 @@ export default function VideoDetailPage() {
           {asset.status === 'ready' && (hlsUrl || mp4Url) ? (
             <VideoPlayer
               hlsUrl={hlsUrl || undefined}
-              mp4Url={mp4Url}
-              poster={asset.thumbnailUrl}
+              mp4Url={mp4Url || undefined}
+              poster={asset.thumbnailUrl || undefined}
             />
           ) : (
             <Card className="aspect-video flex items-center justify-center bg-[var(--color-bg-secondary)]">

@@ -27,17 +27,17 @@ export async function assetRoutes(fastify: FastifyInstance) {
   const s3Service = new S3Service(fastify.s3, fastify.s3Config);
   const assetService = new AssetService(s3Service, fastify.transcodeQueue);
 
-  fastify.get('/', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest<{ Querystring: ListQuery }>, reply: FastifyReply) => {
+  fastify.get<{ Querystring: ListQuery }>('/', { preHandler: [fastify.authenticate] }, async (request, reply) => {
     try {
       const page = request.query.page || 1;
       const limit = request.query.limit || 20;
       const offset = (page - 1) * limit;
 
       const assets = await fastify.db.query.assets.findMany({
-        where: (assets: any, { eq }: any) => eq(assets.userId, request.currentUser.userId),
+        where: fastify.eq(fastify.schema.assets.userId, request.currentUser.userId),
         limit,
         offset,
-        orderBy: (assets: any, { desc }: any) => [desc(assets.createdAt)]
+        orderBy: [fastify.desc(fastify.schema.assets.createdAt)]
       });
 
       return reply.send({
@@ -80,7 +80,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
 
       const asset = await fastify.db.query.assets.findFirst({
-        where: (assets: any, { eq }: any) => eq(assets.id, id)
+        where: fastify.eq(fastify.schema.assets.id, id)
       });
 
       if (!asset) {
@@ -104,7 +104,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
       const { filename, contentType } = request.body;
 
       const asset = await fastify.db.query.assets.findFirst({
-        where: (assets: any, { eq }: any) => eq(assets.id, id)
+        where: fastify.eq(fastify.schema.assets.id, id)
       });
 
       if (!asset) {
@@ -133,7 +133,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
 
       const asset = await fastify.db.query.assets.findFirst({
-        where: (assets: any, { eq }: any) => eq(assets.id, id)
+        where: fastify.eq(fastify.schema.assets.id, id)
       });
 
       if (!asset) {
@@ -150,7 +150,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
       await fastify.db
         .update(fastify.schema.assets)
         .set({ status: 'processing' })
-        .where((assets: any) => eq(assets.id, id));
+        .where(fastify.eq(fastify.schema.assets.id, id));
 
       return reply.send({ jobId });
     } catch (error) {
@@ -164,7 +164,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
 
       const asset = await fastify.db.query.assets.findFirst({
-        where: (assets: any, { eq }: any) => eq(assets.id, id)
+        where: fastify.eq(fastify.schema.assets.id, id)
       });
 
       if (!asset) {
@@ -197,7 +197,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
 
       const asset = await fastify.db.query.assets.findFirst({
-        where: (assets: any, { eq }: any) => eq(assets.id, id)
+        where: fastify.eq(fastify.schema.assets.id, id)
       });
 
       if (!asset) {
@@ -210,7 +210,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
 
       await fastify.db
         .delete(fastify.schema.assets)
-        .where((assets: any) => eq(assets.id, id));
+        .where(fastify.eq(fastify.schema.assets.id, id));
 
       return reply.status(204).send();
     } catch (error) {

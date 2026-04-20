@@ -29,7 +29,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       const { email, password, name } = request.body;
 
       const existingUser = await fastify.db.query.users.findFirst({
-        where: (users: any, { eq }: any) => eq(users.email, email)
+        where: fastify.eq(fastify.schema.users.email, email)
       });
 
       if (existingUser) {
@@ -69,7 +69,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       const { email, password } = request.body;
 
       const user = await fastify.db.query.users.findFirst({
-        where: (users: any, { eq }: any) => eq(users.email, email)
+        where: fastify.eq(fastify.schema.users.email, email)
       });
 
       if (!user || !user.passwordHash) {
@@ -131,7 +131,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       }
 
       let user = await fastify.db.query.users.findFirst({
-        where: (users: any, { eq }: any) => eq(users.googleId, payload.sub)
+        where: fastify.eq(fastify.schema.users.googleId, payload.sub)
       });
 
       if (!user) {
@@ -164,10 +164,10 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.get('/me', { preHandler: [fastify.authenticate] }, async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/me', { preHandler: [fastify.authenticate] }, async (request, reply) => {
     try {
       const user = await fastify.db.query.users.findFirst({
-        where: (users: any, { eq }: any) => eq(users.id, request.currentUser.userId)
+        where: fastify.eq(fastify.schema.users.id, request.currentUser.userId)
       });
 
       if (!user) {

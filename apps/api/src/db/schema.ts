@@ -42,6 +42,13 @@ export const sessions = pgTable('sessions', {
   createdAt: timestamp('created_at').defaultNow()
 });
 
+export const schema = {
+  users,
+  categories,
+  assets,
+  sessions
+};
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Asset = typeof assets.$inferSelect;

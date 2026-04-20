@@ -4,9 +4,9 @@ import { promises as fs } from 'fs';
 import { ThumbnailJobData } from '../types';
 import { thumbnailService } from '../services/thumbnail.service';
 import { s3Service } from '../services/s3.service';
-import { Pool } from 'postgres';
+import postgres from 'postgres';
 
-const dbPool = new Pool({ connectionString: process.env.DATABASE_URL });
+const sql = postgres(process.env.DATABASE_URL || '', { max: 1 });
 
 async function updateAssetStatus(
   assetId: string,
@@ -19,7 +19,7 @@ async function updateAssetStatus(
     SET thumbnail_status = $1, thumbnail_key = $2, thumbnail_error = $3, updated_at = NOW()
     WHERE id = $4
   `;
-  await dbPool.query(query, [status, outputKey, error, assetId]);
+  await sql.unsafe(query, [status, outputKey ?? null, error ?? null, assetId]);
 }
 
 export async function thumbnailProcessor(job: Job<ThumbnailJobData>): Promise<void> {
