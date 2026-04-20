@@ -27,7 +27,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
   const s3Service = new S3Service(fastify.s3, fastify.s3Config);
   const assetService = new AssetService(s3Service, fastify.transcodeQueue);
 
-  fastify.get<{ Querystring: ListQuery }>('/', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.get<{ Querystring: ListQuery }>('/', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const page = request.query.page || 1;
       const limit = request.query.limit || 20;
@@ -51,7 +51,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.post<{ Body: CreateBody }>('/', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.post<{ Body: CreateBody }>('/', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { title, description, categoryId } = request.body;
       const playbackId = assetService.generatePlaybackId();
@@ -75,7 +75,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.get<{ Params: AssetParams }>('/:id', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.get<{ Params: AssetParams }>('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
 
@@ -98,7 +98,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.post<{ Params: AssetParams; Body: UploadUrlBody }>('/:id/upload-url', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.post<{ Params: AssetParams; Body: UploadUrlBody }>('/:id/upload-url', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
       const { filename, contentType } = request.body;
@@ -128,7 +128,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.post<{ Params: AssetParams }>('/:id/process', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.post<{ Params: AssetParams }>('/:id/process', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
 
@@ -159,7 +159,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.get<{ Params: AssetParams }>('/:id/playback', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.get<{ Params: AssetParams }>('/:id/playback', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
 
@@ -192,7 +192,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.delete<{ Params: AssetParams }>('/:id', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.delete<{ Params: AssetParams }>('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
 

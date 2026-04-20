@@ -14,7 +14,7 @@ interface ApiResponse<T = unknown> {
 const handleResponse = async <T>(res: Response): Promise<ApiResponse<T>> => {
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: 'Request failed' }))
-    return { error: error.message || `HTTP ${res.status}` }
+    return { error: error.error || error.message || `HTTP ${res.status}` }
   }
   const data = await res.json()
   return { data }

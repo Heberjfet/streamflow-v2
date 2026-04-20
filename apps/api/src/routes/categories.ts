@@ -15,6 +15,14 @@ interface CategoryParams {
 }
 
 export async function categoryRoutes(fastify: FastifyInstance) {
+  const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.status(401).send({ error: 'Unauthorized' });
+    }
+  };
+
   fastify.get('/', async (request, reply) => {
     try {
       const categories = await fastify.db.query.categories.findMany({
@@ -28,7 +36,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.post<{ Body: CreateCategoryBody }>('/', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.post<{ Body: CreateCategoryBody }>('/', { onRequest: [authenticate] }, async (request, reply) => {
     try {
       const { name, description } = request.body;
       const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -68,7 +76,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.put<{ Params: CategoryParams; Body: UpdateCategoryBody }>('/:id', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.put<{ Params: CategoryParams; Body: UpdateCategoryBody }>('/:id', { onRequest: [authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
       const { name, description } = request.body;
@@ -94,7 +102,7 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.delete<{ Params: CategoryParams }>('/:id', { preHandler: [fastify.authenticate] }, async (request, reply) => {
+  fastify.delete<{ Params: CategoryParams }>('/:id', { onRequest: [authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
 
