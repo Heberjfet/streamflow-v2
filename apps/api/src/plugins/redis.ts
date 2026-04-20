@@ -1,26 +1,28 @@
 import { FastifyInstance } from 'fastify';
 import { Redis } from 'ioredis';
-import { Queue, Worker } from 'bullmq';
+import { Queue } from 'bullmq';
+import fp from 'fastify-plugin';
 
-const redisConfig = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null
-};
+const redisUrl = process.env.REDIS_URL || 'redis://redis:6379';
 
-export const redis = new Redis(redisConfig);
+export default fp(async function redisPlugin(fastify: FastifyInstance) {
+  const redis = new Redis(redisUrl, {
+    maxRetriesPerRequest: null,
+    lazyConnect: true
+  });
 
-export const transcodeQueue = new Queue('transcode', { connection: redis });
+  await redis.connect();
 
-export async function redisPlugin(fastify: FastifyInstance) {
+  const transcodeQueue = new Queue('transcode', { connection: redis });
+
   fastify.decorate('redis', redis);
   fastify.decorate('transcodeQueue', transcodeQueue);
 
   fastify.addHook('onClose', async () => {
-    await redis.quit();
     await transcodeQueue.close();
+    await redis.quit();
   });
-}
+});
 
 declare module 'fastify' {
   interface FastifyInstance {

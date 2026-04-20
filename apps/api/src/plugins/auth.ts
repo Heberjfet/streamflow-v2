@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fastifyJwt from '@fastify/jwt';
+import fp from 'fastify-plugin';
 
 interface CurrentUser {
   userId: string;
@@ -12,7 +13,7 @@ declare module 'fastify' {
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
   interface FastifyRequest {
-    currentUser: CurrentUser;
+    currentUser: CurrentUser | null;
   }
 }
 
@@ -26,20 +27,22 @@ declare module '@fastify/jwt' {
   }
 }
 
-export async function authPlugin(fastify: FastifyInstance) {
-  fastify.register(fastifyJwt, {
+export default fp(async function authPlugin(fastify: FastifyInstance) {
+  await fastify.register(fastifyJwt, {
     secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
     sign: {
       expiresIn: '7d'
     }
   });
 
-  fastify.decorate('authenticate', async function(request: FastifyRequest, reply: FastifyReply) {
+  const authenticateFn = async function(request: FastifyRequest, reply: FastifyReply) {
     try {
       const decoded = await request.jwtVerify();
       request.currentUser = decoded as CurrentUser;
     } catch (err) {
       reply.status(401).send({ error: 'Unauthorized' });
     }
-  });
-}
+  };
+
+  fastify.decorate('authenticate', authenticateFn);
+});

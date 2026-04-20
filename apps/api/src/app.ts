@@ -1,33 +1,32 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
-import { authPlugin } from './plugins/auth.js';
-import { dbPlugin } from './plugins/db.js';
-import { redisPlugin } from './plugins/redis.js';
-import { s3Plugin } from './plugins/s3.js';
+import authPlugin from './plugins/auth.js';
+import dbPlugin from './plugins/db.js';
+import redisPlugin from './plugins/redis.js';
+import s3Plugin from './plugins/s3.js';
 import { authRoutes } from './routes/auth.js';
 import { assetRoutes } from './routes/assets.js';
 import { playbackRoutes } from './routes/playback.js';
 import { categoryRoutes } from './routes/categories.js';
 
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 async function buildApp() {
   const fastify = Fastify({
     logger: {
-      level: 'info',
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          translateTime: 'HH:MM:ss Z',
-          ignore: 'pid,hostname'
-        }
-      }
+      level: 'info'
     }
   });
 
   await fastify.register(cors, {
-    origin: frontendUrl,
+    origin: (origin, callback) => {
+      if (!origin || origin === 'http://localhost:3000' || origin === 'http://localhost:5173') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed'), false);
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
   });
@@ -41,6 +40,7 @@ async function buildApp() {
   await fastify.register(dbPlugin);
   await fastify.register(redisPlugin);
   await fastify.register(s3Plugin);
+
   await fastify.register(authPlugin);
 
   await fastify.register(authRoutes, { prefix: '/v1/auth' });

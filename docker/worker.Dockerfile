@@ -4,10 +4,7 @@ RUN apk add --no-cache ffmpeg
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --only=production
+COPY . .
+RUN npm ci --omit=dev
 
-COPY worker/src ./src
-COPY packages/db/src ./packages/db/src
-
-CMD ["node", "src/index.js"]
+CMD ["npx", "tsx", "worker/src/index.ts"]
