@@ -28,8 +28,9 @@ export const assets = pgTable('assets', {
   status: varchar('status', { length: 50 }).notNull().default('pending'),
   playbackId: varchar('playback_id', { length: 255 }).unique(),
   duration: integer('duration'),
-  thumbnailUrl: text('thumbnail_url'),
-  hlsManifestUrl: text('hls_manifest_url'),
+  thumbnailKey: varchar('thumbnail_key', { length: 500 }),
+  hlsManifestKey: varchar('hls_manifest_key', { length: 500 }),
+  views: integer('views').default(0),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
 });

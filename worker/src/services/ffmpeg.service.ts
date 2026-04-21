@@ -146,11 +146,7 @@ export class FFmpegService {
 
   async cleanupTempFolder(folderPath: string): Promise<void> {
     console.log(`[FFmpeg] Cleaning up temp folder: ${folderPath}`);
-    const files = await fs.readdir(folderPath);
-    await Promise.all(
-      files.map((file) => fs.unlink(path.join(folderPath, file)))
-    );
-    await fs.rmdir(folderPath);
+    await fs.rm(folderPath, { recursive: true, force: true });
   }
 }
 

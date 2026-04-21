@@ -13,8 +13,12 @@ const statusConfig = {
   uploading: { label: 'Uploading', color: 'text-[var(--color-warning)]' },
   processing: { label: 'Processing', color: 'text-[var(--color-accent)]' },
   ready: { label: 'Ready', color: 'text-[var(--color-success)]' },
+  completed: { label: 'Completed', color: 'text-[var(--color-success)]' },
   failed: { label: 'Failed', color: 'text-[var(--color-error)]' },
+  created: { label: 'Created', color: 'text-[var(--color-text-muted)]' },
 }
+
+const defaultStatus = { label: 'Unknown', color: 'text-[var(--color-text-muted)]' }
 
 const formatDuration = (seconds?: number): string => {
   if (!seconds) return ''
@@ -33,15 +37,16 @@ const formatDate = (dateString: string): string => {
 }
 
 export function VideoCard({ asset, showStatus = true }: VideoCardProps) {
-  const status = statusConfig[asset.status]
+  const status = statusConfig[asset.status as keyof typeof statusConfig]
+  const safeStatus = status || defaultStatus
 
   return (
     <Link href={`/dashboard/video/${asset.id}`} className="block">
       <article className="group relative bg-[var(--color-bg-card)] rounded-xl overflow-hidden border border-[var(--color-border-subtle)] transition-all duration-300 hover:border-[var(--color-accent)]/50 hover:shadow-lg hover:shadow-[var(--color-accent)]/10">
         <div className="relative aspect-video bg-[var(--color-bg-elevated)] overflow-hidden">
-          {asset.thumbnailUrl ? (
+          {asset.thumbnailKey ? (
             <img
-              src={asset.thumbnailUrl}
+              src={`http://localhost:9000/streamflow/${asset.thumbnailKey}`}
               alt={asset.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
@@ -118,8 +123,8 @@ export function VideoCard({ asset, showStatus = true }: VideoCardProps) {
               {formatDate(asset.createdAt)}
             </span>
             {showStatus && (
-              <span className={`text-xs font-medium ${status.color}`}>
-                {status.label}
+              <span className={`text-xs font-medium ${safeStatus.color}`}>
+                {safeStatus.label}
               </span>
             )}
           </div>

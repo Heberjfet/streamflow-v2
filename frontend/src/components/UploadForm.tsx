@@ -88,12 +88,27 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
         throw new Error(createError || 'Failed to create asset')
       }
 
-      const { data: uploadData, error: uploadUrlError } = await getUploadUrl(asset.id)
-      if (uploadUrlError || !uploadData) {
-        throw new Error(uploadUrlError || 'Failed to get upload URL')
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+
+      const { data: uploadResult, error: uploadError } = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/v1/assets/${asset.id}/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('streamflow_token')}`,
+        },
+        body: formData,
+      }).then(async res => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Upload failed' }))
+          return { error: err.error || 'Upload failed' }
+        }
+        return { data: await res.json() }
+      }).catch(err => ({ error: err.message }))
+
+      if (uploadError) {
+        throw new Error(uploadError)
       }
 
-      await uploadToS3(uploadData.uploadUrl, selectedFile)
       setProgress(100)
       setStatus('complete')
 

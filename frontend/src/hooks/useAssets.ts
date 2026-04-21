@@ -48,7 +48,7 @@ export function useAssets(): UseAssetsReturn {
     if (fetchError) {
       setError(fetchError)
     } else if (data) {
-      setAssets(data)
+      setAssets(data.data || [])
     }
     setLoading(false)
   }, [])

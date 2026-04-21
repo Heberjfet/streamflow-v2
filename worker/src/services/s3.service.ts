@@ -14,17 +14,20 @@ export class S3Service {
 
   constructor() {
     this.client = new S3Client({
-      region: process.env.AWS_REGION || 'us-east-1',
-      credentials: process.env.AWS_ACCESS_KEY_ID
+      region: process.env.S3_REGION || 'us-east-1',
+      credentials: process.env.S3_ACCESS_KEY_ID
         ? {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+            accessKeyId: process.env.S3_ACCESS_KEY_ID,
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
           }
-        : undefined,
+        : {
+            accessKeyId: process.env.S3_ACCESS_KEY || '',
+            secretAccessKey: process.env.S3_SECRET_KEY || '',
+          },
       endpoint: process.env.S3_ENDPOINT,
-      forcePathStyle: !!process.env.S3_ENDPOINT,
+      forcePathStyle: true,
     });
-    this.bucket = process.env.S3_BUCKET || 'streamflow-assets';
+    this.bucket = process.env.S3_BUCKET || 'streamflow';
   }
 
   async downloadFile(key: string, localPath: string): Promise<void> {

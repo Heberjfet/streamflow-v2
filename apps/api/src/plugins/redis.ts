@@ -13,7 +13,7 @@ export default fp(async function redisPlugin(fastify: FastifyInstance) {
 
   await redis.connect();
 
-  const transcodeQueue = new Queue('transcode', { connection: redis });
+  const transcodeQueue = new Queue('video-processing', { connection: redis });
 
   fastify.decorate('redis', redis);
   fastify.decorate('transcodeQueue', transcodeQueue);

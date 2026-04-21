@@ -14,7 +14,7 @@ const s3Config: S3Config = {
 };
 
 const s3Client = new S3Client({
-  endpoint: s3Config.endpoint,
+  endpoint: process.env.S3_ENDPOINT || 'http://localhost:9000',
   region: s3Config.region,
   credentials: {
     accessKeyId: s3Config.accessKeyId,
@@ -26,6 +26,15 @@ const s3Client = new S3Client({
 export default fp(async function s3Plugin(fastify: FastifyInstance) {
   fastify.decorate('s3', s3Client);
   fastify.decorate('s3Config', s3Config);
+  fastify.decorate('generateUploadUrl', async (key: string, contentType: string) => {
+    const command = new PutObjectCommand({
+      Bucket: s3Config.bucket,
+      Key: key,
+      ContentType: contentType
+    });
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    return url;
+  });
 });
 
 declare module 'fastify' {

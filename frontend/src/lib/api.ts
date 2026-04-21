@@ -16,7 +16,9 @@ const handleResponse = async <T>(res: Response): Promise<ApiResponse<T>> => {
     const error = await res.json().catch(() => ({ message: 'Request failed' }))
     return { error: error.error || error.message || `HTTP ${res.status}` }
   }
-  const data = await res.json()
+  const text = await res.text()
+  if (!text) return { data: undefined as T }
+  const data = JSON.parse(text)
   return { data }
 }
 
@@ -41,19 +43,21 @@ export const register = async (email: string, password: string, name: string) =>
 export interface Asset {
   id: string
   title: string
+  description?: string
   status: 'pending' | 'uploading' | 'processing' | 'ready' | 'failed'
   playbackId?: string
-  thumbnailUrl?: string
+  thumbnailKey?: string
   duration?: number
+  views?: number
   createdAt: string
   updatedAt: string
 }
 
-export const getAssets = async (): Promise<ApiResponse<Asset[]>> => {
+export const getAssets = async (): Promise<ApiResponse<{ data: Asset[]; page: number; limit: number }>> => {
   const res = await fetch(`${API_URL}/v1/assets`, {
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
   })
-  return handleResponse<Asset[]>(res)
+  return handleResponse<{ data: Asset[]; page: number; limit: number }>(res)
 }
 
 export const getAsset = async (assetId: string): Promise<ApiResponse<Asset>> => {
@@ -77,14 +81,17 @@ export const deleteAsset = async (assetId: string): Promise<ApiResponse<void>> =
     method: 'DELETE',
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
   })
+  if (res.status === 204) return { data: undefined }
   return handleResponse<void>(res)
 }
 
-export const getUploadUrl = async (assetId: string): Promise<ApiResponse<{ uploadUrl: string }>> => {
+export const getUploadUrl = async (assetId: string, filename: string, contentType: string): Promise<ApiResponse<{ uploadUrl: string; key: string }>> => {
   const res = await fetch(`${API_URL}/v1/assets/${assetId}/upload-url`, {
+    method: 'POST',
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename, contentType }),
   })
-  return handleResponse<{ uploadUrl: string }>(res)
+  return handleResponse<{ uploadUrl: string; key: string }>(res)
 }
 
 export const uploadToS3 = async (uploadUrl: string, file: File): Promise<Response> => {
@@ -101,6 +108,7 @@ export const processAsset = async (assetId: string): Promise<ApiResponse<void>> 
   const res = await fetch(`${API_URL}/v1/assets/${assetId}/process`, {
     method: 'POST',
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: '{}',
   })
   return handleResponse<void>(res)
 }

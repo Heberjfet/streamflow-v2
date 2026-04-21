@@ -12,18 +12,18 @@ async function updateAssetStatus(
   assetId: string,
   status: 'pending' | 'processing' | 'completed' | 'failed',
   outputKey?: string,
-  error?: string
+  errorMessage?: string
 ) {
   const query = `
     UPDATE assets
-    SET status = $1, output_key = $2, error_message = $3, updated_at = NOW()
-    WHERE id = $4
+    SET status = $1, hls_manifest_key = $2, updated_at = NOW()
+    WHERE id = $3
   `;
-  await sql.unsafe(query, [status, outputKey ?? null, error ?? null, assetId]);
+  await sql.unsafe(query, [status, outputKey ?? null, assetId]);
 }
 
 export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<void> {
-  const { assetId, sourceKey, renditions } = job.data;
+  const { assetId, inputKey: sourceKey, renditions = RENDITIONS } = job.data;
   console.log(`[Transcode] Starting job for asset: ${assetId}`);
 
   const tempDir = `/tmp/streamflow/${assetId}`;
@@ -71,12 +71,13 @@ export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<vo
     }
 
     await updateAssetStatus(assetId, 'completed', outputKeys.join(','));
+
     console.log(`[Transcode] Job completed for asset: ${assetId}`);
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error(`[Transcode] Job failed for asset ${assetId}:`, errorMessage);
-    await updateAssetStatus(assetId, 'failed', undefined, errorMessage);
+    await updateAssetStatus(assetId, 'failed');
     throw error;
   } finally {
     try {
