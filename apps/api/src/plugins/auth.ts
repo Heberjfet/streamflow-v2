@@ -1,6 +1,6 @@
+import fp from 'fastify-plugin';
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fastifyJwt from '@fastify/jwt';
-import fp from 'fastify-plugin';
 
 interface CurrentUser {
   userId: string;

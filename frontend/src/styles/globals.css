@@ -191,6 +191,49 @@ body {
   .play-button:hover {
     transform: scale(1.05);
   }
+
+  .auth-card-vivid {
+    box-shadow:
+      0 0 0 1px rgba(168, 85, 247, 0.25),
+      0 28px 80px rgba(0, 0, 0, 0.65),
+      0 0 55px rgba(168, 85, 247, 0.2);
+    animation: cardBreath 4.6s ease-in-out infinite;
+  }
+
+  .auth-form-rainbow > * {
+    opacity: 0;
+    animation: authItemIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .auth-form-rainbow > *:nth-child(1) { animation-delay: 60ms; }
+  .auth-form-rainbow > *:nth-child(2) { animation-delay: 110ms; }
+  .auth-form-rainbow > *:nth-child(3) { animation-delay: 160ms; }
+  .auth-form-rainbow > *:nth-child(4) { animation-delay: 210ms; }
+  .auth-form-rainbow > *:nth-child(5) { animation-delay: 260ms; }
+  .auth-form-rainbow > *:nth-child(6) { animation-delay: 310ms; }
+  .auth-form-rainbow > *:nth-child(7) { animation-delay: 360ms; }
+  .auth-form-rainbow > *:nth-child(8) { animation-delay: 410ms; }
+  .auth-form-rainbow > *:nth-child(9) { animation-delay: 460ms; }
+  .auth-form-rainbow > *:nth-child(10) { animation-delay: 510ms; }
+  .auth-form-rainbow > *:nth-child(11) { animation-delay: 560ms; }
+  .auth-form-rainbow > *:nth-child(12) { animation-delay: 610ms; }
+
+  .auth-social-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-social-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 20%, rgba(168, 85, 247, 0.24) 50%, transparent 80%);
+    transform: translateX(-130%);
+  }
+
+  .auth-social-btn:hover::before {
+    animation: socialSweep 900ms ease;
+  }
 }
 
 @keyframes fadeInUp {
@@ -233,6 +276,47 @@ body {
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-20px); }
+}
+
+@keyframes authItemIn {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardBreath {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(168, 85, 247, 0.2),
+      0 28px 80px rgba(0, 0, 0, 0.65),
+      0 0 45px rgba(168, 85, 247, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(217, 70, 239, 0.34),
+      0 30px 88px rgba(0, 0, 0, 0.7),
+      0 0 60px rgba(217, 70, 239, 0.24);
+  }
+}
+
+@keyframes socialSweep {
+  from {
+    transform: translateX(-130%);
+  }
+  to {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes checkboxPop {
+  0% { transform: scale(0.85); }
+  70% { transform: scale(1.14); }
+  100% { transform: scale(1); }
 }
 
 @layer components {

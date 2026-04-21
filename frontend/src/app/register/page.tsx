@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { register } from '@/lib/api'
+import { TVStatic } from '@/components/TVStatic'
 
 function PasswordStrengthIndicator({ password }: { password: string }) {
   const getStrength = () => {
@@ -109,7 +110,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
-      <div className="absolute inset-0 bg-noise pointer-events-none" />
+      <TVStatic opacity={0.3} />
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-[var(--color-accent)] rounded-full blur-[150px] opacity-10 animate-glow-pulse" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[var(--color-accent-hover)] rounded-full blur-[150px] opacity-10 animate-glow-pulse delay-300" />
@@ -119,31 +120,37 @@ export default function RegisterPage() {
       <main className="relative z-10 flex items-center justify-center min-h-screen px-4 py-12">
         <div className="w-full max-w-md">
           <div className="text-center mb-10 animate-fade-in-up">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-hover)] mb-6 shadow-2xl shadow-[var(--color-accent-muted)]/40 animate-float">
-              <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+            <div className="relative inline-flex items-center justify-center w-24 h-24 mb-6 animate-float">
+              <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8B5CF6]/60 via-[#EC4899]/60 to-[#22D3EE]/60 blur-2xl" />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#7C3AED] via-[#A855F7] to-[#EC4899] shadow-[0_0_55px_rgba(168,85,247,0.85)]" />
+              <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-black/25 ring-1 ring-white/30 backdrop-blur-sm">
+                <svg className="w-11 h-11 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.75)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+              </div>
             </div>
             <h1 className="text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-[var(--color-accent)] via-[var(--color-accent-hover)] to-[var(--color-accent)] bg-clip-text text-transparent bg-[length:200%_auto] animate-shimmer">
+              <span className="bg-gradient-to-r from-[#FFFFFF] via-[#F5D0FE] to-[#C4B5FD] bg-clip-text text-transparent drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)] animate-gradient-shift bg-[length:200%_200%]">
                 Crea tu cuenta
               </span>
             </h1>
-            <p className="text-[var(--color-text-secondary)] text-lg">
+            <p className="inline-block px-4 py-1.5 rounded-full bg-black/45 border border-fuchsia-400/25 text-white/95 text-lg shadow-[0_8px_24px_rgba(0,0,0,0.55)]">
               Comienza a transmitir con StreamFlow hoy
             </p>
           </div>
 
           <Card
             variant="glass"
-            className="shadow-2xl shadow-black/60 animate-fade-in-up delay-200 border border-[var(--color-border)]/50 hover:border-[var(--color-accent)]/30"
+            className="auth-card-vivid shadow-2xl shadow-black/60 animate-fade-in-up delay-200 border border-[var(--color-border)]/50 hover:border-[var(--color-accent)]/30"
           >
             <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-accent)]/5 to-transparent pointer-events-none" />
+            <div className="absolute -top-20 -right-16 h-44 w-44 rounded-full bg-fuchsia-500/20 blur-3xl animate-pulse pointer-events-none" />
+            <div className="absolute -bottom-20 -left-16 h-44 w-44 rounded-full bg-violet-500/20 blur-3xl animate-pulse delay-300 pointer-events-none" />
 
             <div className="relative p-8">
               <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent opacity-60" />
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5 auth-form-rainbow">
                 {error && (
                   <div className="p-4 rounded-xl bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 flex items-center gap-3 animate-shake">
                     <div className="w-10 h-10 rounded-lg bg-[var(--color-error)]/20 flex items-center justify-center shrink-0">
@@ -222,7 +229,7 @@ export default function RegisterPage() {
                     className={`
                       mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-300 shrink-0
                       ${acceptTerms
-                        ? 'bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] border-transparent shadow-lg shadow-[var(--color-accent-muted)]/30'
+                        ? 'bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] border-transparent shadow-lg shadow-[var(--color-accent-muted)]/30 animate-[checkboxPop_280ms_cubic-bezier(0.2,0.9,0.3,1.4)]'
                         : 'border-[var(--color-border)] hover:border-[var(--color-accent)]/50 bg-transparent'
                       }
                     `}
@@ -245,25 +252,20 @@ export default function RegisterPage() {
                   </label>
                 </div>
 
-                <Button type="submit" className="w-full mt-4" size="lg" loading={loading}>
+                <Button type="submit" className="w-full mt-4 bg-[length:200%_200%] animate-gradient-shift shadow-[0_0_36px_rgba(168,85,247,0.45)]" size="lg" loading={loading}>
                   Crear Cuenta
                 </Button>
 
-                <div className="relative py-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[var(--color-border)]" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="px-4 bg-[var(--color-bg-card)] text-sm text-[var(--color-text-muted)]">
-                      o continúa con
-                    </span>
-                  </div>
+                <div className="py-4 flex justify-center">
+                  <span className="text-sm text-[var(--color-text-muted)]">
+                    o continúa con
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    className="group flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[var(--color-accent-muted)]/20"
+                    className="auth-social-btn group flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[var(--color-accent-muted)]/20"
                   >
                     <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.955-5.445 3.955-3.316 0-6-2.684-6-6s2.684-6 6-6c1.66 0 3.14.569 4.237 1.498l2.31-2.311C16.503 2.924 14.697 2.239 12.545 2.239 6.706 2.239 2.079 6.866 2.079 12.405s4.627 10.166 10.466 10.166c5.839 0 10.166-4.682 10.166-10.166 0-.773-.07-1.528-.199-2.263h-.002z"/>
@@ -272,7 +274,7 @@ export default function RegisterPage() {
                   </button>
                   <button
                     type="button"
-                    className="group flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[var(--color-accent-muted)]/20"
+                    className="auth-social-btn group flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[var(--color-accent-muted)]/20"
                   >
                     <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
