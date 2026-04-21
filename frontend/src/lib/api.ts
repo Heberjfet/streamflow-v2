@@ -44,9 +44,10 @@ export interface Asset {
   id: string
   title: string
   description?: string
-  status: 'pending' | 'uploading' | 'processing' | 'ready' | 'failed'
+  status: 'pending' | 'uploading' | 'processing' | 'ready' | 'completed' | 'failed'
   playbackId?: string
   thumbnailKey?: string
+  hlsManifestKey?: string
   duration?: number
   views?: number
   createdAt: string
@@ -114,12 +115,8 @@ export const processAsset = async (assetId: string): Promise<ApiResponse<void>> 
 }
 
 export interface PlaybackResponse {
-  playbackId: string
-  hlsUrl: string
-  mp4Url?: string
+  manifestUrl: string
   thumbnailUrl?: string
-  title: string
-  duration?: number
 }
 
 export const getPlayback = async (playbackId: string): Promise<ApiResponse<PlaybackResponse>> => {
