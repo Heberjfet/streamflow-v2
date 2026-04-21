@@ -1,84 +1,76 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Hls from 'hls.js'
+import hls from 'hls.js'
 
 interface VideoPlayerProps {
-  hlsUrl?: string
-  mp4Url?: string
+  src: string
   poster?: string
-  autoPlay?: boolean
-  onEnded?: () => void
-  onError?: (error: string) => void
+  autoplay?: boolean
 }
 
-export function VideoPlayer({
-  hlsUrl,
-  mp4Url,
-  poster,
-  autoPlay = false,
-  onEnded,
-  onError,
-}: VideoPlayerProps) {
+export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const hlsRef = useRef<Hls | null>(null)
+  const hlsRef = useRef<hls | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [progress, setProgress] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(1)
   const [isMuted, setIsMuted] = useState(false)
-  const [showControls, setShowControls] = useState(true)
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [volume, setVolume] = useState(1)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const video = videoRef.current
-    if (!video || (!hlsUrl && !mp4Url)) return
+    if (!video || !src) return
 
-    const initPlayer = () => {
-      if (hlsUrl) {
-        if (Hls.isSupported()) {
-          const hls = new Hls({
-            enableWorker: true,
-            lowLatencyMode: true,
-          })
-          hlsRef.current = hls
-          hls.loadSource(hlsUrl)
-          hls.attachMedia(video)
+    setIsLoading(true)
+    setError(null)
 
-          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            setIsLoading(false)
-            if (autoPlay) video.play().catch(() => {})
-          })
-
-          hls.on(Hls.Events.ERROR, (_, data) => {
-            if (data.fatal) {
-              onError?.('Failed to load video')
-              console.error('HLS fatal error:', data)
-            }
-          })
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = hlsUrl
-          video.addEventListener('loadedmetadata', () => {
-            setIsLoading(false)
-            if (autoPlay) video.play().catch(() => {})
-          })
-        } else if (mp4Url) {
-          video.src = mp4Url
-          setIsLoading(false)
-        } else {
-          onError?.('HLS is not supported in this browser')
-        }
-      } else if (mp4Url) {
-        video.src = mp4Url
-        video.addEventListener('loadedmetadata', () => {
-          setIsLoading(false)
-          if (autoPlay) video.play().catch(() => {})
-        })
-      }
+    if (hlsRef.current) {
+      hlsRef.current.destroy()
     }
 
-    initPlayer()
+    if (src.includes('.m3u8')) {
+      if (hls.isSupported()) {
+        const hlsInstance = new hls({
+          lowLatencyMode: true,
+          backBufferLength: 90
+        })
+        hlsRef.current = hlsInstance
+
+        hlsInstance.loadSource(src)
+        hlsInstance.attachMedia(video)
+
+        hlsInstance.on(hls.Events.MANIFEST_PARSED, () => {
+          setIsLoading(false)
+          if (autoplay) {
+            video.play().catch(() => {})
+          }
+        })
+
+        hlsInstance.on(hls.Events.ERROR, (_, data) => {
+          if (data.fatal) {
+            setError('Error loading video')
+            setIsLoading(false)
+          }
+        })
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = src
+        video.addEventListener('loadedmetadata', () => {
+          setIsLoading(false)
+          if (autoplay) {
+            video.play().catch(() => {})
+          }
+        })
+      } else {
+        setError('HLS not supported in this browser')
+        setIsLoading(false)
+      }
+    } else {
+      video.src = src
+      setIsLoading(false)
+    }
 
     return () => {
       if (hlsRef.current) {
@@ -86,185 +78,145 @@ export function VideoPlayer({
         hlsRef.current = null
       }
     }
-  }, [hlsUrl, mp4Url, autoPlay, onError])
+  }, [src, autoplay])
 
   const togglePlay = () => {
     const video = videoRef.current
     if (!video) return
-    if (video.paused) {
-      video.play().catch(() => {})
-    } else {
+
+    if (isPlaying) {
       video.pause()
+    } else {
+      video.play().catch(() => {})
     }
-  }
-
-  const handleTimeUpdate = () => {
-    const video = videoRef.current
-    if (!video) return
-    setProgress(video.currentTime)
-    setDuration(video.duration)
-  }
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const video = videoRef.current
-    if (!video) return
-    const time = parseFloat(e.target.value)
-    video.currentTime = time
-    setProgress(time)
-  }
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const video = videoRef.current
-    if (!video) return
-    const vol = parseFloat(e.target.value)
-    video.volume = vol
-    setVolume(vol)
-    setIsMuted(vol === 0)
   }
 
   const toggleMute = () => {
     const video = videoRef.current
     if (!video) return
-    if (isMuted) {
-      video.muted = false
-      video.volume = volume || 0.5
-      setIsMuted(false)
-    } else {
-      video.muted = true
-      setIsMuted(true)
-    }
+
+    video.muted = !video.muted
+    setIsMuted(video.muted)
   }
 
-  const toggleFullscreen = () => {
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const video = videoRef.current
     if (!video) return
-    if (document.fullscreenElement) {
-      document.exitFullscreen()
-    } else {
-      video.requestFullscreen()
-    }
+
+    const newVolume = parseFloat(e.target.value)
+    video.volume = newVolume
+    setVolume(newVolume)
+    setIsMuted(newVolume === 0)
   }
 
-  const handleMouseMove = () => {
-    setShowControls(true)
-    if (controlsTimeoutRef.current) {
-      clearTimeout(controlsTimeoutRef.current)
-    }
-    controlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) setShowControls(false)
-    }, 3000)
+  const handleTimeUpdate = () => {
+    const video = videoRef.current
+    if (!video) return
+    setCurrentTime(video.currentTime)
   }
 
-  const formatTime = (seconds: number): string => {
-    if (isNaN(seconds)) return '0:00'
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const video = videoRef.current
+    if (!video) return
+
+    const time = parseFloat(e.target.value)
+    video.currentTime = time
+    setCurrentTime(time)
+  }
+
+  const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   return (
-    <div
-      className="relative w-full bg-black rounded-xl overflow-hidden group"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => isPlaying && setShowControls(false)}
-    >
+    <div className="relative w-full bg-black rounded-lg overflow-hidden">
       <video
         ref={videoRef}
-        poster={poster}
         className="w-full aspect-video"
+        poster={poster}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onTimeUpdate={handleTimeUpdate}
-        onEnded={onEnded}
-        onClick={togglePlay}
+        onLoadedMetadata={() => {
+          const video = videoRef.current
+          if (video) setDuration(video.duration)
+        }}
+        onWaiting={() => setIsLoading(true)}
+        onCanPlay={() => setIsLoading(false)}
       />
 
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-          <div className="w-12 h-12 border-3 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
-      {!isPlaying && !isLoading && (
-        <button
-          onClick={togglePlay}
-          className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
-        >
-          <div className="w-20 h-20 rounded-full bg-[var(--color-accent)]/90 flex items-center justify-center transition-transform hover:scale-110">
-            <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </div>
-        </button>
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+          <p className="text-[var(--color-error)]">{error}</p>
+        </div>
       )}
 
-      <div
-        className={`absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <div className="mb-3">
-          <input
-            type="range"
-            min={0}
-            max={duration || 100}
-            value={progress}
-            onChange={handleSeek}
-            className="w-full h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
-            style={{
-              background: `linear-gradient(to right, var(--color-accent) ${(progress / duration) * 100}%, rgba(255,255,255,0.3) ${(progress / duration) * 100}%)`,
-            }}
-          />
-        </div>
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={togglePlay}
+            className="text-white hover:text-[var(--color-accent)] transition-colors"
+          >
+            {isPlaying ? (
+              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+              </svg>
+            ) : (
+              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            )}
+          </button>
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button onClick={togglePlay} className="text-white hover:text-[var(--color-accent)] transition-colors">
-              {isPlaying ? (
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              )}
-            </button>
-
-            <div className="flex items-center gap-2">
-              <button onClick={toggleMute} className="text-white hover:text-[var(--color-accent)] transition-colors">
-                {isMuted ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                  </svg>
-                )}
-              </button>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.1}
-                value={isMuted ? 0 : volume}
-                onChange={handleVolumeChange}
-                className="w-20 h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-white"
-              />
-            </div>
-
-            <span className="text-sm text-white/80 font-mono">
-              {formatTime(progress)} / {formatTime(duration)}
+          <div className="flex-1 flex items-center gap-2">
+            <span className="text-white text-sm font-mono">
+              {formatTime(currentTime)}
+            </span>
+            <input
+              type="range"
+              min="0"
+              max={duration || 0}
+              value={currentTime}
+              onChange={handleSeek}
+              className="flex-1 h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
+            />
+            <span className="text-white text-sm font-mono">
+              {formatTime(duration)}
             </span>
           </div>
 
-          <button onClick={toggleFullscreen} className="text-white hover:text-[var(--color-accent)] transition-colors">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
+          <button
+            onClick={toggleMute}
+            className="text-white hover:text-[var(--color-accent)] transition-colors"
+          >
+            {isMuted || volume === 0 ? (
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+              </svg>
+            )}
           </button>
+
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={isMuted ? 0 : volume}
+            onChange={handleVolumeChange}
+            className="w-20 h-1 bg-white/30 rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
+          />
         </div>
       </div>
     </div>
