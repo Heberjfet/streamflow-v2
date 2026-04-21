@@ -39,7 +39,7 @@ export class FFmpegService {
           '-f hls',
           '-hls_time 4',
           '-hls_list_size 0',
-          `-hls_segment_filename "${segmentFilename}"`,
+          `-hls_segment_filename ${segmentFilename}`,
         ])
         .output(outputPath)
         .on('start', (commandLine) => {
