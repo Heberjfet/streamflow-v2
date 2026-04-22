@@ -223,11 +223,11 @@ export async function assetRoutes(fastify: FastifyInstance) {
         return reply.status(403).send({ error: 'Forbidden' });
       }
 
-      if (asset.status !== 'ready' || !asset.playbackId) {
+      if ((asset.status !== 'ready' && asset.status !== 'completed') || !asset.playbackId) {
         return reply.status(400).send({ error: 'Asset not ready for playback' });
       }
 
-      const manifestUrl = s3Service.getPublicUrl(s3Service.getHlsPath(asset.playbackId));
+      const manifestUrl = s3Service.getPublicUrl(asset.hlsManifestKey?.split(',')[0] || '');
       const thumbnailUrl = asset.thumbnailKey 
         ? s3Service.getPublicUrl(s3Service.getThumbnailPath(asset.thumbnailKey))
         : null;

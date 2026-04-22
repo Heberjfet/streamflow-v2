@@ -14,8 +14,11 @@ const statusConfig = {
   uploading: { label: 'Uploading', color: 'text-[var(--color-warning)]', bg: 'bg-[var(--color-warning)]/10' },
   processing: { label: 'Processing', color: 'text-[var(--color-accent)]', bg: 'bg-[var(--color-accent)]/10' },
   ready: { label: 'Ready', color: 'text-[var(--color-success)]', bg: 'bg-[var(--color-success)]/10' },
+  completed: { label: 'Completed', color: 'text-[var(--color-success)]', bg: 'bg-[var(--color-success)]/10' },
   failed: { label: 'Failed', color: 'text-[var(--color-error)]', bg: 'bg-[var(--color-error)]/10' },
 }
+
+const defaultStatus = { label: 'Unknown', color: 'text-[var(--color-text-muted)]', bg: 'bg-[var(--color-text-muted)]/10' }
 
 export default function VideoDetailPage() {
   const params = useParams()
@@ -35,12 +38,13 @@ export default function VideoDetailPage() {
       const data = await getAsset(params.id)
       if (data) {
         setAsset(data)
-        if (data.status === 'ready' && data.playbackId) {
-          const { getPlayback } = await import('@/lib/api')
-          const { data: playbackData } = await getPlayback(data.playbackId)
+        if ((data.status === 'ready' || data.status === 'completed') && data.playbackId) {
+          const { getPublicPlayback } = await import('@/lib/api')
+          const { data: playbackData, error: playbackError } = await getPublicPlayback(params.id)
           if (playbackData) {
-            setHlsUrl(playbackData.hlsUrl)
-            setMp4Url(playbackData.mp4Url || undefined)
+            setHlsUrl(playbackData.manifestUrl)
+          } else if (playbackError) {
+            setError(playbackError)
           }
         }
       } else {
@@ -85,7 +89,7 @@ export default function VideoDetailPage() {
     )
   }
 
-  const status = statusConfig[asset.status]
+  const status = statusConfig[asset.status as keyof typeof statusConfig] || defaultStatus
 
   return (
     <div className="space-y-8">
@@ -127,11 +131,10 @@ export default function VideoDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          {asset.status === 'ready' && (hlsUrl || mp4Url) ? (
+          {asset.status === 'ready' && hlsUrl ? (
             <VideoPlayer
-              hlsUrl={hlsUrl || undefined}
-              mp4Url={mp4Url || undefined}
-              poster={asset.thumbnailUrl || undefined}
+              src={hlsUrl}
+              poster={asset.thumbnailKey ? `http://localhost:9000/streamflow/${asset.thumbnailKey}` : undefined}
             />
           ) : (
             <Card className="aspect-video flex items-center justify-center bg-[var(--color-bg-secondary)]">
