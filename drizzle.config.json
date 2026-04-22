@@ -1,7 +1,0 @@
-{
-  "schema": "./apps/api/src/db/schema.ts",
-  "dialect": "postgresql",
-  "dbCredentials": {
-    "url": "postgresql://streamflow:streamflow@postgres:5432/streamflow"
-  }
-}
