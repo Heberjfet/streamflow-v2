@@ -61,6 +61,8 @@ services:
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
       PORT: 3001
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
@@ -82,6 +84,8 @@ services:
       S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
       WORKER_CONCURRENCY: 2
     depends_on:
+      migrate:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       redis:
@@ -102,6 +106,18 @@ services:
     depends_on:
       - api
     restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    entrypoint: ["npx", "drizzle-kit", "push"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-streamflow}:${POSTGRES_PASSWORD:-streamflow}@postgres:5432/${POSTGRES_DB:-streamflow}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
 
   createbuckets:
     image: minio/mc

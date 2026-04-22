@@ -5,6 +5,6 @@ RUN apk add --no-cache ffmpeg
 WORKDIR /app
 
 COPY . .
-RUN npm ci --omit=dev
+RUN npm ci
 
 CMD ["npx", "tsx", "worker/src/index.ts"]
