@@ -91,7 +91,8 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
       const formData = new FormData()
       formData.append('file', selectedFile)
 
-      const { data: uploadResult, error: uploadError } = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/v1/assets/${asset.id}/upload`, {
+      const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:3001` : 'http://localhost:3001'
+      const { data: uploadResult, error: uploadError } = await fetch(`${apiUrl}/v1/assets/${asset.id}/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('streamflow_token')}`,
