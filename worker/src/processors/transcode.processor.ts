@@ -94,7 +94,7 @@ export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<vo
     await fs.writeFile(masterPlaylistPath, masterContent);
 
     const masterKey = `assets/${assetId}/hls/master.m3u8`;
-    await s3Service.uploadFile(masterPlaylistPath, masterKey);
+    await s3Service.uploadFile(masterKey, masterPlaylistPath, 'application/vnd.apple.mpegurl');
 
     let thumbnailKey: string | undefined;
     try {
@@ -102,7 +102,7 @@ export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<vo
       await ffmpegService.generateThumbnail(sourcePath, thumbnailPath);
       if (await fs.access(thumbnailPath).then(() => true).catch(() => false)) {
         const thumbKey = `assets/${assetId}/thumbnail.jpg`;
-        await s3Service.uploadFile(thumbnailPath, thumbKey);
+        await s3Service.uploadFile(thumbKey, thumbnailPath, 'image/jpeg');
         thumbnailKey = thumbKey;
       }
     } catch (e) {
