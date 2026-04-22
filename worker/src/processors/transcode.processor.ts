@@ -12,14 +12,27 @@ async function updateAssetStatus(
   assetId: string,
   status: 'pending' | 'processing' | 'completed' | 'failed',
   outputKey?: string,
+  thumbnailKey?: string,
   errorMessage?: string
 ) {
   const query = `
     UPDATE assets
-    SET status = $1, hls_manifest_key = $2, updated_at = NOW()
-    WHERE id = $3
+    SET status = $1, hls_manifest_key = $2, thumbnail_key = $3, updated_at = NOW()
+    WHERE id = $4
   `;
-  await sql.unsafe(query, [status, outputKey ?? null, assetId]);
+  await sql.unsafe(query, [status, outputKey ?? null, thumbnailKey ?? null, assetId]);
+}
+
+function generateMasterPlaylist(renditions: { name: string; bandwidth: number; playlistName: string }[]): string {
+  let playlist = '#EXTM3U\n';
+  playlist += '#EXT-X-VERSION:3\n';
+  
+  for (const rendition of renditions) {
+    playlist += `#EXT-X-STREAM-INF:BANDWIDTH=${rendition.bandwidth},RESOLUTION=${rendition.resolution}\n`;
+    playlist += `${rendition.playlistName}\n`;
+  }
+  
+  return playlist;
 }
 
 export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<void> {
@@ -39,7 +52,7 @@ export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<vo
     const hlsDir = path.join(tempDir, 'hls');
     await fs.mkdir(hlsDir, { recursive: true });
 
-    const outputKeys: string[] = [];
+    const renditionData: { name: string; bandwidth: number; resolution: string; playlistName: string }[] = [];
 
     for (const rendition of renditions) {
       console.log(`[Transcode] Processing rendition: ${rendition.name}`);
@@ -63,14 +76,40 @@ export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<vo
 
       const s3Prefix = `assets/${assetId}/hls/${rendition.name}`;
       await s3Service.uploadFolder(renditionDir, s3Prefix);
-      outputKeys.push(`${s3Prefix}/playlist.m3u8`);
+      
+      renditionData.push({
+        name: rendition.name,
+        bandwidth: rendition.bandwidth,
+        resolution: `${rendition.width}x${rendition.height}`,
+        playlistName: `${s3Prefix}/playlist.m3u8`
+      });
 
       await job.updateProgress(
-        renditions.indexOf(rendition) / renditions.length * 100
+        (renditions.indexOf(rendition) / renditions.length) * 80
       );
     }
 
-    await updateAssetStatus(assetId, 'completed', outputKeys.join(','));
+    const masterPlaylistPath = path.join(hlsDir, 'master.m3u8');
+    const masterContent = generateMasterPlaylist(renditionData);
+    await fs.writeFile(masterPlaylistPath, masterContent);
+
+    const masterKey = `assets/${assetId}/hls/master.m3u8`;
+    await s3Service.uploadFile(masterPlaylistPath, masterKey);
+
+    let thumbnailKey: string | undefined;
+    try {
+      const thumbnailPath = path.join(tempDir, 'thumbnail.jpg');
+      await ffmpegService.generateThumbnail(sourcePath, thumbnailPath);
+      if (await fs.access(thumbnailPath).then(() => true).catch(() => false)) {
+        const thumbKey = `assets/${assetId}/thumbnail.jpg`;
+        await s3Service.uploadFile(thumbnailPath, thumbKey);
+        thumbnailKey = thumbKey;
+      }
+    } catch (e) {
+      console.log('[Transcode] Thumbnail generation skipped or failed');
+    }
+
+    await updateAssetStatus(assetId, 'completed', masterKey, thumbnailKey);
 
     console.log(`[Transcode] Job completed for asset: ${assetId}`);
 
