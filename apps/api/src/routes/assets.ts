@@ -227,8 +227,9 @@ export async function assetRoutes(fastify: FastifyInstance) {
         return reply.status(400).send({ error: 'Asset not ready for playback' });
       }
 
-      const manifestUrl = s3Service.getPublicUrl(asset.hlsManifestKey?.split(',')[0] || '');
-      const thumbnailUrl = asset.thumbnailKey 
+      const manifestKey = asset.hlsManifestKey?.split(',')[0]?.replace(/^assets\//, '') || '';
+      const manifestUrl = s3Service.getPublicUrl(manifestKey);
+      const thumbnailUrl = asset.thumbnailKey
         ? s3Service.getPublicUrl(s3Service.getThumbnailPath(asset.thumbnailKey))
         : null;
 

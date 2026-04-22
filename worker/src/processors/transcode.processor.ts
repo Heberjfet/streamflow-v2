@@ -81,7 +81,7 @@ export async function transcodeProcessor(job: Job<TranscodeJobData>): Promise<vo
         name: rendition.name,
         bandwidth: rendition.bandwidth,
         resolution: `${rendition.width}x${rendition.height}`,
-        playlistName: `${s3Prefix}/playlist.m3u8`
+        playlistName: `${rendition.name}/playlist.m3u8`
       });
 
       await job.updateProgress(
