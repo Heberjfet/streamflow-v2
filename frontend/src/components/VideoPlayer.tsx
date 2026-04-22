@@ -9,6 +9,21 @@ interface VideoPlayerProps {
   autoplay?: boolean
 }
 
+const getS3Url = () => {
+  if (typeof window !== 'undefined') {
+    return `http://${window.location.hostname}:9000`
+  }
+  return 'http://localhost:9000'
+}
+
+const fixLocalhostUrl = (url: string): string => {
+  if (!url) return url
+  if (url.includes('localhost:9000')) {
+    return url.replace('localhost:9000', `${window.location.hostname}:9000`)
+  }
+  return url
+}
+
 export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const hlsRef = useRef<hls | null>(null)
@@ -19,10 +34,17 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
   const [duration, setDuration] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [videoSrc, setVideoSrc] = useState(src)
+  const [posterImg, setPosterImg] = useState(poster)
+
+  useEffect(() => {
+    setVideoSrc(fixLocalhostUrl(src))
+    setPosterImg(poster ? fixLocalhostUrl(poster) : undefined)
+  }, [src, poster])
 
   useEffect(() => {
     const video = videoRef.current
-    if (!video || !src) return
+    if (!video || !videoSrc) return
 
     setIsLoading(true)
     setError(null)
@@ -31,7 +53,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
       hlsRef.current.destroy()
     }
 
-    if (src.includes('.m3u8')) {
+    if (videoSrc.includes('.m3u8')) {
       if (hls.isSupported()) {
         const hlsInstance = new hls({
           lowLatencyMode: true,
@@ -39,7 +61,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         })
         hlsRef.current = hlsInstance
 
-        hlsInstance.loadSource(src)
+        hlsInstance.loadSource(videoSrc)
         hlsInstance.attachMedia(video)
 
         hlsInstance.on(hls.Events.MANIFEST_PARSED, () => {
@@ -56,7 +78,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
           }
         })
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = src
+        video.src = videoSrc
         video.addEventListener('loadedmetadata', () => {
           setIsLoading(false)
           if (autoplay) {
@@ -68,7 +90,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         setIsLoading(false)
       }
     } else {
-      video.src = src
+      video.src = videoSrc
       setIsLoading(false)
     }
 
@@ -78,7 +100,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         hlsRef.current = null
       }
     }
-  }, [src, autoplay])
+  }, [videoSrc, autoplay])
 
   const togglePlay = () => {
     const video = videoRef.current
@@ -135,7 +157,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
       <video
         ref={videoRef}
         className="w-full aspect-video"
-        poster={poster}
+        poster={posterImg}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onTimeUpdate={handleTimeUpdate}

@@ -10,7 +10,7 @@ const s3Config: S3Config = {
   bucket: process.env.S3_BUCKET || 'streamflow',
   accessKeyId: process.env.S3_ACCESS_KEY || 'minioadmin',
   secretAccessKey: process.env.S3_SECRET_KEY || 'minioadmin',
-  publicUrl: process.env.S3_PUBLIC_URL || 'http://localhost:9000'
+  publicUrl: process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || 'http://localhost:9000'
 };
 
 const s3Client = new S3Client({
