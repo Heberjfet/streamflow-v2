@@ -2,6 +2,6 @@
   "schema": "./apps/api/src/db/schema.ts",
   "dialect": "postgresql",
   "dbCredentials": {
-    "url": { "env": "DATABASE_URL" }
+    "url": "postgresql://streamflow:streamflow@postgres:5432/streamflow"
   }
 }
