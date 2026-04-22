@@ -11,8 +11,6 @@ import { assetRoutes } from './routes/assets.js';
 import { playbackRoutes } from './routes/playback.js';
 import { categoryRoutes } from './routes/categories.js';
 
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
-
 async function buildApp() {
   const fastify = Fastify({
     logger: {
@@ -21,13 +19,7 @@ async function buildApp() {
   });
 
   await fastify.register(cors, {
-    origin: (origin, callback) => {
-      if (!origin || origin.includes(corsOrigin) || origin === 'http://localhost:3000' || origin === 'http://localhost:5173') {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed'), false);
-      }
-    },
+    origin: true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
   });
