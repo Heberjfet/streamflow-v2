@@ -6,7 +6,8 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "worker"
+    "worker",
+    "frontend"
   ],
   "scripts": {
     "dev": "npm run dev --workspaces --if-present",

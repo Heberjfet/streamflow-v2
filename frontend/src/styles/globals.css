@@ -327,22 +327,12 @@ body {
     background: linear-gradient(135deg, #A855F7 0%, #D946EF 100%);
   }
   
-  .btn-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #9333ea 0%, #c026d3 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
   .btn-primary:hover::before {
     opacity: 1;
   }
   
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 40px rgba(168, 85, 247, 0.5);
   }
   
   .btn-primary:active {

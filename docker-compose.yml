@@ -89,7 +89,8 @@ services:
     build:
       context: ./frontend
       dockerfile: ../docker/frontend.Dockerfile
-    network_mode: host
+    ports:
+      - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001
       NEXT_PUBLIC_STREAMFLOW_URL: http://localhost:3000
