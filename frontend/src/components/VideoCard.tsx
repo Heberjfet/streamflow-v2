@@ -3,11 +3,13 @@
 import Link from 'next/link'
 import type { Asset } from '@/lib/api'
 
-const getS3Url = () => {
-  if (typeof window !== 'undefined') {
-    return `http://${window.location.hostname}:9000`
+const fixS3Url = (url: string): string => {
+  if (!url) return url
+  const hostname = window.location.hostname
+  if (url.includes('localhost:9000') || url.includes('minio:9000')) {
+    return url.replace(/localhost:9000|minio:9000/, `${hostname}:9000`)
   }
-  return 'http://localhost:9000'
+  return url
 }
 
 interface VideoCardProps {
@@ -53,7 +55,7 @@ export function VideoCard({ asset, showStatus = true }: VideoCardProps) {
         <div className="relative aspect-video bg-[var(--color-bg-elevated)] overflow-hidden">
           {asset.thumbnailKey ? (
             <img
-              src={`${getS3Url()}/streamflow/${asset.thumbnailKey}`}
+              src={fixS3Url(`http://localhost:9000/streamflow/${asset.thumbnailKey}`)}
               alt={asset.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />

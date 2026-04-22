@@ -18,8 +18,9 @@ const getS3Url = () => {
 
 const fixLocalhostUrl = (url: string): string => {
   if (!url) return url
-  if (url.includes('localhost:9000')) {
-    return url.replace('localhost:9000', `${window.location.hostname}:9000`)
+  const hostname = window.location.hostname
+  if (url.includes('localhost:9000') || url.includes('minio:9000')) {
+    return url.replace(/localhost:9000|minio:9000/, `${hostname}:9000`)
   }
   return url
 }

@@ -9,11 +9,13 @@ import { VideoPlayer } from '@/components/VideoPlayer'
 import { useAssets } from '@/hooks/useAssets'
 import type { Asset } from '@/lib/api'
 
-const getS3Url = () => {
-  if (typeof window !== 'undefined') {
-    return `http://${window.location.hostname}:9000`
+const fixS3Url = (url: string): string => {
+  if (!url) return url
+  const hostname = window.location.hostname
+  if (url.includes('localhost:9000') || url.includes('minio:9000')) {
+    return url.replace(/localhost:9000|minio:9000/, `${hostname}:9000`)
   }
-  return 'http://localhost:9000'
+  return url
 }
 
 const statusConfig = {
@@ -141,7 +143,7 @@ export default function VideoDetailPage() {
           {hlsUrl ? (
             <VideoPlayer
               src={hlsUrl}
-              poster={asset.thumbnailKey ? `${getS3Url()}/streamflow/${asset.thumbnailKey}` : undefined}
+              poster={asset.thumbnailKey ? fixS3Url(`http://localhost:9000/streamflow/${asset.thumbnailKey}`) : undefined}
             />
           ) : (
             <Card className="aspect-video flex items-center justify-center bg-[var(--color-bg-secondary)]">
