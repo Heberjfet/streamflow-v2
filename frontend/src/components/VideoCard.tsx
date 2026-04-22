@@ -3,6 +3,13 @@
 import Link from 'next/link'
 import type { Asset } from '@/lib/api'
 
+const getS3Url = () => {
+  if (typeof window !== 'undefined') {
+    return `http://${window.location.hostname}:9000`
+  }
+  return 'http://localhost:9000'
+}
+
 interface VideoCardProps {
   asset: Asset
   showStatus?: boolean
@@ -46,7 +53,7 @@ export function VideoCard({ asset, showStatus = true }: VideoCardProps) {
         <div className="relative aspect-video bg-[var(--color-bg-elevated)] overflow-hidden">
           {asset.thumbnailKey ? (
             <img
-              src={`http://localhost:9000/streamflow/${asset.thumbnailKey}`}
+              src={`${getS3Url()}/streamflow/${asset.thumbnailKey}`}
               alt={asset.title}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />

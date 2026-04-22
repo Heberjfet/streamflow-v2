@@ -9,6 +9,13 @@ import { VideoPlayer } from '@/components/VideoPlayer'
 import { useAssets } from '@/hooks/useAssets'
 import type { Asset } from '@/lib/api'
 
+const getS3Url = () => {
+  if (typeof window !== 'undefined') {
+    return `http://${window.location.hostname}:9000`
+  }
+  return 'http://localhost:9000'
+}
+
 const statusConfig = {
   pending: { label: 'Pending', color: 'text-[var(--color-text-muted)]', bg: 'bg-[var(--color-text-muted)]/10' },
   uploading: { label: 'Uploading', color: 'text-[var(--color-warning)]', bg: 'bg-[var(--color-warning)]/10' },
@@ -134,7 +141,7 @@ export default function VideoDetailPage() {
           {hlsUrl ? (
             <VideoPlayer
               src={hlsUrl}
-              poster={asset.thumbnailKey ? `http://localhost:9000/streamflow/${asset.thumbnailKey}` : undefined}
+              poster={asset.thumbnailKey ? `${getS3Url()}/streamflow/${asset.thumbnailKey}` : undefined}
             />
           ) : (
             <Card className="aspect-video flex items-center justify-center bg-[var(--color-bg-secondary)]">
