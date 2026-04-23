@@ -1,29 +1,18 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
 
 interface NavbarProps {
   onMenuClick?: () => void
 }
 
 export function DashboardNavbar({ onMenuClick }: NavbarProps) {
-  const { user, logout } = useAuth()
-  const router = useRouter()
-
-  const handleLogout = async () => {
-    await logout()
-    router.push('/login')
-  }
-
   return (
     <nav className="border-b border-white/5 backdrop-blur-md bg-black/20">
       <div className="max-w-[1600px] mx-auto px-6">
         <div className="flex items-center justify-between h-16">
-
           <div className="flex items-center gap-4">
-            {/* Botón para colapsar sidebar */}
+            {/* Toggle Sidebar */}
             <button
               onClick={onMenuClick}
               className="p-2 rounded-lg hover:bg-white/5 transition-colors text-[var(--text-secondary)]"
@@ -43,31 +32,9 @@ export function DashboardNavbar({ onMenuClick }: NavbarProps) {
             </Link>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="hidden sm:flex flex-col items-end">
-              <span className="text-[10px] text-[var(--text-secondary)] uppercase tracking-widest font-medium opacity-50">Usuario</span>
-              <span className="text-sm font-medium text-[var(--text-primary)]">{user?.email?.split('@')[0]}</span>
-            </div>
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest border border-white/1 hover:bg-white hover:text-black transition-all duration-300 cursor-pointer group"
-            >
-              <span>Salir</span>
-              <svg
-                className="w-4 h-4 transition-transform group-hover:translate-x-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
-            </button>
+          {/* El lado derecho ahora queda vacío o para notificaciones futuras */}
+          <div className="flex items-center gap-4">
+            {/* Aquí podrías poner un botón de notificaciones o dejarlo vacío */}
           </div>
         </div>
       </div>
