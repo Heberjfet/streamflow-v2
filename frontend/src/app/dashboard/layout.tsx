@@ -1,16 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation' // Importamos usePathname
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { DashboardNavbar } from '@/components/DashboardNavbar'
 import Link from 'next/link'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading, user, logout } = useAuth()
   const router = useRouter()
-  const pathname = usePathname() // Obtenemos la ruta actual
+  const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/login')
+  }
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -30,8 +35,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="h-screen bg-[var(--background)] flex flex-col overflow-hidden relative text-[var(--text-primary)]">
       <div className="noise-overlay" />
-
-      {/* Luces de ambiente */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] gradient-radial-primary pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] gradient-radial-secondary pointer-events-none" />
 
@@ -49,8 +52,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             overflow-hidden
           `}
         >
+          {/* Navegación Superior */}
           <div className="p-6 min-w-[256px]">
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6 opacity-20">
+            <p className="text-[14px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6">
               Navegación
             </p>
             <nav className="space-y-1">
@@ -60,14 +64,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </nav>
           </div>
 
-          <div className="p-6 border-t border-white/[0.03] mt-auto min-w-[256px]">
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6 opacity-20">
+          <div className="p-6 min-w-[256px]">
+            <p className="text-[14px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6">
               Administración
             </p>
             <nav className="space-y-1">
               <SidebarLink href="/dashboard/users" icon="users" active={pathname === '/dashboard/users'}>Usuarios</SidebarLink>
               <SidebarLink href="/dashboard/logs" icon="log" active={pathname === '/dashboard/logs'}>Logs</SidebarLink>
             </nav>
+          </div>
+
+          {/* SECCIÓN INFERIOR: USUARIO Y LOGOUT */}
+          <div className="mt-auto p-4 border-t border-white/[0.03] min-w-[256px] bg-white/[0.01]">
+            <div className="flex items-center gap-3 px-2 py-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[var(--primary)]/20 to-transparent border border-[var(--primary)]/20 flex items-center justify-center font-bold text-[var(--primary)]">
+                {user?.name?.charAt(0) || user?.email?.charAt(0).toUpperCase() || 'A'}
+              </div>
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-sm font-bold truncate">{user?.name || 'Administrador'}</span>
+                <span className="text-[10px] text-[var(--text-secondary)] truncate opacity-60">{user?.email}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-[0.1em] text-red-400 hover:bg-red-500/10 transition-all duration-200 group"
+            >
+              <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span>Cerrar Sesión</span>
+            </button>
           </div>
         </aside>
 
@@ -81,8 +108,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
 }
 
-// Componente de Link con estado Active
 function SidebarLink({ href, icon, children, active }: { href: string, icon: string, children: React.ReactNode, active: boolean }) {
+  // ... (Tu componente SidebarLink se mantiene igual)
   const getIcon = () => {
     switch (icon) {
       case 'home': return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -97,30 +124,13 @@ function SidebarLink({ href, icon, children, active }: { href: string, icon: str
   return (
     <Link
       href={href}
-      className={`
-        flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer
-        ${active
-          ? 'bg-[var(--primary)]/10 text-[var(--primary)] shadow-[inset_0_0_10px_rgba(var(--primary-rgb),0.05)]'
-          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.03]'
-        }
-      `}
+      className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer ${active ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.03]'}`}
     >
-      <svg
-        className={`w-5 h-5 transition-opacity ${active ? 'opacity-100' : 'opacity-40 group-hover:opacity-70'}`}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
+      <svg className={`w-5 h-5 ${active ? 'opacity-100' : 'opacity-40 group-hover:opacity-70'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         {getIcon()}
       </svg>
-      <span className={`text-sm font-medium tracking-wide ${active ? 'font-bold' : ''}`}>
-        {children}
-      </span>
-
-      {/* Indicador visual activo (barrita derecha) */}
-      {active && (
-        <div className="ml-auto w-1 h-4 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]" />
-      )}
+      <span className={`text-sm font-medium tracking-wide ${active ? 'font-bold' : ''}`}>{children}</span>
+      {active && <div className="ml-auto w-1 h-4 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]" />}
     </Link>
   )
 }
