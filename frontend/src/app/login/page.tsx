@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -48,200 +48,13 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
   )
 }
 
-function TermsModal({ onClose, onAccept }: { onClose: () => void; onAccept: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-2xl max-h-[80vh] bg-[var(--color-bg-elevated)] rounded-2xl border border-[var(--color-border)] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-[var(--color-border)]">
-          <h2 className="text-xl font-bold text-white">Términos y Condiciones</h2>
-          <button
-            onClick={onClose}
-            className="text-zinc-400 hover:text-white transition-colors"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-6 text-zinc-300 space-y-6 text-sm leading-relaxed">
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">1. Aceptación de las Condiciones</h3>
-            <p className="mb-2">
-              Al marcar la casilla de aceptación y hacer clic en "Crear Cuenta", tú, el Usuario, 
-              reconoces solemnemente que te has unido voluntariamente al ejército de Freezer. 
-              Esta decisión es irrevocable, permanente y no reembolsable.
-            </p>
-            <p>
-              El Usuario reconoce haber leído, comprendido y aceptado estar sujeto a todos 
-              los términos y condiciones aquí establecidos, así como a cualquier disposición 
-              legal aplicable en materia de servicios digitales y protección al consumidor.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">2. Juramento de Lealtad y Obligaciones del Soldado</h3>
-            <p className="mb-2">
-              Como miembro del ejército de Freezer, aceptas prestar tu energía vital al Cause. 
-              Tus datos serán utilizados para financiar operaciones intergalácticas y el 
-              mantenimiento de las bases del Imperio en los diferentes planetas.
-            </p>
-            <p className="mb-2">
-              Tu identificación oficial será: Soldado R-7749. Esta identificación es 
-              intransferible y deberá ser utilizada en todas las comunicaciones oficiales 
-              con superiores jerárquicos.
-            </p>
-            <p>
-              El Usuario acepta voluntariamente someterse a evaluaciones periódicas de poder 
-              de pelea, con el objetivo de determinar su utilidad para el Cause. El 
-              resultado de dichas evaluaciones puede afectar tu ranking y asignación de misiones.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">3. Código de Conducta del Soldado</h3>
-            <p className="mb-2">Todo miembro del ejército debe:</p>
-            <ul className="list-disc list-inside space-y-1 mb-2">
-              <li>No cuestionar las órdenes de superiores (especialmente si tienen cola o son de la Fuerza Ginyu)</li>
-              <li>Mantener la postura amenazante en todo momento, incluso durante el descanso</li>
-              <li>Lucir correctamente el uniforme (-armadura- de ser asignada por el Imperio)</li>
-              <li>Reportar cualquier traidor, sospechoso de traición, o persona que sonría de manera sospechosa</li>
-              <li>Participar en todas las invasiones planetarias sin excusa válida (vacaciones no son excusa)</li>
-              <li>Responder al llamado de，即便是 cumpleaños, Navidad, o el final de temporada de tu serie favorita</li>
-              <li>No fraternizar con enemigos naturales del Imperio (Saiyajins, Namekianos, etc.)</li>
-            </ul>
-            <p>
-              El incumplimiento de cualquiera de estas normas puede resultar en ejecución sumaria, 
-              degradación de rango, o asignación a misión suicida en el planeta más peligroso 
-              del sector. Las decisiones del Command (Comando) son inapelables.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">4. Políticas de Datos del Imperio</h3>
-            <p className="mb-2">
-              Todos tus datos personales, incluyendo pero no limitado a: coordenadas exactas de 
-              tu ubicación actual y pasada, historial de compras de merchandising de Dragon Ball 
-              (especialmente la Saga de Célula en VHS, edición limitad), información sobre 
-              cuánto dinero gastas en了这个 hábito de ver anime, y el secreto de haber llorado 
-              con la muerte de Kuririn, serán almacenados en los servidores del Imperio.
-            </p>
-            <p className="mb-2">
-              Dichos servidores están ubicados en el Planeta Freezer No. 79, custodiados por 
-              nuestra elite de Soldados. Nenhum acesso não autorizado é permitido (Ningún 
-              acceso no autorizado está permitido).
-            </p>
-            <p className="mb-2">
-              El Imperio se reserva el derecho de usar tu información para:
-            </p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Enviarte actualizaciones sobre nuevas películas y capítulos de anime (prioridad: máxima)</li>
-              <li>Invadir tu planeta natal si es necesario para el Cause</li>
-              <li>Contactarte en caso de emergencia intergaláctica (nocturna, diurna, o cuando estés viendo TV)</li>
-              <li>Comerte como referencia si la situación lo requiere (último recurso, pero sigue siendo una opción)</li>
-              <li>Asignarte a unidades de combate basadas en tu perfil de consumidor</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">5. Limitación de Responsabilidad del Imperio</h3>
-            <p className="mb-2">
-              El Imperio de Freezer no se hace responsable por:
-            </p>
-            <ul className="list-disc list-inside space-y-1 mb-2">
-              <li>Traumas psicológicos derivados de ver a Freezer usar su evolución dorada</li>
-              <li>Costos de没好 del entrenamiento para alcanzar 530,000 de poder de pelea</li>
-              <li>Pérdida de amigos debido a que "no pueden ir a jugar hasta que termines tus metas de entrenamiento en la Sala del Tiempo"</li>
-              <li>Cualquier lesión durante la práctica de golpes de energía sin supervisión profesional</li>
-              <li>Daño a la propiedad personal causado por ondas de choque de combate</li>
-              <li>Efectos secundarios de consumir Senzu Beans no certificados por el Imperio</li>
-            </ul>
-            <p>
-              El Usuario exime al Imperio de cualquier responsabilidad por pérdidas materiales, 
-              emocionales, o existenciales que puedan возникнуть (surgir) durante el servicio.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">6. Modificaciones al Contrato de Servicio</h3>
-            <p className="mb-2">
-              Freezer se reserva el derecho de modificar estos términos en cualquier momento, 
-              sin previo aviso, por cualquier razón, o sin razón alguna. El Usuario será 
-              notificado mediante un mensaje en su scouter (si tiene uno, o si puede permitirse uno).
-            </p>
-            <p>
-              El continuo uso del servicio constituye aceptación de los nuevos términos. 
-              Si no estás de acuerdo con los cambios, tu única opción es désertar (desertar), 
-              lo cual está penado con muerte instant.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">7. Duración y Terminación</h3>
-            <p className="mb-2">
-              Este acuerdo permanece en vigor hasta que cualquiera de las partes lo dé por terminado. 
-              El Usuario puede terminar unilateralmente en cualquier momento, siempre y cuando:
-            </p>
-            <ul className="list-disc list-inside space-y-1 mb-2">
-              <li>Entregue todas las armas y equipos proporcionados por el Imperio</li>
-              <li>Pague la tarifa de terminación anticipada de 1,000,000 dezeni</li>
-              <li>Firme un acuerdo de no divulgación perpétuo</li>
-              <li>Se someta a процедура de borrado de memoria (si el Imperio lo considera necesario)</li>
-            </ul>
-            <p>
-              El Imperio puede terminar tu membresía instantáneamente si:
-            </p>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Muestras señales de deslealtad o traición</li>
-              <li>Tu poder de pelea cae por debajo del mínimo requerido</li>
-              <li>Interrumpes a Freezer durante su alocución pública</li>
-              <li>Haces cualquier cosa que "no nos guste"</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-lg font-bold text-white mb-2">8. Contacto del Imperio</h3>
-            <p className="mb-2">
-              Para cualquier duda, queja, reporte de traidores, o solicitudes de baja, contactar a:
-            </p>
-            <p>
-              <strong>Email oficial:</strong> imperio@freezer.galaxy<br />
-              <strong>Teléfono 24/7:</strong> +0-800-FREEZER<br />
-              <strong>Ubicación:</strong> Oficina Central, Planet Namek<br />
-              <strong>Advertencia:</strong> No ir personalmente. Los guardias no son amables.
-            </p>
-          </section>
-        </div>
-        <div className="p-6 border-t border-[var(--color-border)]">
-          <button
-            onClick={() => {
-              onAccept()
-              onClose()
-            }}
-            className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-hover)] text-white font-semibold hover:opacity-90 transition-opacity"
-          >
-            Acepto los términos y condiciones
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 type AuthMode = 'login' | 'register'
 
-function AuthPageContent() {
+export default function AuthPage() {
   const [mode, setMode] = useState<AuthMode>('login')
   const [transitioning, setTransitioning] = useState(false)
   const [visible, setVisible] = useState(true)
   const router = useRouter()
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    if (searchParams.get('mode') === 'register') {
-      setMode('register')
-    }
-  }, [searchParams])
 
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
@@ -255,8 +68,6 @@ function AuthPageContent() {
   const [registerError, setRegisterError] = useState('')
   const [registerLoading, setRegisterLoading] = useState(false)
   const [acceptTerms, setAcceptTerms] = useState(false)
-  const [showTermsModal, setShowTermsModal] = useState(false)
-  const [termsError, setTermsError] = useState('')
 
   const handleModeChange = (newMode: AuthMode) => {
     if (newMode === mode || transitioning) return
@@ -377,16 +188,6 @@ function AuthPageContent() {
 
           </div>
 
-          <button
-            onClick={() => router.push('/')}
-            className="absolute top-8 left-8 w-10 h-10 rounded-xl bg-[var(--color-bg-elevated)]/50 border border-[var(--color-border)]/50 flex items-center justify-center text-[var(--color-text-secondary)] hover:text-white hover:border-[var(--color-accent)]/50 transition-all duration-300 hover:scale-110"
-            title="Regresar al Cuartel General"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-          </button>
-
           <Card
             variant="glass"
             className={`
@@ -450,7 +251,7 @@ function AuthPageContent() {
                     </div>
 
                     <div className="flex items-center justify-end">
-                      <button type="button" onClick={() => router.push('/forgot-password')} className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors duration-300">
+                      <button type="button" onClick={() => handleModeChange('register')} className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors duration-300">
                         ¿Olvidaste tu contraseña?
                       </button>
                     </div>
@@ -591,13 +392,13 @@ function AuthPageContent() {
                       </button>
                       <label className="text-sm text-[var(--color-text-secondary)] cursor-pointer leading-relaxed">
                         Acepto los{' '}
-                        <button type="button" onClick={() => setShowTermsModal(true)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
+                        <Link href="/terms" className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
                           términos y condiciones
-                        </button>{' '}
+                        </Link>{' '}
                         y la{' '}
-                        <button type="button" onClick={() => setShowTermsModal(true)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
+                        <Link href="/privacy" className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
                           política de privacidad
-                        </button>
+                        </Link>
                       </label>
                     </div>
 
@@ -642,32 +443,6 @@ function AuthPageContent() {
           </Card>
         </div>
       </main>
-
-      {showTermsModal && (
-        <TermsModal
-          onClose={() => setShowTermsModal(false)}
-          onAccept={() => {
-            setAcceptTerms(true)
-            setTermsError('')
-          }}
-        />
-      )}
     </div>
-  )
-}
-
-function LoadingFallback() {
-  return (
-    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden flex items-center justify-center">
-      <div className="animate-pulse text-white">Cargando...</div>
-    </div>
-  )
-}
-
-export default function AuthPage() {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <AuthPageContent />
-    </Suspense>
   )
 }
