@@ -79,36 +79,41 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
 
     setStatus('uploading')
     setError(null)
+    setProgress(0)
 
     try {
-      const { createAsset, getUploadUrl, uploadToS3, processAsset } = await import('@/lib/api')
+      const { createAsset, getUploadUrl, processAsset } = await import('@/lib/api')
 
       const { data: asset, error: createError } = await createAsset(videoTitle.trim())
       if (createError || !asset) {
         throw new Error(createError || 'Failed to create asset')
       }
 
-      const formData = new FormData()
-      formData.append('file', selectedFile)
-
       const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:3001` : 'http://localhost:3001'
-      const { data: uploadResult, error: uploadError } = await fetch(`${apiUrl}/v1/assets/${asset.id}/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('streamflow_token')}`,
-        },
-        body: formData,
-      }).then(async res => {
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: 'Upload failed' }))
-          return { error: err.error || 'Upload failed' }
-        }
-        return { data: await res.json() }
-      }).catch(err => ({ error: err.message }))
-
-      if (uploadError) {
-        throw new Error(uploadError)
+      const { data: uploadData, error: uploadUrlError } = await getUploadUrl(asset.id, selectedFile.name, selectedFile.type)
+      if (uploadUrlError || !uploadData) {
+        throw new Error(uploadUrlError || 'Failed to get upload URL')
       }
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.upload.addEventListener('progress', (e) => {
+          if (e.lengthComputable) {
+            setProgress(Math.round((e.loaded * 100) / e.total))
+          }
+        })
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve()
+          } else {
+            reject(new Error('Upload failed'))
+          }
+        })
+        xhr.addEventListener('error', () => reject(new Error('Upload failed')))
+        xhr.open('PUT', uploadData.uploadUrl)
+        xhr.setRequestHeader('Content-Type', selectedFile.type)
+        xhr.send(selectedFile)
+      })
 
       setProgress(100)
       setStatus('complete')
