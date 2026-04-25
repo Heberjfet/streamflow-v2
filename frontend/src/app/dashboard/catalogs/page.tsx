@@ -10,26 +10,20 @@ interface Catalog {
 }
 
 export default function CatalogsPage() {
-    // Estados para la lógica
-    const [catalogs, setCatalogs] = useState<Catalog[]>([
-        { id: 1, name: 'Lanzamientos 2026', description: 'Colección de videos de la temporada primavera', status: 'Público' },
-        { id: 2, name: 'Archivo Histórico', description: 'Material restaurado de los años 90', status: 'Privado' },
-    ])
+    // Estado inicializado completamente vacío (Esqueleto puro)
+    const [catalogs, setCatalogs] = useState<Catalog[]>([])
 
     const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null)
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [newCatalogName, setNewCatalogName] = useState('')
 
-    // Función para crear catálogo
+    // Función esqueleto para el formulario
     const handleCreate = (e: React.FormEvent) => {
         e.preventDefault()
-        const newCat = {
-            id: Date.now(),
-            name: newCatalogName,
-            description: 'Sin descripción aún',
-            status: 'Borrador'
-        }
-        setCatalogs([...catalogs, newCat])
+
+        // TODO: Aquí irá la petición POST a tu backend
+        // fetch('/api/catalogs', { ... })
+
         setNewCatalogName('')
         setShowCreateModal(false)
     }
@@ -60,7 +54,6 @@ export default function CatalogsPage() {
                                 <p className="text-lg text-[var(--text-secondary)] max-w-2xl">{selectedCatalog.description}</p>
                             </div>
                             <div className="flex gap-3">
-                                <button className="btn-secondary py-2 text-sm">Editar Información</button>
                                 <button className="bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl hover:bg-red-500/20 transition-all text-sm font-bold">
                                     Eliminar Catálogo
                                 </button>
@@ -85,41 +78,53 @@ export default function CatalogsPage() {
 
             <div className="flex justify-between items-end animate-fade-in">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Gestión de <span className="gradient-text">Catálogos</span></h1>
-                    <p className="text-[var(--text-secondary)] mt-1">Organiza tus videos en colecciones estructuradas.</p>
+                    <h1 className="text-4xl font-bold mb-2">
+                        Gestión de <span className="gradient-text">Catálogos</span>
+                    </h1>
+                    <p className="text-[var(--text-secondary)] mt-1">
+                        Organiza tus videos en colecciones estructuradas.
+                    </p>
                 </div>
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    className="btn-primary flex items-center gap-2"
-                >
+                    className="btn-primary flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 4v16m8-8H4" strokeWidth={2.5} /></svg>
                     Crear Catálogo
                 </button>
             </div>
 
-            {/* Grid de Catálogos */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {catalogs.map((catalog) => (
-                    <div
-                        key={catalog.id}
-                        onClick={() => setSelectedCatalog(catalog)}
-                        className="glass-card glow-border group hover:bg-white/[0.04] transition-all p-6 cursor-pointer"
-                    >
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                </svg>
-                            </div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
-                                {catalog.status}
-                            </span>
-                        </div>
-                        <h3 className="text-xl font-bold mb-1 group-hover:text-[var(--primary)] transition-colors">{catalog.name}</h3>
-                        <p className="text-[var(--text-secondary)] text-sm line-clamp-1">{catalog.description}</p>
+            {/* Grid de Catálogos o Estado Vacío */}
+            {catalogs.length === 0 ? (
+                <div className="glass-card rounded-3xl py-24 text-center border-dashed border-2 border-white/10">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/10">
+                        <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
                     </div>
-                ))}
-            </div>
+                    <p className="text-[var(--text-secondary)] text-sm">Aún no hay catálogos creados en la base de datos.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {catalogs.map((catalog) => (
+                        <div
+                            key={catalog.id}
+                            onClick={() => setSelectedCatalog(catalog)}
+                            className="glass-card glow-border group hover:bg-white/[0.04] transition-all p-6 cursor-pointer"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="p-3 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                    </svg>
+                                </div>
+                                <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
+                                    {catalog.status}
+                                </span>
+                            </div>
+                            <h3 className="text-xl font-bold mb-1 group-hover:text-[var(--primary)] transition-colors">{catalog.name}</h3>
+                            <p className="text-[var(--text-secondary)] text-sm line-clamp-1">{catalog.description}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {/* MODAL SIMPLE DE CREACIÓN */}
             {showCreateModal && (
