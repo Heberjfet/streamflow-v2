@@ -95,6 +95,8 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
         throw new Error(uploadUrlError || 'Failed to get upload URL')
       }
 
+      const uploadUrlFixed = uploadData.uploadUrl.replace('minio:9000', `${window.location.hostname}:9000`).replace('localhost:9000', `${window.location.hostname}:9000`)
+
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest()
         xhr.upload.addEventListener('progress', (e) => {
@@ -110,7 +112,7 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
           }
         })
         xhr.addEventListener('error', () => reject(new Error('Upload failed')))
-        xhr.open('PUT', uploadData.uploadUrl)
+        xhr.open('PUT', uploadUrlFixed)
         xhr.setRequestHeader('Content-Type', selectedFile.type)
         xhr.send(selectedFile)
       })
