@@ -159,7 +159,6 @@ export default function NetflixAdminVideos() {
                                             </td>
                                             <td className="px-6 py-4 font-mono text-xs text-[var(--text-secondary)]">
                                                 <div>Creado: {new Date(asset.createdAt).toLocaleDateString()}</div>
-                                                <div className="opacity-50">Act.: {new Date(asset.updatedAt).toLocaleDateString()}</div>
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <Link href={`/dashboard/video/${asset.id}`}>
