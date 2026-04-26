@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT,
     google_id VARCHAR(255) UNIQUE,
     avatar_url TEXT,
+    role VARCHAR(50) NOT NULL DEFAULT 'viewer',
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

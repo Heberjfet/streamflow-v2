@@ -32,24 +32,31 @@ export async function authRoutes(fastify: FastifyInstance) {
 
       const passwordHash = await bcrypt.hash(password, 12);
 
+      const allUsers = await db.query.users.findMany();
+      const isFirstUser = allUsers.length === 0;
+      const role = isFirstUser ? 'admin' : 'viewer';
+
       const [user] = await db
         .insert(users)
         .values({
           email,
           passwordHash,
-          name
+          name,
+          role
         })
         .returning();
 
       const token = request.server.jwt.sign({
         userId: user.id,
-        email: user.email
+        email: user.email,
+        role: user.role
       });
 
       return reply.status(201).send({
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
         token
       });
     } catch (error) {
@@ -77,7 +84,8 @@ export async function authRoutes(fastify: FastifyInstance) {
 
       const token = request.server.jwt.sign({
         userId: user.id,
-        email: user.email
+        email: user.email,
+        role: user.role
       });
 
       return reply.send({
@@ -85,7 +93,9 @@ export async function authRoutes(fastify: FastifyInstance) {
         user: {
           id: user.id,
           email: user.email,
-          name: user.name
+          name: user.name,
+          role: user.role,
+          avatarUrl: user.avatarUrl
         }
       });
     } catch (error) {
@@ -119,7 +129,8 @@ export async function authRoutes(fastify: FastifyInstance) {
         id: user.id,
         email: user.email,
         name: user.name,
-        avatarUrl: user.avatarUrl
+        avatarUrl: user.avatarUrl,
+        role: user.role
       });
     } catch (error) {
       fastify.log.error(error);
