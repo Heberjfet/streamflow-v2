@@ -7,6 +7,7 @@ import dbPlugin from './plugins/db.js';
 import redisPlugin from './plugins/redis.js';
 import s3Plugin from './plugins/s3.js';
 import { authRoutes } from './routes/auth.js';
+import { userRoutes } from './routes/users.js';
 import { assetRoutes } from './routes/assets.js';
 import { playbackRoutes } from './routes/playback.js';
 import { categoryRoutes } from './routes/categories.js';
@@ -39,6 +40,7 @@ async function buildApp() {
   await fastify.register(authPlugin);
 
   await fastify.register(authRoutes, { prefix: '/v1/auth' });
+  await fastify.register(userRoutes, { prefix: '/v1/users' });
   await fastify.register(assetRoutes, { prefix: '/v1/assets' });
   await fastify.register(playbackRoutes, { prefix: '/v1/playback' });
   await fastify.register(categoryRoutes, { prefix: '/v1/categories' });

@@ -6,11 +6,13 @@ interface CurrentUser {
   userId: string;
   email: string;
   name: string;
+  role: 'admin' | 'editor' | 'viewer';
 }
 
 declare module 'fastify' {
   interface FastifyInstance {
     authenticate: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
+    adminOnly: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   }
   interface FastifyRequest {
     currentUser: CurrentUser | null;
@@ -22,6 +24,7 @@ declare module '@fastify/jwt' {
     payload: {
       userId: string;
       email: string;
+      role: 'admin' | 'editor' | 'viewer';
     };
     user: CurrentUser;
   }
@@ -45,4 +48,19 @@ export default fp(async function authPlugin(fastify: FastifyInstance) {
   };
 
   fastify.decorate('authenticate', authenticateFn);
+
+  const adminOnlyFn = async function(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const decoded = await request.jwtVerify();
+      const user = decoded as CurrentUser;
+      if (user.role !== 'admin') {
+        reply.status(403).send({ error: 'Forbidden: Admin access required' });
+      }
+      request.currentUser = user;
+    } catch (err) {
+      reply.status(401).send({ error: 'Unauthorized' });
+    }
+  };
+
+  fastify.decorate('adminOnly', adminOnlyFn);
 });

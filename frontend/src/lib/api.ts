@@ -33,7 +33,7 @@ export const login = async (email: string, password: string) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   })
-  return handleResponse<{ token: string; user: { id: string; email: string; name: string } }>(res)
+  return handleResponse<{ token: string; user: { id: string; email: string; name: string; role: string } }>(res)
 }
 
 export const register = async (email: string, password: string, name: string) => {
@@ -42,7 +42,7 @@ export const register = async (email: string, password: string, name: string) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, name }),
   })
-  return handleResponse<{ token: string; user: { id: string; email: string; name: string } }>(res)
+  return handleResponse<{ token: string; user: { id: string; email: string; name: string; role: string } }>(res)
 }
 
 export interface Asset {
@@ -136,4 +136,67 @@ export const getPublicPlayback = async (assetId: string): Promise<ApiResponse<Pl
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
   })
   return handleResponse<PlaybackResponse>(res)
+}
+
+export interface User {
+  id: string
+  email: string
+  name: string
+  avatarUrl?: string
+  role: 'admin' | 'editor' | 'viewer'
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UsersResponse {
+  data: User[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+export const getUsers = async (page = 1, limit = 20, role?: string): Promise<ApiResponse<UsersResponse>> => {
+  const params = new URLSearchParams({ page: page.toString(), limit: limit.toString() })
+  if (role && role !== 'all') params.append('role', role)
+  const res = await fetch(`${getApiUrl()}/v1/users?${params.toString()}`, {
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  return handleResponse<UsersResponse>(res)
+}
+
+export const getUser = async (userId: string): Promise<ApiResponse<User>> => {
+  const res = await fetch(`${getApiUrl()}/v1/users/${userId}`, {
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  return handleResponse<User>(res)
+}
+
+export const createUser = async (data: { email: string; name: string; password: string; role?: string }): Promise<ApiResponse<User>> => {
+  const res = await fetch(`${getApiUrl()}/v1/users`, {
+    method: 'POST',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse<User>(res)
+}
+
+export const updateUser = async (userId: string, data: { name?: string; email?: string; role?: string; password?: string }): Promise<ApiResponse<User>> => {
+  const res = await fetch(`${getApiUrl()}/v1/users/${userId}`, {
+    method: 'PUT',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse<User>(res)
+}
+
+export const deleteUser = async (userId: string): Promise<ApiResponse<void>> => {
+  const res = await fetch(`${getApiUrl()}/v1/users/${userId}`, {
+    method: 'DELETE',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  if (res.status === 204) return { data: undefined }
+  return handleResponse<void>(res)
 }

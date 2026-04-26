@@ -7,6 +7,7 @@ interface User {
   id: string
   email: string
   name: string
+  role: 'admin' | 'editor' | 'viewer'
 }
 
 interface UseAuthReturn {
@@ -30,9 +31,10 @@ const decodeJwt = (token: string): User | null => {
     )
     const payload = JSON.parse(jsonPayload)
     return {
-      id: payload.sub || payload.id || '',
+      id: payload.sub || payload.id || payload.userId || '',
       email: payload.email || '',
       name: payload.name || payload.username || '',
+      role: payload.role || 'viewer',
     }
   } catch {
     return null

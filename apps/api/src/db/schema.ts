@@ -7,9 +7,12 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash'),
   googleId: varchar('google_id', { length: 255 }).unique(),
   avatarUrl: text('avatar_url'),
+  role: varchar('role', { length: 50 }).notNull().default('viewer'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
 });
+
+export type UserRole = 'admin' | 'editor' | 'viewer';
 
 export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
