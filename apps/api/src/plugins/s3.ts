@@ -23,6 +23,10 @@ const s3Client = new S3Client({
   forcePathStyle: true
 });
 
+const getBrowserEndpoint = () => {
+  return process.env.S3_BROWSER_ENDPOINT || process.env.S3_PUBLIC_URL || process.env.S3_ENDPOINT || 'http://localhost:9000';
+};
+
 export default fp(async function s3Plugin(fastify: FastifyInstance) {
   fastify.decorate('s3', s3Client);
   fastify.decorate('s3Config', s3Config);
@@ -32,8 +36,12 @@ export default fp(async function s3Plugin(fastify: FastifyInstance) {
       Key: key,
       ContentType: contentType
     });
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
-    return url;
+    let url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    url = url.replace(s3Config.endpoint, getBrowserEndpoint());
+    const urlObj = new URL(url);
+    urlObj.searchParams.delete('x-amz-checksum-crc32');
+    urlObj.searchParams.delete('x-amz-sdk-checksum-algorithm');
+    return urlObj.toString();
   });
 });
 
