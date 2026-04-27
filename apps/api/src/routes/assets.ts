@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand, UploadPartCommand } from '@aws-sdk/client-s3';
+import { PassThrough } from 'stream';
 import { S3Service } from '../services/s3.service.js';
 import { AssetService } from '../services/asset.service.js';
 
@@ -160,6 +161,9 @@ export async function assetRoutes(fastify: FastifyInstance) {
       const key = s3Service.getAssetPath(request.currentUser.userId, id, filename);
 
       const buffer = await data.toBuffer();
+
+      fastify.log.info(`Uploading ${buffer.length} bytes to S3: ${key}`);
+
       const command = new PutObjectCommand({
         Bucket: fastify.s3Config.bucket,
         Key: key,

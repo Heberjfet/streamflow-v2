@@ -82,42 +82,38 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
 
     setStatus('uploading')
     setError(null)
-    setProgress(0)
 
     try {
-      const { createAsset, getUploadUrl, processAsset } = await import('@/lib/api')
+      const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:3001` : 'http://localhost:3001'
+      const { createAsset, processAsset } = await import('@/lib/api')
 
       const { data: asset, error: createError } = await createAsset(videoTitle.trim())
       if (createError || !asset) {
         throw new Error(createError || 'Failed to create asset')
       }
 
-      const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:3001` : 'http://localhost:3001'
-      const { data: uploadData, error: uploadUrlError } = await getUploadUrl(asset.id, selectedFile.name, selectedFile.type)
-      if (uploadUrlError || !uploadData) {
-        throw new Error(uploadUrlError || 'Failed to get upload URL')
-      }
+      const formData = new FormData()
+      formData.append('file', selectedFile)
 
-      const uploadUrlFixed = uploadData.uploadUrl.replace('minio:9000', `${window.location.hostname}:9000`).replace('localhost:9000', `${window.location.hostname}:9000`)
+      const xhr = new XMLHttpRequest()
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          setProgress(Math.round((e.loaded / e.total) * 100))
+        }
+      })
 
       await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest()
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            setProgress(Math.round((e.loaded * 100) / e.total))
-          }
-        })
-        xhr.addEventListener('load', () => {
+        xhr.open('POST', `${apiUrl}/v1/assets/${asset.id}/upload`)
+        xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('streamflow_token')}`)
+        xhr.onload = () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             resolve()
           } else {
-            reject(new Error('Upload failed'))
+            reject(new Error(`Upload failed with status ${xhr.status}`))
           }
-        })
-        xhr.addEventListener('error', () => reject(new Error('Upload failed')))
-        xhr.open('PUT', uploadUrlFixed)
-        xhr.setRequestHeader('Content-Type', selectedFile.type)
-        xhr.send(selectedFile)
+        }
+        xhr.onerror = () => reject(new Error('Upload failed'))
+        xhr.send(formData)
       })
 
       setProgress(100)
@@ -233,7 +229,7 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
         <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/5">
           <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
             <span className={status === 'processing' ? 'text-blue-400' : 'text-[var(--primary)]'}>
-              {status === 'uploading' && 'Ingestando al servidor...'}
+              {status === 'uploading' && 'Subiendo a S3...'}
               {status === 'complete' && 'Ingesta completada'}
               {status === 'processing' && 'Transcodificando video...'}
             </span>
