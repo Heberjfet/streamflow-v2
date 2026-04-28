@@ -49,7 +49,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       const token = request.server.jwt.sign({
         userId: user.id,
         email: user.email,
-        role: user.role
+        role: user.role as 'admin' | 'editor' | 'viewer'
       });
 
       return reply.status(201).send({
@@ -85,7 +85,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       const token = request.server.jwt.sign({
         userId: user.id,
         email: user.email,
-        role: user.role
+        role: user.role as 'admin' | 'editor' | 'viewer'
       });
 
       return reply.send({

@@ -38,6 +38,14 @@ export class S3Service {
     return `${this.config.publicUrl}/${this.config.bucket}/${key}`;
   }
 
+  async getPresignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: this.config.bucket,
+      Key: key
+    });
+    return getSignedUrl(this.s3, command, { expiresIn });
+  }
+
   getAssetPath(userId: string, assetId: string, filename: string): string {
     return `uploads/${userId}/${assetId}/${filename}`;
   }
