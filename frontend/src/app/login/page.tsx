@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, use } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -51,7 +51,9 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
 type AuthMode = 'login' | 'register'
 
 export default function AuthPage() {
-  const [mode, setMode] = useState<AuthMode>('login')
+  const searchParams = useSearchParams()
+  const initialMode = searchParams.get('mode') === 'register' ? 'register' : 'login'
+  const [mode, setMode] = useState<AuthMode>(initialMode)
   const [transitioning, setTransitioning] = useState(false)
   const [visible, setVisible] = useState(true)
   const router = useRouter()
