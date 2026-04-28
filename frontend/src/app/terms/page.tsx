@@ -7,7 +7,24 @@ export default function TermsPage() {
   const router = useRouter()
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen relative overflow-hidden bg-[#050505]">
+      <div className="noise-overlay" />
+
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] animate-float">
+          <div className="w-full h-full bg-gradient-radial from-purple-600/30 via-purple-900/10 to-transparent rounded-full blur-[120px]" />
+        </div>
+        <div className="absolute top-[30%] right-[-15%] w-[700px] h-[700px] animate-float" style={{ animationDelay: '-3s' }}>
+          <div className="w-full h-full bg-gradient-radial from-pink-600/25 via-pink-900/10 to-transparent rounded-full blur-[100px]" />
+        </div>
+        <div className="absolute bottom-[-30%] left-[20%] w-[900px] h-[500px] animate-float" style={{ animationDelay: '-5s' }}>
+          <div className="w-full h-full bg-gradient-radial from-purple-500/20 via-transparent to-transparent rounded-full blur-[150px]" />
+        </div>
+        <div className="absolute top-[60%] left-[40%] w-[400px] h-[400px] animate-pulse-glow opacity-40">
+          <div className="w-full h-full bg-gradient-radial from-fuchsia-600/15 via-transparent to-transparent rounded-full blur-[80px]" />
+        </div>
+      </div>
+
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="glass-nav mx-4 mt-4 rounded-2xl">
           <nav className="max-w-7xl mx-auto px-6 py-4">
