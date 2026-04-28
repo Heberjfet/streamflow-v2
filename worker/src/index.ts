@@ -1,15 +1,15 @@
 import { Worker } from 'bullmq';
-import { VIDEO_QUEUE_NAME } from './types';
+import { VIDEO_QUEUE_NAME, computeWorkerConfig } from './types';
 import { transcodeProcessor } from './processors/transcode.processor';
-import { thumbnailProcessor } from './processors/thumbnail.processor';
 
+const workerConfig = computeWorkerConfig();
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const concurrency = parseInt(process.env.WORKER_CONCURRENCY || '2', 10);
 
 async function main() {
   console.log('[Worker] Starting StreamFlow v2 worker...');
   console.log('[Worker] Redis:', redisUrl);
-  console.log('[Worker] Concurrency:', concurrency);
+  console.log('[Worker] Concurrency:', workerConfig.concurrency);
+  console.log('[Worker] FFmpeg threads:', workerConfig.ffmpegThreads);
 
   const worker = new Worker(
     VIDEO_QUEUE_NAME,
@@ -17,20 +17,19 @@ async function main() {
       console.log(`[Worker] Processing job ${job.id} (${job.name})`);
 
       if (job.name === 'transcode') {
-        return transcodeProcessor(job);
+        return transcodeProcessor({
+          data: job.data,
+          updateProgress: (p) => job.updateProgress(p),
+        });
       } else if (job.name === 'generate-thumbnails') {
-        return thumbnailProcessor(job);
+        throw new Error('Thumbnail job not implemented yet');
       } else {
         throw new Error(`Unknown job type: ${job.name}`);
       }
     },
     {
       connection: { url: redisUrl },
-      concurrency,
-      limiter: {
-        max: 4,
-        duration: 1000,
-      },
+      concurrency: workerConfig.concurrency,
     }
   );
 

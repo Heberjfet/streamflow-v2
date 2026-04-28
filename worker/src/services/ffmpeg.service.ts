@@ -1,153 +1,66 @@
-import ffmpeg from 'fluent-ffmpeg';
-import path from 'path';
-import { promises as fs } from 'fs';
+import { spawn } from 'child_process';
 
-export interface TranscodeOptions {
-  width: number;
-  height: number;
-  videoBitrate: string;
-  audioBitrate: string;
-  outputPath: string;
+const DEFAULT_TIMEOUT_MS = 60 * 60 * 1000;
+
+export async function runFfmpeg(args: string[], timeoutMs?: number): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const proc = spawn('ffmpeg', args, { stdio: ['ignore', 'inherit', 'inherit'] });
+    let killed = false;
+
+    const timeout = setTimeout(() => {
+      killed = true;
+      proc.kill('SIGTERM');
+      setTimeout(() => proc.kill('SIGKILL'), 5000);
+      reject(new Error('FFmpeg process timed out'));
+    }, timeoutMs ?? DEFAULT_TIMEOUT_MS);
+
+    proc.on('error', (err) => {
+      clearTimeout(timeout);
+      reject(new Error(`Failed to start FFmpeg: ${err.message}`));
+    });
+
+    proc.on('close', (code) => {
+      clearTimeout(timeout);
+      if (killed) return;
+      if (code === 0) resolve();
+      else reject(new Error(`FFmpeg exited with code ${code}`));
+    });
+  });
 }
 
-export class FFmpegService {
-  constructor() {
-    console.log('[FFmpeg] Service initialized');
-  }
+export async function ffprobe(filePath: string): Promise<{ width: number; height: number; duration: number }> {
+  return new Promise((resolve, reject) => {
+    const proc = spawn('ffprobe', [
+      '-v', 'error',
+      '-select_streams', 'v:0',
+      '-show_entries', 'stream=width,height,duration',
+      '-show_entries', 'format=duration',
+      '-of', 'json',
+      filePath,
+    ]);
 
-  async processVideo(
-    inputPath: string,
-    outputPath: string,
-    options: TranscodeOptions
-  ): Promise<void> {
-    const { width, height, videoBitrate, audioBitrate } = options;
-    const segmentFilename = path.join(path.dirname(outputPath), 'segment_%03d.ts');
+    let stdout = '';
+    let stderr = '';
 
-    console.log(
-      `[FFmpeg] Starting transcode: ${inputPath} -> ${outputPath} (${width}x${height})`
-    );
+    proc.stdout.on('data', (d: Buffer) => { stdout += d.toString(); });
+    proc.stderr.on('data', (d: Buffer) => { stderr += d.toString(); });
 
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .outputOptions([
-          '-c:v libx264',
-          '-preset fast',
-          '-crf 22',
-          '-c:a aac',
-          `-b:a ${audioBitrate}`,
-          `-vf scale=-2:${height}`,
-          '-f hls',
-          '-hls_time 4',
-          '-hls_list_size 0',
-          `-hls_segment_filename ${segmentFilename}`,
-        ])
-        .output(outputPath)
-        .on('start', (commandLine) => {
-          console.log('[FFmpeg] Command:', commandLine);
-        })
-        .on('progress', (progress) => {
-          if (progress.percent) {
-            process.stdout.write(`\r[FFmpeg] Progress: ${progress.percent.toFixed(1)}%`);
-          }
-        })
-        .on('end', () => {
-          console.log('\n[FFmpeg] Transcode complete');
-          resolve();
-        })
-        .on('error', (err, stdout, stderr) => {
-          console.error('\n[FFmpeg] Error:', err.message);
-          console.error('[FFmpeg] stderr:', stderr);
-          reject(err);
-        })
-        .run();
+    proc.on('error', (err) => {
+      reject(new Error(`Failed to start ffprobe: ${err.message}`));
     });
-  }
 
-  async generateThumbnail(
-    inputPath: string,
-    outputPath: string,
-    timestamp: string = '00:00:05'
-  ): Promise<void> {
-    console.log(`[FFmpeg] Generating thumbnail at ${timestamp}`);
-
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .seekInput(timestamp)
-        .outputOptions(['-vframes 1', '-q:v 2'])
-        .output(outputPath)
-        .on('end', () => {
-          console.log('[FFmpeg] Thumbnail generated:', outputPath);
-          resolve();
-        })
-        .on('error', (err) => {
-          console.error('[FFmpeg] Thumbnail error:', err.message);
-          reject(err);
-        })
-        .run();
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        return reject(new Error(`ffprobe exited with code ${code}`));
+      }
+      try {
+        const data = JSON.parse(stdout);
+        const stream = data.streams?.[0] ?? {};
+        const duration = parseFloat(stream.duration || data.format?.duration || '0');
+        resolve({ width: stream.width || 0, height: stream.height || 0, duration });
+      } catch {
+        reject(new Error('Failed to parse ffprobe output'));
+      }
     });
-  }
-
-  async generateSpriteSheet(
-    inputPath: string,
-    outputPath: string,
-    count: number = 10
-  ): Promise<void> {
-    console.log(`[FFmpeg] Generating sprite sheet with ${count} frames`);
-
-    const tempDir = path.dirname(outputPath);
-    const tempPattern = path.join(tempDir, 'thumb_%04d.jpg');
-
-    const duration = await this.getVideoDuration(inputPath);
-    const interval = duration / count;
-
-    return new Promise((resolve, reject) => {
-      ffmpeg(inputPath)
-        .outputOptions([
-          `-vf fps=${1 / interval},scale=160:90:tile=${count}x1`,
-          '-q:v 2',
-        ])
-        .output(tempPattern)
-        .on('end', async () => {
-          try {
-            const files = await fs.readdir(tempDir);
-            const thumbs = files
-              .filter((f) => f.startsWith('thumb_') && f.endsWith('.jpg'))
-              .sort()
-              .map((f) => path.join(tempDir, f));
-
-            const spriteContent = thumbs.map((file, i) => {
-              const start = i * interval;
-              return `thumb_${String(i).padStart(4, '0')}.jpg\n${start.toFixed(3)}`;
-            });
-
-            await fs.writeFile(outputPath, spriteContent.join('\n\n'));
-            console.log('[FFmpeg] Sprite sheet generated:', outputPath);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        })
-        .on('error', (err) => {
-          console.error('[FFmpeg] Sprite sheet error:', err.message);
-          reject(err);
-        })
-        .run();
-    });
-  }
-
-  private getVideoDuration(inputPath: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-      ffmpeg.ffprobe(inputPath, (err, metadata) => {
-        if (err) reject(err);
-        else resolve(metadata.format.duration || 60);
-      });
-    });
-  }
-
-  async cleanupTempFolder(folderPath: string): Promise<void> {
-    console.log(`[FFmpeg] Cleaning up temp folder: ${folderPath}`);
-    await fs.rm(folderPath, { recursive: true, force: true });
-  }
+  });
 }
-
-export const ffmpegService = new FFmpegService();
