@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { login, register } from '@/lib/api'
 import { TVStatic } from '@/components/TVStatic'
+import { TermsModal } from '@/components/TermsModal'
 
 function PasswordStrengthIndicator({ password }: { password: string }) {
   const getStrength = () => {
@@ -70,6 +70,7 @@ export default function AuthPage() {
   const [registerError, setRegisterError] = useState('')
   const [registerLoading, setRegisterLoading] = useState(false)
   const [acceptTerms, setAcceptTerms] = useState(false)
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
 
   const handleModeChange = (newMode: AuthMode) => {
     if (newMode === mode || transitioning) return
@@ -164,6 +165,14 @@ export default function AuthPage() {
       </div>
 
       <main className="relative z-10 flex items-center justify-center min-h-screen px-4 py-12">
+        <TermsModal
+          isOpen={isTermsModalOpen}
+          onClose={() => setIsTermsModalOpen(false)}
+          onAccept={() => {
+            setAcceptTerms(true)
+            setIsTermsModalOpen(false)
+          }}
+        />
         <div className="w-full max-w-md">
           <div className="text-center mb-8 animate-fade-in-up">
             <div
@@ -402,13 +411,13 @@ export default function AuthPage() {
                       </button>
                       <label className="text-sm text-[var(--color-text-secondary)] cursor-pointer leading-relaxed">
                         Acepto los{' '}
-                        <Link href="/terms" className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
+                        <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
                           términos y condiciones
-                        </Link>{' '}
+                        </button>{' '}
                         y la{' '}
-                        <Link href="/privacy" className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
+                        <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] underline transition-colors duration-300">
                           política de privacidad
-                        </Link>
+                        </button>
                       </label>
                     </div>
 
