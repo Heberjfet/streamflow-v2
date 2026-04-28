@@ -332,8 +332,7 @@ export default function HomePage() {
               © 2024 StreamFlow. Todos los derechos reservados.
             </p>
             <div className="flex items-center gap-8 text-sm text-zinc-500">
-              <a href="#" className="hover:text-white transition-colors">Privacidad</a>
-              <a href="#" className="hover:text-white transition-colors">Términos</a>
+              <a href="/terms" className="hover:text-white transition-colors">Términos y Condiciones</a>
               <a href="#" className="hover:text-white transition-colors">Contacto</a>
             </div>
           </div>
