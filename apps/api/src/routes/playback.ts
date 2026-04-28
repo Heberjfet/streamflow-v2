@@ -1,6 +1,8 @@
 import { FastifyInstance } from 'fastify';
 import { S3Service } from '../services/s3.service.js';
 import { ANALYTICS_EVENT_TYPES, REACTION_EMOJIS } from '../db/schema.js';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 interface PlaybackParams {
   playbackId: string;
@@ -293,18 +295,38 @@ export async function playbackRoutes(fastify: FastifyInstance) {
         return reply.status(403).send({ error: 'Download not allowed' });
       }
 
+      let downloadKey: string;
       if (quality && quality !== 'original') {
-        const downloadKey = `assets/${asset.id}/hls/${quality}/download.mp4`;
-        const url = await s3Service.getPresignedUrl(downloadKey);
-        return reply.redirect(url);
+        downloadKey = asset.hlsManifestKey
+          ? asset.hlsManifestKey.replace('/master.m3u8', `/${quality}/download.mp4`)
+          : `assets/${asset.id}/hls/${quality}/download.mp4`;
+      } else if (asset.sourceKey) {
+        downloadKey = asset.sourceKey;
+      } else {
+        downloadKey = asset.hlsManifestKey
+          ? asset.hlsManifestKey.replace('/master.m3u8', '/720p/download.mp4')
+          : `assets/${asset.id}/hls/720p/download.mp4`;
       }
 
-      if (asset.sourceKey) {
-        const url = await s3Service.getPresignedUrl(asset.sourceKey);
-        return reply.redirect(url);
+      const command = new GetObjectCommand({
+        Bucket: fastify.s3Config.bucket,
+        Key: downloadKey
+      });
+      const presignedUrl = await getSignedUrl(fastify.s3, command, { expiresIn: 3600 });
+
+      const response = await fetch(presignedUrl);
+      if (!response.ok) {
+        return reply.status(404).send({ error: 'File not found in storage' });
       }
 
-      return reply.status(404).send({ error: 'Original file not available' });
+      const arrayBuffer = await response.arrayBuffer();
+      const filename = `${(asset.title || 'video').replace(/[^a-zA-Z0-9]/g, '_')}.mp4`;
+
+      return reply
+        .header('Content-Type', 'video/mp4')
+        .header('Content-Disposition', `attachment; filename="${filename}"`)
+        .header('Content-Length', arrayBuffer.byteLength)
+        .send(Buffer.from(arrayBuffer));
     } catch (error) {
       fastify.log.error(error);
       return reply.status(500).send({ error: 'Internal server error' });

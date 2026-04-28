@@ -33,7 +33,7 @@ export interface JobResult {
 
 export interface AssetStatus {
   id: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'pending' | 'processing' | 'ready' | 'failed';
   outputKey?: string;
   error?: string;
 }

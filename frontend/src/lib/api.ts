@@ -122,6 +122,10 @@ export const processAsset = async (assetId: string): Promise<ApiResponse<void>> 
 export interface PlaybackResponse {
   manifestUrl: string
   thumbnailUrl?: string
+  title?: string
+  duration?: number
+  playbackId?: string
+  allowDownload?: boolean
 }
 
 export const getPlayback = async (playbackId: string): Promise<ApiResponse<PlaybackResponse>> => {

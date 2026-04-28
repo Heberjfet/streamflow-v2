@@ -36,6 +36,7 @@ export default function VideoDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [hlsUrl, setHlsUrl] = useState<string | undefined>(undefined)
+  const [allowDownload, setAllowDownload] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function VideoDetailPage() {
           const { data: playbackData, error: playbackError } = await getPublicPlayback(params.id)
           if (playbackData) {
             setHlsUrl(playbackData.manifestUrl)
+            setAllowDownload(playbackData.allowDownload ?? false)
           } else if (playbackError) {
             setError(playbackError)
           }
@@ -204,12 +206,23 @@ export default function VideoDetailPage() {
         </div>
 
         {asset.status === 'ready' && asset.playbackId && (
-          <Link href={`/watch/${asset.playbackId}`} target="_blank">
-            <button className="w-full md:w-auto btn-secondary py-2.5 px-5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-              Probar Player
-            </button>
-          </Link>
+          <div className="flex gap-3">
+            {allowDownload && (
+              <button
+                onClick={() => window.open(`/api/playback/${asset.playbackId}/download?quality=original`, '_blank')}
+                className="btn-secondary py-2.5 px-5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Descargar Original
+              </button>
+            )}
+            <Link href={`/watch/${asset.playbackId}`} target="_blank">
+              <button className="btn-secondary py-2.5 px-5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                Probar Player
+              </button>
+            </Link>
+          </div>
         )}
       </div>
 

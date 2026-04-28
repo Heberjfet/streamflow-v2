@@ -87,10 +87,9 @@ export default function WatchPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="rounded-xl overflow-hidden bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-2xl">
             <VideoPlayer
-              hlsUrl={playback.hlsUrl}
-              mp4Url={playback.mp4Url}
+              src={playback.manifestUrl}
               poster={playback.thumbnailUrl}
-              autoPlay
+              autoplay
             />
           </div>
 

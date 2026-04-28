@@ -10,7 +10,7 @@ const sql = postgres(process.env.DATABASE_URL || '', { max: 1 });
 
 async function updateAssetStatus(
   assetId: string,
-  status: 'pending' | 'processing' | 'completed' | 'failed',
+  status: 'pending' | 'processing' | 'ready' | 'failed',
   outputKey?: string,
   error?: string
 ) {
@@ -39,7 +39,7 @@ export async function thumbnailProcessor(job: Job<ThumbnailJobData>): Promise<vo
     await thumbnailService.generateThumbnails(assetId, sourceKey);
 
     const thumbnailKey = `assets/${assetId}/thumbnails/`;
-    await updateAssetStatus(assetId, 'completed', thumbnailKey);
+    await updateAssetStatus(assetId, 'ready', thumbnailKey);
     console.log(`[Thumbnail] Job completed for asset: ${assetId}`);
 
   } catch (error) {

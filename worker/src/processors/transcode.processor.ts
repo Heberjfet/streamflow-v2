@@ -106,7 +106,7 @@ export async function transcodeProcessor(job: { data: TranscodeJobData; updatePr
     const masterKey = `assets/${assetId}/hls/master.m3u8`;
     const thumbnailKey = `assets/${assetId}/hls/thumbnail.jpg`;
 
-    await updateAssetStatus(assetId, 'completed', masterKey, thumbnailKey);
+    await updateAssetStatus(assetId, 'ready', masterKey, thumbnailKey);
     await job.updateProgress(100);
 
     console.log(`[Transcode] Job completed for asset: ${assetId}`);

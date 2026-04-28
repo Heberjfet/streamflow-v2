@@ -86,7 +86,12 @@ export async function assetRoutes(fastify: FastifyInstance) {
           userId: request.currentUser!.userId,
           orgId: request.orgId || undefined,
           playbackId,
-          status: 'pending'
+          status: 'pending',
+          publicSettings: {
+            allowDownload: true,
+            showComments: true,
+            showReactions: true
+          }
         })
         .returning();
 
@@ -315,11 +320,15 @@ export async function assetRoutes(fastify: FastifyInstance) {
         ? s3Service.getPublicUrl(asset.thumbnailKey)
         : null;
 
+      const publicSettings = (asset.publicSettings as { allowDownload?: boolean }) || {};
+
       return reply.send({
         manifestUrl,
         thumbnailUrl,
         duration: asset.duration,
-        title: asset.title
+        title: asset.title,
+        playbackId: asset.playbackId,
+        allowDownload: publicSettings.allowDownload ?? false
       });
     } catch (error) {
       fastify.log.error(error);
