@@ -147,6 +147,14 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
       <TVStatic opacity={0.3} />
+      <button
+        onClick={() => router.push('/')}
+        className="fixed top-6 left-6 z-50 flex items-center justify-center w-11 h-11 rounded-xl bg-[var(--color-bg-elevated)]/80 backdrop-blur-sm border border-[var(--color-border)]/50 text-[var(--color-text-secondary)] hover:text-white hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-bg-elevated)] transition-all duration-300 group"
+      >
+        <svg className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+      </button>
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-[var(--color-accent)] rounded-full blur-[150px] opacity-10 animate-glow-pulse" />
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[var(--color-accent-hover)] rounded-full blur-[150px] opacity-10 animate-glow-pulse delay-300" />
