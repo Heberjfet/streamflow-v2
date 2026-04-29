@@ -64,15 +64,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </nav>
           </div>
 
-          <div className="p-6 min-w-[256px]">
-            <p className="text-[14px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6">
-              Administración
-            </p>
-            <nav className="space-y-1">
-              <SidebarLink href="/dashboard/users" icon="users" active={pathname === '/dashboard/users'}>Usuarios</SidebarLink>
-              <SidebarLink href="/dashboard/logs" icon="log" active={pathname === '/dashboard/logs'}>Logs</SidebarLink>
-            </nav>
-          </div>
+          {user?.role === 'admin' && (
+            <div className="p-6 min-w-[256px]">
+              <p className="text-[14px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-6">
+                Administración
+              </p>
+              <nav className="space-y-1">
+                <SidebarLink href="/dashboard/users" icon="users" active={pathname === '/dashboard/users'}>Usuarios</SidebarLink>
+                <SidebarLink href="/dashboard/logs" icon="log" active={pathname === '/dashboard/logs'}>Logs</SidebarLink>
+              </nav>
+            </div>
+          )}
 
           {/* SECCIÓN INFERIOR: USUARIO Y LOGOUT */}
           <div className="mt-auto p-4 border-t border-white/[0.03] min-w-[256px] bg-white/[0.01]">
