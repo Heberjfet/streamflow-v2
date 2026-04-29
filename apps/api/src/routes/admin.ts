@@ -1,0 +1,225 @@
+import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { sql } from 'drizzle-orm';
+
+interface StatsResponse {
+  totalAssets: number;
+  totalUsers: number;
+  totalViews: number;
+  assetsByStatus: Record<string, number>;
+  recentAssets: Array<{
+    id: string;
+    title: string;
+    status: string;
+    views: number;
+    createdAt: string;
+  }>;
+  systemInfo: {
+    uptime: number;
+    memoryUsage: NodeJS.MemoryUsage;
+    cpuUsage: NodeJS.CpuUsage;
+  };
+}
+
+export async function adminRoutes(fastify: FastifyInstance) {
+  fastify.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const decoded = await request.jwtVerify() as { userId: string; email: string; role: 'admin' | 'editor' | 'viewer'; orgId?: string };
+      request.currentUser = {
+        userId: decoded.userId,
+        email: decoded.email,
+        role: decoded.role,
+        orgId: decoded.orgId
+      };
+    } catch (err) {
+      fastify.log.error('JWT verify failed:', err);
+      return reply.status(401).send({ error: 'Unauthorized' });
+    }
+    fastify.log.info('Current user role:', request.currentUser?.role);
+    if (request.currentUser?.role !== 'admin') {
+      return reply.status(403).send({ error: 'Forbidden - Admin only' });
+    }
+  });
+
+  fastify.get('/stats', async (request, reply) => {
+    try {
+      const assetsResult = await fastify.db.execute(sql`SELECT COUNT(*) as count FROM assets`);
+      const usersResult = await fastify.db.execute(sql`SELECT COUNT(*) as count FROM users`);
+
+      const totalAssets = Number(assetsResult[0]?.count || 0);
+      const totalUsers = Number(usersResult[0]?.count || 0);
+
+      const assets = await fastify.db
+        .select({
+          id: fastify.schema.assets.id,
+          title: fastify.schema.assets.title,
+          status: fastify.schema.assets.status,
+          views: fastify.schema.assets.views,
+          createdAt: fastify.schema.assets.createdAt
+        })
+        .from(fastify.schema.assets)
+        .orderBy(fastify.desc(fastify.schema.assets.createdAt))
+        .limit(10);
+
+      const assetsByStatus: Record<string, number> = {};
+      for (const asset of assets) {
+        assetsByStatus[asset.status] = (assetsByStatus[asset.status] || 0) + 1;
+      }
+
+      const totalViews = assets.reduce((sum, a) => sum + (a.views || 0), 0);
+
+      const memoryUsage = process.memoryUsage();
+      const cpuUsage = process.cpuUsage();
+
+      return reply.send({
+        totalAssets,
+        totalUsers,
+        totalViews,
+        assetsByStatus,
+        recentAssets: assets,
+        systemInfo: {
+          uptime: process.uptime(),
+          memoryUsage: {
+            rss: Math.round(memoryUsage.rss / 1024 / 1024),
+            heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+            heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024),
+            external: Math.round(memoryUsage.external / 1024 / 1024)
+          },
+          cpuUsage: {
+            user: cpuUsage.user,
+            system: cpuUsage.system
+          }
+        }
+      } as StatsResponse);
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
+
+  fastify.get('/logs', async (request, reply) => {
+    try {
+      const limit = parseInt((request.query as any).limit || '100');
+
+      const assets = await fastify.db
+        .select({
+          id: fastify.schema.assets.id,
+          title: fastify.schema.assets.title,
+          status: fastify.schema.assets.status,
+          views: fastify.schema.assets.views,
+          createdAt: fastify.schema.assets.createdAt,
+          updatedAt: fastify.schema.assets.updatedAt
+        })
+        .from(fastify.schema.assets)
+        .orderBy(fastify.desc(fastify.schema.assets.updatedAt))
+        .limit(limit);
+
+      const users = await fastify.db
+        .select({
+          id: fastify.schema.users.id,
+          email: fastify.schema.users.email,
+          name: fastify.schema.users.name,
+          role: fastify.schema.users.role,
+          createdAt: fastify.schema.users.createdAt
+        })
+        .from(fastify.schema.users)
+        .orderBy(fastify.desc(fastify.schema.users.createdAt))
+        .limit(limit);
+
+      return reply.send({
+        assets,
+        users,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
+
+  fastify.get('/health', async (request, reply) => {
+    const memoryUsage = process.memoryUsage();
+    return reply.send({
+      status: 'ok',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      memory: {
+        rss: Math.round(memoryUsage.rss / 1024 / 1024),
+        heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024)
+      }
+    });
+  });
+
+  fastify.get('/stream', async (request, reply) => {
+    reply.raw.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    const sendStats = async () => {
+      try {
+        const assetsResult = await fastify.db.execute(sql`SELECT COUNT(*) as count FROM assets`);
+        const usersResult = await fastify.db.execute(sql`SELECT COUNT(*) as count FROM users`);
+
+        const totalAssets = Number(assetsResult[0]?.count || 0);
+        const totalUsers = Number(usersResult[0]?.count || 0);
+
+        const assets = await fastify.db
+          .select({
+            id: fastify.schema.assets.id,
+            title: fastify.schema.assets.title,
+            status: fastify.schema.assets.status,
+            views: fastify.schema.assets.views,
+            createdAt: fastify.schema.assets.createdAt
+          })
+          .from(fastify.schema.assets)
+          .orderBy(fastify.desc(fastify.schema.assets.createdAt))
+          .limit(10);
+
+        const assetsByStatus: Record<string, number> = {};
+        for (const asset of assets) {
+          assetsByStatus[asset.status] = (assetsByStatus[asset.status] || 0) + 1;
+        }
+
+        const totalViews = assets.reduce((sum, a) => sum + (a.views || 0), 0);
+
+        const memoryUsage = process.memoryUsage();
+        const cpuUsage = process.cpuUsage();
+
+        const data = JSON.stringify({
+          totalAssets,
+          totalUsers,
+          totalViews,
+          assetsByStatus,
+          recentAssets: assets,
+          systemInfo: {
+            uptime: process.uptime(),
+            memoryUsage: {
+              rss: Math.round(memoryUsage.rss / 1024 / 1024),
+              heapUsed: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+              heapTotal: Math.round(memoryUsage.heapTotal / 1024 / 1024),
+              external: Math.round(memoryUsage.external / 1024 / 1024)
+            },
+            cpuUsage: {
+              user: cpuUsage.user,
+              system: cpuUsage.system
+            }
+          },
+          timestamp: new Date().toISOString()
+        });
+
+        reply.raw.write(`data: ${data}\n\n`);
+      } catch (error) {
+        fastify.log.error('Stream error:', error);
+      }
+    };
+
+    sendStats();
+    const interval = setInterval(sendStats, 2000);
+
+    request.raw.on('close', () => {
+      clearInterval(interval);
+    });
+  });
+}
