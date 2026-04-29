@@ -211,3 +211,64 @@ export const deleteUser = async (userId: string): Promise<ApiResponse<void>> => 
   if (res.status === 204) return { data: undefined }
   return handleResponse<void>(res)
 }
+
+export interface AdminStats {
+  totalAssets: number;
+  totalUsers: number;
+  totalViews: number;
+  assetsByStatus: Record<string, number>;
+  recentAssets: Array<{
+    id: string;
+    title: string;
+    status: string;
+    views: number;
+    createdAt: string;
+  }>;
+  systemInfo: {
+    uptime: number;
+    memoryUsage: {
+      rss: number;
+      heapUsed: number;
+      heapTotal: number;
+      external: number;
+    };
+    cpuUsage: {
+      user: number;
+      system: number;
+    };
+  };
+}
+
+export interface AdminLogs {
+  assets: Array<{
+    id: string;
+    title: string;
+    status: string;
+    views: number;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  users: Array<{
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    createdAt: string;
+  }>;
+  timestamp: string;
+}
+
+export const getAdminStats = async (): Promise<ApiResponse<AdminStats>> => {
+  const res = await fetch(`${getApiUrl()}/v1/admin/stats`, {
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  return handleResponse<AdminStats>(res)
+}
+
+export const getAdminLogs = async (limit?: number): Promise<ApiResponse<AdminLogs>> => {
+  const url = limit ? `${getApiUrl()}/v1/admin/logs?limit=${limit}` : `${getApiUrl()}/v1/admin/logs`
+  const res = await fetch(url, {
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  return handleResponse<AdminLogs>(res)
+}
