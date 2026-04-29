@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getUsers, createUser, updateUser, deleteUser, User } from '@/lib/api'
+import { Input } from '@/components/ui/Input'
 
 const roleColors: Record<string, string> = {
   admin: 'from-cyan-500 to-blue-600',
@@ -240,18 +241,14 @@ export default function UsersAdminPage() {
                   className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 px-4 focus:border-[var(--primary)]/50 focus:outline-none transition-all"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-2">
-                  Contraseña {editingUser && '(opcional)'}
-                </label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required={!editingUser}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 px-4 focus:border-[var(--primary)]/50 focus:outline-none transition-all"
-                />
-              </div>
+              <Input
+                type="password"
+                label={`Contraseña ${editingUser ? '(opcional)' : ''}`}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required={!editingUser}
+                showPasswordToggle
+              />
               <div>
                 <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-2">Rol</label>
                 <select
