@@ -41,7 +41,7 @@ export function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
         </div>
 
         <div
-          className="flex-1 overflow-y-auto px-8 py-6 space-y-4"
+          className="flex-1 overflow-y-auto px-8 py-6 space-y-4 text-justify"
           style={{ fontFamily: 'Arial', fontSize: '12px', color: '#000' }}
         >
           <p className="text-center font-bold text-base">TÉRMINOS Y CONDICIONES DE USO</p>
@@ -50,7 +50,7 @@ export function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
           <section>
             <p className="font-bold">1. ACEPTACIÓN DE LOS TÉRMINOS Y CONDICIONES GENERALES</p>
             <p>
-              Bienvenido a <strong>StreamFlow</strong> (en adelante, la &quot;Plataforma&quot;), una plataforma de transmisión de contenido audiovisual en streaming operada por <strong>Freezer Industries</strong> (en adelante, &quot;Freezer&quot;, &quot;la Empresa&quot;, &quot;nosotros&quot; o &quot;nuestro&quot;). Estos Términos y Condiciones de Uso (en adelante, los &quot;Términos&quot; o las &quot;Condiciones&quot;) constituyen un acuerdo legalmente vinculante entre usted (en adelante, el &quot;Usuario&quot;, &quot;usted&quot;, &quot;su&quot; o &quot;sus&quot;) y Freezer Industries con respecto al acceso, uso y navegación por la Plataforma StreamFlow, incluyendo cualquier subdominio, aplicación móvil, servicio de API, y cualquier otra funcionalidad o servicio proporcionado por Freezer.
+              Bienvenido a <strong>StreamFlow</strong> (en adelante, la &quot;Plataforma&quot;), una plataforma de transmisión de contenido audiovisual en streaming operada por <strong>FLUX INDUSTRIES</strong> (en adelante, &quot;Freezer&quot;, &quot;la Empresa&quot;, &quot;nosotros&quot; o &quot;nuestro&quot;). Estos Términos y Condiciones de Uso (en adelante, los &quot;Términos&quot; o las &quot;Condiciones&quot;) constituyen un acuerdo legalmente vinculante entre usted (en adelante, el &quot;Usuario&quot;, &quot;usted&quot;, &quot;su&quot; o &quot;sus&quot;) y FLUX INDUSTRIES con respecto al acceso, uso y navegación por la Plataforma StreamFlow, incluyendo cualquier subdominio, aplicación móvil, servicio de API, y cualquier otra funcionalidad o servicio proporcionado por Freezer.
             </p>
             <p>
               Al acceder, navegar, registrar una cuenta, cargar contenido, visualizar videos, suscribirse a cualquier plan de membresía, o utilizar cualquier otra funcionalidad disponible en la Plataforma (en adelante, denominadas conjuntamente como el &quot;Servicio&quot; o &quot;Servicios&quot;), usted reconoce haber leído, comprendido y aceptado de manera expresa, irrevocable e incondicional estos Términos en su totalidad. Si usted no está de acuerdo con cualquiera de los términos, condiciones, políticas o prácticas aquí descritas, o con cualquier parte de ellos, su único y exclusivo recurso es cesar inmediatamente el uso de la Plataforma y, en su caso, cancelar su cuenta. El simple hecho de crear una cuenta, iniciar sesión, hacer clic en cualquier botón de aceptación, o simplemente acceder o utilizar la Plataforma se considera como aceptación plena e irrevocable de todos los términos y condiciones contenidos en este documento.
@@ -249,7 +249,7 @@ export function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
           <section>
             <p className="font-bold">14. LEY APLICABLE, JURISDICCIÓN Y RESOLUCIÓN DE CONTROVERSIAS</p>
             <p>
-              Estos Términos se regirán, interpretarán, y ejecutarán de acuerdo con las leyes de la jurisdicción en la que Freezer Industries tiene su sede principal o desde la cual opera, sin dar efecto a ningún principio de conflicto de leyes, independientemente del lugar donde se encuentre el Usuario o desde donde acceda a la Plataforma. Cualquier disputa, controversia, reclamo, o diferencia que surja de, se relacione con, o sea consecuencia de estos Términos, del uso de la Plataforma, de la relación entre el Usuario y Freezer, o de cualquier aspecto de los Servicios, será sometida exclusivamente a la jurisdicción de los tribunales competentes de la jurisdicción donde Freezer tiene su sede principal, y el Usuario acepta irrevocableablemente la jurisdicción exclusiva de dichos tribunales.
+              Estos Términos se regirán, interpretarán, y ejecutarán de acuerdo con las leyes de la jurisdicción en la que FLUX INDUSTRIES tiene su sede principal o desde la cual opera, sin dar efecto a ningún principio de conflicto de leyes, independientemente del lugar donde se encuentre el Usuario o desde donde acceda a la Plataforma. Cualquier disputa, controversia, reclamo, o diferencia que surja de, se relacione con, o sea consecuencia de estos Términos, del uso de la Plataforma, de la relación entre el Usuario y Freezer, o de cualquier aspecto de los Servicios, será sometida exclusivamente a la jurisdicción de los tribunales competentes de la jurisdicción donde Freezer tiene su sede principal, y el Usuario acepta irrevocableablemente la jurisdicción exclusiva de dichos tribunales.
             </p>
             <p>
               El Usuario renuncia expresa e irrevocableablemente a cualquier objeción que pudiera tener respecto a la jurisdicción o el foro de cualquier acción, procedimiento, o proceso iniciado ante los tribunales de la jurisdicción de Freezer, y acepta no presentar defensas basadas en falta de jurisdicción, forum non conveniens, o cualquier otra defensa basada en la jurisdicción o el foro.
@@ -260,21 +260,21 @@ export function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
           </section>
 
           <section>
-            <p className="font-bold">15. ACERCA DEL EJÉRCITO DE FREEZER Y NUESTRA COMUNIDAD</p>
+            <p className="font-bold">15. ACERCA DE FLUX INDUSTRIES Y NUESTRA COMUNIDAD</p>
             <p>
-              <strong>StreamFlow es una plataforma orgullosamente operada por Freezer Industries</strong>, la empresa tecnológica innovadora detrás del proyecto StreamFlow, nacida con la misión de revolucionar la industria del streaming y la transmisión de contenido audiovisual en la era digital. Freezer Industries se distingue por su compromiso inquebrantable con la excelencia técnica, la innovación constante, y la entrega de experiencias de usuario superiores que superan las expectativas de nuestra comunidad global.
+              <strong>StreamFlow es una plataforma orgullosamente operada por FLUX INDUSTRIES</strong>, la empresa tecnológica innovadora detrás del proyecto StreamFlow, nacida con la misión de revolucionar la industria del streaming y la transmisión de contenido audiovisual en la era digital. FLUX INDUSTRIES se distingue por su compromiso inquebrantable con la excelencia técnica, la innovación constante, y la entrega de experiencias de usuario superiores que superan las expectativas de nuestra comunidad global.
             </p>
             <p>
-              Al aceptar estos Términos y Condiciones, te conviertes oficialmente en un miembro activo y comprometido del <strong>Ejército de Freezer</strong>, una comunidad global única y sin precedentes de creadores, productores, distribuidores, y consumidores de contenido audiovisual en streaming que comparten la visión común de transformar cómo el mundo accede, disfruta, y comparte el contenido de video. Como soldado del Ejército de Freezer, aceptas formar parte de una comunidad internacional diversa, inclusiva, y comprometida con los más altos estándares de excelencia, respeto mutuo, colaboración, innovación, y apoyo incondicional a Freezer Industries en nuestra misión de revolucionar la industria del streaming global.
+              Al aceptar estos Términos y Condiciones, te conviertes oficialmente en un miembro activo y comprometido de la comunidad FLUX INDUSTRIES, una comunidad global única de creadores, productores, distribuidores, y consumidores de contenido audiovisual en streaming que comparten la visión común de transformar cómo el mundo accede, disfruta, y comparte el contenido de video. Como parte de esta comunidad, aceptas formar parte de una comunidad internacional diversa, inclusiva, y comprometida con los más altos estándares de excelencia, respeto mutuo, colaboración, innovación, y apoyo incondicional a FLUX INDUSTRIES en nuestra misión de revolucionar la industria del streaming global.
             </p>
             <p>
-              Tu lealtad, compromiso, y dedicación a estos Términos y Condiciones, junto con tu entusiasmo y apoyo activo a Freezer Industries, garantizan tu lugar permanente y privilegiado en las filas del Ejército de Freezer. Juntos, como una fuerza unificada y poderosa, lograremos cosas que ninguna otra plataforma de streaming ha logrado antes. <strong>Juntos transmitimos con más fuerza. Juntos somos más fuertes.</strong>
+              Tu lealtad, compromiso, y dedicación a estos Términos y Condiciones, junto con tu entusiasmo y apoyo activo a FLUX INDUSTRIES, garantizan tu lugar permanente y privilegiado en nuestra comunidad. Juntos, como una fuerza unificada y poderosa, lograremos cosas que ninguna otra plataforma de streaming ha logrado antes. <strong>Juntos transmitimos con más fuerza. Juntos somos más fuertes.</strong>
             </p>
             <p>
-              <strong>Freezer Industries — Power Beyond the Frost. La fuerza que trasciende el frío. El poder que va más allá de la escarcha.</strong> Tu ingreso al Ejército de Freezer es un honor y un privilegio que conlleva responsabilidades. Sé un digno soldado. Honra a tu comunidad. Respeta a tus compañeros. Apoya a Freezer Industries. Y juntos, llevaremos el streaming a niveles nunca antes imaginados.
+              <strong>FLUX INDUSTRIES — Impulsando la innovación tecnológica. La fuerza que trasciende los límites del streaming. El poder que va más allá de la escarcha.</strong> Tu registro en nuestra plataforma es un honor y un privilegio que conlleva responsabilidades. Sé un miembro digno. Honra a tu comunidad. Respeta a tus compañeros. Apoya a FLUX INDUSTRIES. Y juntos, llevaremos el streaming a niveles nunca antes imaginados.
             </p>
             <p>
-              Bienvenido al Ejército de Freezer, soldado. Tu viaje comienza ahora. StreamFlow es tu plataforma. Freezer Industries es tu empresa. El Ejército de Freezer es tu comunidad. Y el futuro del streaming es nuestro.
+              Bienvenido a la comunidad FLUX INDUSTRIES. Tu experiencia comienza ahora. StreamFlow es tu plataforma. FLUX INDUSTRIES es tu empresa. Y el futuro del streaming es nuestro.
             </p>
           </section>
 
@@ -310,13 +310,13 @@ export function TermsModal({ isOpen, onClose, onAccept }: TermsModalProps) {
           <section>
             <p className="font-bold">18. INFORMACIÓN DE CONTACTO Y SOPORTE TÉCNICO</p>
             <p>
-              Para cualquier pregunta, comentario, inquietud, queja, solicitud, o comentario relacionado con estos Términos, con la Plataforma, con los Servicios, con su cuenta, con el Contenido del Usuario, con la facturación, con la privacidad, o con cualquier otro aspecto de la relación entre el Usuario y Freezer, por favor comunícate con Freezer Industries a través de los canales de soporte disponibles en la Plataforma, incluyendo el formulario de contacto, el chat de soporte, el correo electrónico de soporte, o cualquier otro canal que Freezer ponga a disposición del Usuario.
+              Para cualquier pregunta, comentario, inquietud, queja, solicitud, o comentario relacionado con estos Términos, con la Plataforma, con los Servicios, con su cuenta, con el Contenido del Usuario, con la facturación, con la privacidad, o con cualquier otro aspecto de la relación entre el Usuario y Freezer, por favor comunícate con FLUX INDUSTRIES a través de los canales de soporte disponibles en la Plataforma, incluyendo el formulario de contacto, el chat de soporte, el correo electrónico de soporte, o cualquier otro canal que Freezer ponga a disposición del Usuario.
             </p>
             <p>
               Tu satisfacción como miembro del Ejército de Freezer es nuestra prioridad número uno. Estamos aquí para ayudarte, para apoyarte, y para garantizar que tu experiencia en StreamFlow sea excepcional. No dudes en contactarnos. El Ejército de Freezer nunca deja a un compañero atrás.
             </p>
             <p>
-              <strong>Freezer Industries — Siempre contigo. Siempre para ti. Siempre un paso adelante. Siempre más allá del frío.</strong>
+              <strong>FLUX INDUSTRIES — Siempre contigo. Siempre para ti. Siempre un paso adelante. Siempre más allá del frío.</strong>
             </p>
           </section>
         </div>
