@@ -81,7 +81,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">1. Aceptación de los Términos</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                Bienvenido a <strong className="text-white">StreamFlow</strong>, una plataforma de transmisión de contenido audiovisual en streaming operada por <strong className="text-white">Freezer Industries</strong>. Estos Términos y Condiciones de Uso constituyen un acuerdo legalmente vinculante entre usted y Freezer Industries con respecto al acceso, uso y navegación por la Plataforma StreamFlow.
+                Bienvenido a <strong className="text-white">StreamFlow</strong>, una plataforma de transmisión de contenido audiovisual en streaming operada por <strong className="text-white">FLUX INDUSTRIES</strong>. Estos Términos y Condiciones de Uso constituyen un acuerdo legalmente vinculante entre usted y FLUX INDUSTRIES con respecto al acceso, uso y navegación por la Plataforma StreamFlow.
               </p>
               <p>
                 Al acceder, navegar, registrar una cuenta, cargar contenido, visualizar videos, suscribirse a cualquier plan de membresía, o utilizar cualquier otra funcionalidad disponible en la Plataforma, usted reconoce haber leído, comprendido y aceptado de manera expresa, irrevocable e incondicional estos Términos en su totalidad.
@@ -99,10 +99,10 @@ export default function TermsPage() {
                 StreamFlow es una plataforma integral de transmisión de contenido audiovisual en streaming que permite a los usuarios visualizar, organizar, gestionar, clasificar, buscar, filtrar, comentar, compartir y administrar catálogos de video y contenido multimedia.
               </p>
               <p>
-                Los Servicios ofrecidos por Freezer a través de la Plataforma incluyen, sin limitación: el acceso a contenido de video bajo demanda; la posibilidad de cargar, almacenar y gestionar contenido de video del Usuario; herramientas de catalogación y organización; funcionalidades de búsqueda y filtrado avanzado; creación y gestión de listas de reproducción; herramientas de administración de usuarios y permisos; integración con servicios de almacenamiento de terceros; generación de miniaturas automáticas; transcodificación y procesamiento de video; y cualquier otra funcionalidad que Freezer decida incorporar.
+                Los Servicios ofrecidos por FLUX INDUSTRIES a través de la Plataforma incluyen, sin limitación: el acceso a contenido de video bajo demanda; la posibilidad de cargar, almacenar y gestionar contenido de video del Usuario; herramientas de catalogación y organización; funcionalidades de búsqueda y filtrado avanzado; creación y gestión de listas de reproducción; herramientas de administración de usuarios y permisos; integración con servicios de almacenamiento de terceros; generación de miniaturas automáticas; transcodificación y procesamiento de video; y cualquier otra funcionalidad que FLUX INDUSTRIES decida incorporar.
               </p>
               <p>
-                Freezer se reserva el derecho de modificar, suspender, discontinuar, reemplazar o alterar cualquiera o todas las partes de los Servicios en cualquier momento, sin previo aviso, y sin que ello genere derecho a compensación alguna a favor del Usuario.
+                FLUX INDUSTRIES se reserva el derecho de modificar, suspender, discontinuar, reemplazar o alterar cualquiera o todas las partes de los Servicios en cualquier momento, sin previo aviso, y sin que ello genere derecho a compensación alguna a favor del Usuario.
               </p>
             </div>
           </section>
@@ -117,22 +117,19 @@ export default function TermsPage() {
                 El Usuario es el único y exclusivo responsable de mantener la confidencialidad de sus credenciales de acceso, incluyendo nombre de usuario, contraseña, códigos de verificación, tokens de sesión, y cualquier otra información de autenticación. Todas y cada una de las actividades que ocurran bajo su cuenta son responsabilidad del Usuario.
               </p>
               <p>
-                Freezer no será responsable por cualquier pérdida, daño, perjuicio, costo o gasto que resulte del uso no autorizado de la cuenta del Usuario.
+                FLUX INDUSTRIES no será responsable por cualquier pérdida, daño, perjuicio, costo o gasto que resulte del uso no autorizado de la cuenta del Usuario.
               </p>
             </div>
           </section>
 
           <section className="space-y-4">
-            <h2 className="text-xl font-bold text-white">4. Planes de Membresía y Pagos</h2>
+            <h2 className="text-xl font-bold text-white">4. Uso de la Plataforma</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                La Plataforma ofrece diversos planes de membresía con diferentes niveles de acceso, funcionalidades y beneficios. Los planes disponibles actualmente incluyen: Plan Gratuito, Plan Básico, Plan Profesional y Planes Corporativos o Enterprise.
+                StreamFlow es una plataforma de código abierto (open source) y de uso gratuito. Los usuarios pueden acceder a todas las funcionalidades de la plataforma sin costo alguno. No existen planes de membresía, suscripciones pagadas ni cargos por uso de la plataforma.
               </p>
               <p>
-                Las suscripciones de pago se renuevan automáticamente al final de cada período de facturación a menos que el Usuario cancele la suscripción antes de la fecha de renovación. La cancelación tomará efecto al final del período de facturación ya pagado y <strong className="text-white">no habrá reembolsos por períodos parciales no utilizados</strong>, salvo que la ley aplicable lo exija expresamente.
-              </p>
-              <p>
-                Freezer utiliza procesadores de pago de terceros para procesar todas las transacciones. Freezer no almacena información de pago en sus propios servidores.
+                El Usuario puede utilizar la Plataforma para subir, gestionar y visualizar contenido de video de acuerdo con los términos aquí establecidos. FLUX INDUSTRIES no almacena información de pago en sus servidores, ya que no se realizan transacciones financieras a través de la plataforma.
               </p>
             </div>
           </section>
@@ -141,13 +138,13 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">5. Propiedad Intelectual</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                Todo el contenido disponible en la Plataforma, incluyendo textos, gráficos, logotipos, íconos, imágenes, clips de audio y video, música, software, código fuente, y cualquier otro material es propiedad de Freezer, sus licenciantes o proveedores de contenido, y está protegido por las leyes de propiedad intelectual aplicables.
+                Todo el contenido disponible en la Plataforma, incluyendo textos, gráficos, logotipos, íconos, imágenes, clips de audio y video, música, software, código fuente, y cualquier otro material es propiedad de FLUX INDUSTRIES, sus licenciantes o proveedores de contenido, y está protegido por las leyes de propiedad intelectual aplicables.
               </p>
               <p>
-                Salvo que se indique expresamente lo contrario, el Usuario no puede copiar, modificar, distribuir, vender, transmitir, exhibir públicamente, crear obras derivadas ni aprovechar comercialmente ningún contenido de la Plataforma sin autorización expresa y por escrito de Freezer.
+                Salvo que se indique expresamente lo contrario, el Usuario no puede copiar, modificar, distribuir, vender, transmitir, exhibir públicamente, crear obras derivadas ni aprovechar comercialmente ningún contenido de la Plataforma sin autorización expresa y por escrito de FLUX INDUSTRIES.
               </p>
               <p>
-                Cualquier uso no autorizado de cualquier Contenido de Freezer constituirá una violación de estos Términos y podrá constituir una infracción grave de la ley de propiedad intelectual aplicable, y expondrá al infractor a acciones civiles y/o penales.
+                Cualquier uso no autorizado de cualquier Contenido de FLUX INDUSTRIES constituirá una violación de estos Términos y podrá constituir una infracción grave de la ley de propiedad intelectual aplicable, y expondrá al infractor a acciones civiles y/o penales.
               </p>
             </div>
           </section>
@@ -159,10 +156,10 @@ export default function TermsPage() {
                 El Usuario que carga, publica, transmite o de cualquier otra forma pone a disposición contenido a través de la Plataforma debe ser el único y exclusivo titular de todos los derechos de propiedad intelectual sobre dicho contenido, o debe contar con todas las autorizaciones necesarias.
               </p>
               <p>
-                Al cargar contenido, el Usuario otorga a Freezer una licencia mundial, perpetua, irrevocable, no exclusiva, transferible, sublicenciable, libre de regalías, y con derecho a explotación comercial completa para usar, reproducir, modificar, editar, adaptar, distribuir, exhibir y crear obras derivadas del contenido del Usuario.
+                Al cargar contenido, el Usuario otorga a FLUX INDUSTRIES una licencia mundial, perpetua, irrevocable, no exclusiva, transferible, sublicenciable, libre de regalías, y con derecho a explotación comercial completa para usar, reproducir, modificar, editar, adaptar, distribuir, exhibir y crear obras derivadas del contenido del Usuario.
               </p>
               <p>
-                Freezer se reserva el derecho de eliminar cualquier Contenido del Usuario que, a criterio de Freezer, viole estos Términos, infrinja derechos de terceros, sea ilegal o inapropiado.
+                FLUX INDUSTRIES se reserva el derecho de eliminar cualquier Contenido del Usuario que, a criterio de FLUX INDUSTRIES, viole estos Términos, infrinja derechos de terceros, sea ilegal o inapropiado.
               </p>
             </div>
           </section>
@@ -183,10 +180,10 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">8. Política de Privacidad</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                La privacidad de los Usuarios es un valor fundamental para Freezer. Freezer se compromete a proteger la privacidad, los datos personales, y la información confidencial de los Usuarios de conformidad con las leyes de protección de datos aplicables.
+                La privacidad de los Usuarios es un valor fundamental para FLUX INDUSTRIES. FLUX INDUSTRIES se compromete a proteger la privacidad, los datos personales, y la información confidencial de los Usuarios de conformidad con las leyes de protección de datos aplicables.
               </p>
               <p>
-                Freezer recopila información personal del Usuario, incluyendo: información proporcionada durante el registro; información de pago y facturación; información sobre el uso de la Plataforma; e información técnica como dirección IP y cookies.
+                FLUX INDUSTRIES recopila información personal del Usuario, incluyendo: información proporcionada durante el registro; información de pago y facturación; información sobre el uso de la Plataforma; e información técnica como dirección IP y cookies.
               </p>
               <p>
                 El Usuario tiene derechos sobre sus datos personales, incluyendo el derecho de acceso, rectificación, supresión, portabilidad, limitación del procesamiento, y objeción al procesamiento, de conformidad con la ley aplicable.
@@ -204,7 +201,7 @@ export default function TermsPage() {
                 FREEZER, EN LA MEDIDA MÁXIMA PERMITIDA POR LA LEY APLICABLE, NO OFRECE NINGUNA GARANTÍA, EXPRESA O IMPLÍCITA, INCLUYENDO GARANTÍAS DE COMERCIABILIDAD, APTITUD PARA UN PROPÓSITO PARTICULAR, TÍTULO O NO INFRACCIÓN.
               </p>
               <p>
-                Freezer no garantiza que la Plataforma será ininterrumpida, segura, precisa, completa, actualizada, libre de errores o virus. El Usuario utiliza la Plataforma bajo su propio y exclusivo riesgo.
+                FLUX INDUSTRIES no garantiza que la Plataforma será ininterrumpida, segura, precisa, completa, actualizada, libre de errores o virus. El Usuario utiliza la Plataforma bajo su propio y exclusivo riesgo.
               </p>
             </div>
           </section>
@@ -225,7 +222,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">11. Indemnización</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                El Usuario acepta indemnizar, defender, y mantener libre de daños y perjuicios a Freezer, sus afiliados, directivos, empleados, agentes y representantes de y contra cualquier reclamo, acción, demanda, pérdida, responsabilidad, costo y gasto que surja de: el uso de la Plataforma por el Usuario; la violación de estos Términos; la violación de derechos de terceros; y cualquier Contenido del Usuario.
+                El Usuario acepta indemnizar, defender, y mantener libre de daños y perjuicios a FLUX INDUSTRIES, sus afiliados, directivos, empleados, agentes y representantes de y contra cualquier reclamo, acción, demanda, pérdida, responsabilidad, costo y gasto que surja de: el uso de la Plataforma por el Usuario; la violación de estos Términos; la violación de derechos de terceros; y cualquier Contenido del Usuario.
               </p>
             </div>
           </section>
@@ -234,7 +231,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">12. Modificaciones a los Términos</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                Freezer se reserva el derecho de modificar estos Términos en cualquier momento, a su sola discreción, sin obligación de notificación previa individual. Las modificaciones entrarán en vigor inmediatamente después de su publicación en la Plataforma.
+                FLUX INDUSTRIES se reserva el derecho de modificar estos Términos en cualquier momento, a su sola discreción, sin obligación de notificación previa individual. Las modificaciones entrarán en vigor inmediatamente después de su publicación en la Plataforma.
               </p>
               <p>
                 El uso continuado de la Plataforma después de la publicación de modificaciones constituye la aceptación plena e irrevocable de los Términos modificados. Si el Usuario no está de acuerdo con los Términos modificados, su único recurso es dejar de utilizar la Plataforma y cancelar su cuenta.
@@ -246,7 +243,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">13. Terminación de Cuenta</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                El Usuario puede cancelar su cuenta en cualquier momento a través de la configuración de su cuenta. Freezer puede suspender o terminar la cuenta de cualquier Usuario, negarle el acceso a la Plataforma y eliminar cualquier Contenido del Usuario, en cualquier momento, por cualquier motivo, sin previo aviso y a su sola discreción.
+                El Usuario puede cancelar su cuenta en cualquier momento a través de la configuración de su cuenta. FLUX INDUSTRIES puede suspender o terminar la cuenta de cualquier Usuario, negarle el acceso a la Plataforma y eliminar cualquier Contenido del Usuario, en cualquier momento, por cualquier motivo, sin previo aviso y a su sola discreción.
               </p>
               <p>
                 Tras la terminación, el derecho del Usuario a acceder y utilizar la Plataforma cesará inmediatamente, pero las disposiciones de estos Términos que por su naturaleza deban sobrevivir a la terminación lo harán.
@@ -258,22 +255,28 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">14. Ley Aplicable y Jurisdicción</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                Estos Términos se regirán e interpretarán de acuerdo con las leyes de la jurisdicción en la que Freezer Industries tiene su sede principal. Cualquier disputa será sometida exclusivamente a la jurisdicción de los tribunales competentes de dicha jurisdicción.
+                Estos Términos se regirán e interpretarán de acuerdo con las leyes de la jurisdicción en la que FLUX INDUSTRIES tiene su sede principal. Cualquier disputa será sometida exclusivamente a la jurisdicción de los tribunales competentes de dicha jurisdicción.
               </p>
             </div>
           </section>
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-bold text-white">15. El Ejército de Freezer</h2>
+<section className="space-y-4">
+            <h2 className="text-xl font-bold text-white">15. Acerca de FLUX INDUSTRIES</h2>
             <div className="text-zinc-300 leading-relaxed space-y-4 text-justify">
               <p>
-                StreamFlow es una plataforma orgullosamente operada por <strong className="text-white">Freezer Industries</strong>. Al aceptar estos Términos, te conviertes oficialmente en un miembro del <strong className="text-white">Ejército de Freezer</strong>, una comunidad global única de creadores, productores y consumidores de contenido audiovisual en streaming.
+                StreamFlow es una plataforma orgullosamente operada por <strong className="text-white">FLUX INDUSTRIES</strong>, la empresa tecnológica innovadora detrás del proyecto StreamFlow, nacida con la misión de revolucionar la industria del streaming y la transmisión de contenido audiovisual en la era digital. FLUX INDUSTRIES se distingue por su compromiso inquebrantable con la excelencia técnica, la innovación constante, y la entrega de experiencias de usuario superiores que superan las expectativas de nuestra comunidad global.
               </p>
               <p>
-                Tu lealtad, compromiso y dedicación a estos Términos garantizan tu lugar permanente y privilegiado en las filas del Ejército de Freezer. Juntos, como una fuerza unificada y poderosa, lograremos cosas que ninguna otra plataforma de streaming ha logrado antes.
+                Al aceptar estos Términos y Condiciones, te conviertes oficialmente en un miembro activo y comprometido de la comunidad FLUX INDUSTRIES, una comunidad global única de creadores, productores, distribuidores, y consumidores de contenido audiovisual en streaming que comparten la visión común de transformar cómo el mundo accede, disfruta, y comparte el contenido de video.
+              </p>
+              <p>
+                Tu lealtad, compromiso, y dedicación a estos Términos y Condiciones, junto con tu entusiasmo y apoyo activo a FLUX INDUSTRIES, garantizan tu lugar permanente y privilegiado en nuestra comunidad. Juntos, como una fuerza unificada y poderosa, lograremos cosas que ninguna otra plataforma de streaming ha logrado antes.
               </p>
               <p className="text-purple-400 font-medium">
-                <strong>Freezer Industries — Power Beyond the Frost.</strong>
+                <strong>FLUX INDUSTRIES — Impulsando la innovación tecnológica.</strong>
+              </p>
+              <p className="text-zinc-400 text-sm mt-4">
+                <strong>NOTA SOBRE EL PROYECTO:</strong> StreamFlow es un proyecto de código abierto (open source). Esto significa que el código fuente de la plataforma está disponible públicamente para que cualquier persona pueda verlo, estudiarlo, modificarlo y distribuirlo de conformidad con los términos de su licencia. Sin embargo, el hecho de que el proyecto sea de código abierto no implica que el contenido cargado por los usuarios sea de acceso público ni que esté sujeto a la misma licencia. El contenido de los usuarios permanece bajo su control y propiedad exclusiva.
               </p>
             </div>
           </section>
@@ -282,7 +285,16 @@ export default function TermsPage() {
             <h2 className="text-xl font-bold text-white">16. Información de Contacto</h2>
             <div className="text-zinc-300 leading-relaxed text-justify">
               <p>
-                Para cualquier pregunta, comentario o inquietud con respecto a estos Términos o la Plataforma, comunícate con Freezer Industries a través de los canales de soporte disponibles. Tu satisfacción como miembro del Ejército de Freezer es nuestra prioridad número uno.
+                Para cualquier pregunta, comentario o inquietud con respecto a estos Términos o la Plataforma, comunícate con FLUX INDUSTRIES a través de los canales de soporte disponibles. Tu satisfacción como miembro de nuestra comunidad es nuestra prioridad número uno.
+              </p>
+            </div>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold text-white">16. Información de Contacto</h2>
+            <div className="text-zinc-300 leading-relaxed text-justify">
+              <p>
+                Para cualquier pregunta, comentario o inquietud con respecto a estos Términos o la Plataforma, comunícate con FLUX INDUSTRIES a través de los canales de soporte disponibles. Tu satisfacción como miembro del Ejército de FLUX INDUSTRIES es nuestra prioridad número uno.
               </p>
             </div>
           </section>
