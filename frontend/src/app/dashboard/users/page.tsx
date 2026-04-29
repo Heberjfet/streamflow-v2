@@ -25,6 +25,9 @@ export default function UsersAdminPage() {
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [search, setSearch] = useState('')
   const [formData, setFormData] = useState({ email: '', name: '', password: '', role: 'viewer' })
+  const [nameFocused, setNameFocused] = useState(false)
+  const [emailFocused, setEmailFocused] = useState(false)
+  const [roleFocused, setRoleFocused] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -222,23 +225,31 @@ export default function UsersAdminPage() {
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-2">Nombre</label>
+                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 transition-all duration-300 ${nameFocused ? 'text-purple-500' : 'text-[var(--text-secondary)]'}`}>Nombre</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onFocus={() => setNameFocused(true)}
+                  onBlur={() => setNameFocused(false)}
                   required
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 px-4 focus:border-[var(--primary)]/50 focus:outline-none transition-all"
+                  className="w-full bg-zinc-900 border-2 border-white/10 rounded-xl py-3 px-4 focus:border-purple-500 focus:outline-none focus:shadow-lg focus:shadow-purple-500/30 focus:ring-4 focus:ring-purple-500/20 transition-all text-white"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-2">Email</label>
+                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 transition-all duration-300 ${emailFocused ? 'text-purple-500' : 'text-[var(--text-secondary)]'}`}>Email</label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => setEmailFocused(false)}
                   required
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 px-4 focus:border-[var(--primary)]/50 focus:outline-none transition-all"
+                  className="w-full bg-zinc-900 border-2 border-white/10 rounded-xl py-3 px-4 focus:border-purple-500 focus:outline-none focus:shadow-lg focus:shadow-purple-500/30 focus:ring-4 focus:ring-purple-500/20 transition-all text-white
+                    [&:-webkit-autofill]:[-webkit-text-fill-color:white]
+                    [&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]
+                    [&:-webkit-autofill:hover]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]
+                    [&:-webkit-autofill:focus]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]"
                 />
               </div>
               <Input
@@ -250,11 +261,13 @@ export default function UsersAdminPage() {
                 showPasswordToggle
               />
               <div>
-                <label className="block text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-2">Rol</label>
+                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 transition-all duration-300 ${roleFocused ? 'text-purple-500' : 'text-[var(--text-secondary)]'}`}>Rol</label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 px-4 focus:border-[var(--primary)]/50 focus:outline-none transition-all"
+                  onFocus={() => setRoleFocused(true)}
+                  onBlur={() => setRoleFocused(false)}
+                  className="w-full bg-zinc-900 border-2 border-white/10 rounded-xl py-3 px-4 focus:border-purple-500 focus:outline-none focus:shadow-lg focus:shadow-purple-500/30 focus:ring-4 focus:ring-purple-500/20 transition-all text-white"
                 >
                   <option value="viewer">Viewer</option>
                   <option value="editor">Editor</option>
