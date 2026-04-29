@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { login as apiLogin, register as apiRegister } from '@/lib/api'
+import { login as apiLogin, register as apiRegister, getMe } from '@/lib/api'
 
 interface User {
   id: string
@@ -51,6 +51,13 @@ export function useAuth(): UseAuthReturn {
       const decoded = decodeJwt(token)
       if (decoded) {
         setUser(decoded)
+        getMe().then(({ data }) => {
+          if (data) {
+            setUser(data as User)
+          }
+        }).catch(() => {
+          // Si falla getMe, mantener el usuario del JWT
+        })
       } else {
         localStorage.removeItem('streamflow_token')
       }
@@ -67,6 +74,11 @@ export function useAuth(): UseAuthReturn {
     const decoded = decodeJwt(data.token)
     if (decoded) {
       setUser(decoded)
+      getMe().then(({ data: meData }) => {
+        if (meData) {
+          setUser(meData as User)
+        }
+      })
     }
     return { success: true }
   }, [])
@@ -80,6 +92,11 @@ export function useAuth(): UseAuthReturn {
     const decoded = decodeJwt(data.token)
     if (decoded) {
       setUser(decoded)
+      getMe().then(({ data: meData }) => {
+        if (meData) {
+          setUser(meData as User)
+        }
+      })
     }
     return { success: true }
   }, [])

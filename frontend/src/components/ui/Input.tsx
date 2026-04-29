@@ -48,15 +48,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             onBlur={() => setIsFocused(false)}
             className={`
               w-full px-4 py-3 rounded-xl
-              bg-[var(--color-bg-card)]
+              bg-zinc-900
               border-2 transition-all duration-300
               text-white
               placeholder:text-zinc-500
               focus:outline-none
               [&:-webkit-autofill]:[-webkit-text-fill-color:white]
-              [&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_var(--color-bg-card)]
-              [&:-webkit-autofill:hover]:shadow-[inset_0_0_0px_1000px_var(--color-bg-card)]
-              [&:-webkit-autofill:focus]:shadow-[inset_0_0_0px_1000px_var(--color-bg-card)]
+              [&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]
+              [&:-webkit-autofill:hover]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]
+              [&:-webkit-autofill:focus]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]
               [&:-webkit-autofill]:[transition:background-color_9999s_ease-out_0s]
               ${icon ? 'pl-11' : ''}
               ${showPasswordToggle ? 'pr-11' : ''}
