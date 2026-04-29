@@ -17,6 +17,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login')
   }
 
+  const handleProfileUpdate = async (name: string, email?: string, password?: string) => {
+    if (user) {
+      const { updateUser } = await import('@/lib/api')
+      await updateUser(user.id, { name, email, password })
+    }
+  }
+
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/login')
@@ -39,7 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] gradient-radial-secondary pointer-events-none" />
 
       <div className="relative z-30">
-        <DashboardNavbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} user={user} onLogout={logout} />
+        <DashboardNavbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} user={user} onLogout={logout} onProfileUpdate={handleProfileUpdate} />
       </div>
 
       <div className="flex flex-1 overflow-hidden relative z-10">
