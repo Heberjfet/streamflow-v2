@@ -45,6 +45,13 @@ export const register = async (email: string, password: string, name: string) =>
   return handleResponse<{ token: string; user: { id: string; email: string; name: string; role: string } }>(res)
 }
 
+export const getMe = async (): Promise<ApiResponse<{ id: string; email: string; name: string; role: string }>> => {
+  const res = await fetch(`${getApiUrl()}/v1/auth/me`, {
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  return handleResponse<{ id: string; email: string; name: string; role: string }>(res)
+}
+
 export interface Asset {
   id: string
   title: string
