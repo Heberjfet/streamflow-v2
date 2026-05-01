@@ -53,6 +53,7 @@ services:
       dockerfile: docker/api.Dockerfile
     ports:
       - "3001:3001"
+    entrypoint: ["/app/docker/entrypoint.sh"]
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-streamflow}:${POSTGRES_PASSWORD:-streamflow}@postgres:5432/${POSTGRES_DB:-streamflow}
       REDIS_URL: redis://redis:6379
