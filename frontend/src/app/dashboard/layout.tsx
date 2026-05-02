@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { DashboardNavbar } from '@/components/DashboardNavbar'
 import Link from 'next/link'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -11,7 +10,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter()
   const pathname = usePathname()
 
-  // Estados para controlar Sidebar y el Popover del perfil
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
 
@@ -41,13 +39,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] gradient-radial-primary pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] gradient-radial-secondary pointer-events-none" />
 
-      <div className="relative z-30">
-        <DashboardNavbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
-      </div>
-
       <div className="flex flex-1 overflow-hidden relative z-10">
 
-        {/* FONDO OSCURO PARA CERRAR EL POPOVER (Click-away listener) */}
         {isProfileOpen && (
           <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />
         )}
@@ -55,17 +48,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <aside
           className={`
             transition-[width] duration-300 ease-in-out flex flex-col
-            ${isSidebarOpen ? 'w-64' : 'w-20'} 
+            ${isSidebarOpen ? 'w-64' : 'w-28'} 
             relative border-r border-white/[0.03] bg-[var(--surface)]/30 backdrop-blur-md
             z-50
           `}
         >
-          {/* Navegación Superior */}
+          <div className="flex shrink-0 border-b border-white/[0.03] h-14 items-center px-4 overflow-hidden relative">
+
+            <div className="flex items-center w-full min-w-max">
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="p-2 mr-1 rounded-lg hover:bg-white/10 transition-colors text-[var(--text-secondary)] hover:text-white shrink-0"
+                title={isSidebarOpen ? "Contraer menú" : "Expandir menú"}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+
+              <Link href="/dashboard" className="flex items-center gap-2 group shrink-0" title="Ir al inicio">
+                <div className="w-8 h-8 shrink-0 rounded-lg bg-[var(--primary)] flex items-center justify-center shadow-[0_0_15px_rgba(168,85,247,0.3)] transition-transform group-hover:scale-105">
+                  <svg className="w-4 h-4 text-black" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+
+                <span
+                  className={`text-lg font-bold tracking-tight whitespace-nowrap transition-all duration-300 ${isSidebarOpen ? 'opacity-100 max-w-[200px]' : 'opacity-0 max-w-0 overflow-hidden'
+                    }`}
+                >
+                  StreamFlow
+                </span>
+              </Link>
+            </div>
+          </div>
+
           <div className={`pt-6 pb-2 ${isSidebarOpen ? 'px-6' : 'px-3'}`}>
             <p className={`text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
               Navegación
             </p>
-            <nav className="space-y-1">
+            <nav className="space-y-2">
               <SidebarLink href="/dashboard" icon="home" active={pathname === '/dashboard'} isOpen={isSidebarOpen}>Inicio</SidebarLink>
               <SidebarLink href="/dashboard/videos" icon="video" active={pathname === '/dashboard/videos'} isOpen={isSidebarOpen}>Videos</SidebarLink>
               <SidebarLink href="/dashboard/catalogs" icon="folder" active={pathname === '/dashboard/catalogs'} isOpen={isSidebarOpen}>Catálogos</SidebarLink>
@@ -77,24 +99,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <p className={`text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-4 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 block' : 'opacity-0 hidden'}`}>
                 Administración
               </p>
-              <nav className="space-y-1">
+              <nav className="space-y-2">
                 <SidebarLink href="/dashboard/users" icon="users" active={pathname === '/dashboard/users'} isOpen={isSidebarOpen}>Usuarios</SidebarLink>
                 <SidebarLink href="/dashboard/logs" icon="log" active={pathname === '/dashboard/logs'} isOpen={isSidebarOpen}>Logs</SidebarLink>
               </nav>
             </div>
           )}
 
-          {/* SECCIÓN INFERIOR: USUARIO Y LOGOUT */}
           <div className={`mt-auto p-4 border-t border-white/[0.03] bg-white/[0.01] flex flex-col ${isSidebarOpen ? 'items-stretch' : 'items-center'}`}>
 
-            {/* Widget de Perfil clickeable (Hover simple, sin scale) */}
             <div
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className={`flex items-center ${isSidebarOpen ? 'justify-between px-2' : 'justify-center'} py-3 mb-2 cursor-pointer hover:bg-white/5 rounded-xl transition-colors group`}
+              className={`flex items-center ${isSidebarOpen ? 'justify-between px-2' : 'justify-center'} py-3 mb-2 cursor-pointer hover:bg-white/5 rounded-xl transition-colors group relative`}
               title="Ver Perfil"
             >
               <div className="flex items-center gap-3">
-                {/* Avatar */}
                 <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-[var(--primary)]/30 to-transparent border border-[var(--primary)]/30 flex items-center justify-center font-bold text-[var(--primary)] overflow-hidden">
                   {user?.avatarUrl ? (
                     <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -103,47 +122,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   )}
                 </div>
 
-                {/* Solo el Nombre */}
                 {isSidebarOpen && (
                   <span className="text-sm font-bold truncate max-w-[100px]">{user?.name || 'Admin'}</span>
                 )}
               </div>
-
-              {/* Icono lado derecho (3 puntos) con opacidad simple */}
-              {isSidebarOpen && (
-                <div className="text-[var(--text-secondary)] opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                  </svg>
-                </div>
-              )}
             </div>
 
-            {/* Botón Cerrar Sesión (Hover simple fondo rojo, sin translate) */}
             <button
               onClick={handleLogout}
               className={`flex items-center ${isSidebarOpen ? 'justify-start px-4 gap-3' : 'justify-center'} py-3 rounded-xl text-xs font-bold uppercase tracking-[0.1em] text-red-400 hover:bg-red-500/10 transition-colors w-full`}
               title="Cerrar Sesión"
             >
-              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-6 h-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               {isSidebarOpen && <span>Cerrar Sesión</span>}
             </button>
           </div>
 
-          {/* POPOVER FLOTANTE (Información completa de BD) */}
           {isProfileOpen && (
             <div
-              className={`fixed bottom-6 ${isSidebarOpen ? 'left-64 ml-4' : 'left-20 ml-4'} w-72 glass-card p-5 rounded-2xl border border-[var(--primary)]/30 shadow-2xl z-50 animate-fade-in`}
+              className={`fixed bottom-6 ${isSidebarOpen ? 'left-64 ml-4' : 'left-24 ml-4'} w-72 bg-black p-5 rounded-2xl border-b border-[var(--primary)]/30 z-50`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-bold text-[var(--text-primary)] text-lg truncate pr-2">{user?.name}</h4>
-                {user?.googleId && (
-                  <span className="shrink-0 bg-white/10 text-[var(--text-primary)] text-[10px] px-2 py-1 rounded-md font-mono border border-white/20">
-                    Google Auth
-                  </span>
-                )}
               </div>
 
               <p className="text-sm text-[var(--text-secondary)] mb-4 pb-4 border-b border-white/[0.08] break-all">
@@ -153,18 +155,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-[var(--text-secondary)]">Rol de Acceso</span>
-                  <span className={`font-mono px-2 py-0.5 rounded-md text-xs border ${user?.role === 'admin' ? 'bg-[var(--primary)]/20 text-[var(--primary)] border-[var(--primary)]/30' : 'bg-white/5 text-[var(--text-secondary)] border-white/10'} capitalize`}>
+                  <span className={`font-mono px-2 py-0.5 rounded-md text-xs  ${user?.role === 'admin' ? 'bg-[var(--primary)]/20 text-[var(--primary)] border-[var(--primary)]/30' : 'bg-white/5 text-[var(--text-secondary)] border-white/10'} capitalize`}>
                     {user?.role || 'Viewer'}
                   </span>
                 </div>
-                {user?.createdAt && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-[var(--text-secondary)]">Miembro desde</span>
-                    <span className="font-mono text-[var(--text-primary)]">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -202,21 +196,19 @@ function SidebarLink({ href, icon, children, active, isOpen }: { href: string, i
         ${active ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5'}
       `}
     >
-      {/* Icono de tamaño fijo (w-6 h-6 shrink-0) sin importar si está abierto o cerrado */}
-      <svg className={`w-6 h-6 shrink-0 ${active ? 'opacity-100' : 'opacity-60'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className={`w-8 h-8 shrink-0 ${active ? 'opacity-100' : 'opacity-60'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         {getIcon()}
       </svg>
 
-      {/* Texto de la etiqueta */}
       {isOpen && (
         <span className={`text-sm font-medium tracking-wide ml-3 ${active ? 'font-bold' : ''} truncate`}>
           {children}
         </span>
       )}
 
-      {/* Indicadores de Activo */}
       {active && isOpen && <div className="absolute right-3 w-1 h-4 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]" />}
       {active && !isOpen && <div className="absolute right-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]" />}
     </Link>
   )
 }
+
