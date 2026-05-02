@@ -9,7 +9,6 @@ interface VideoPlayerProps {
   autoplay?: boolean
 }
 
-// Utilidad para URLs locales
 const fixLocalhostUrl = (url: string): string => {
   if (!url) return url
   const hostname = window.location.hostname
@@ -23,7 +22,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
   const containerRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const hlsRef = useRef<hls | null>(null)
-
+  const hideTimerRef = useRef<NodeJS.Timeout | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [volume, setVolume] = useState(1)
@@ -32,7 +31,8 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [showCenterIcon, setShowCenterIcon] = useState(true) // Controla la visibilidad del botón gigante
+  const [showCenterIcon, setShowCenterIcon] = useState(true)
+  const [showControls, setShowControls] = useState(true)
 
   const [videoSrc, setVideoSrc] = useState(src)
   const [posterImg, setPosterImg] = useState(poster)
@@ -42,7 +42,6 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
     setPosterImg(poster ? fixLocalhostUrl(poster) : undefined)
   }, [src, poster])
 
-  // Lógica de HLS
   useEffect(() => {
     const video = videoRef.current
     if (!video || !videoSrc) return
@@ -99,19 +98,27 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
     }
   }, [videoSrc, autoplay])
 
-  // Acciones de control
   const togglePlay = useCallback(() => {
     const video = videoRef.current
     if (!video) return
     if (video.paused) {
       video.play().catch(() => { })
       setIsPlaying(true)
-      setShowCenterIcon(false) // Ocultar al reproducir
+      setShowCenterIcon(false)
     } else {
       video.pause()
       setIsPlaying(false)
-      setShowCenterIcon(true) // Mostrar al pausar
+      setShowCenterIcon(true)
+      setShowControls(true)
     }
+  }, [])
+
+  const skipTime = useCallback((amount: number) => {
+    const video = videoRef.current
+    if (!video) return
+    const newTime = Math.max(0, Math.min(video.currentTime + amount, video.duration || 0))
+    video.currentTime = newTime
+    setCurrentTime(newTime)
   }, [])
 
   const toggleFullscreen = useCallback(async () => {
@@ -124,7 +131,6 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
     }
   }, [])
 
-  // Listener para salir de pantalla completa con ESC
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
@@ -133,29 +139,64 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
-  // Keyboard Shortcuts (Barra espaciadora y tecla F)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Evitar que el espacio haga scroll en la página si estamos interactuando con el reproductor
-      if (e.code === 'Space' && containerRef.current?.contains(document.activeElement)) {
-        e.preventDefault()
-        togglePlay()
-      }
-      if (e.code === 'KeyF' && containerRef.current?.contains(document.activeElement)) {
-        e.preventDefault()
-        toggleFullscreen()
+      if (!containerRef.current?.contains(document.activeElement)) return
+
+      switch (e.code) {
+        case 'Space':
+          e.preventDefault()
+          togglePlay()
+          break
+        case 'KeyF':
+          e.preventDefault()
+          toggleFullscreen()
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          skipTime(10)
+          break
+        case 'ArrowLeft':
+          e.preventDefault()
+          skipTime(-10)
+          break
       }
     }
 
-    // Usamos el evento a nivel del contenedor para que solo funcione si el usuario tiene el foco en el reproductor o hizo clic en él
     const container = containerRef.current
     if (container) {
       container.addEventListener('keydown', handleKeyDown)
-      // Para asegurar que el contenedor reciba eventos de teclado, le daremos un tabIndex
       return () => container.removeEventListener('keydown', handleKeyDown)
     }
-  }, [togglePlay, toggleFullscreen])
+  }, [togglePlay, toggleFullscreen, skipTime])
 
+  const handleMouseMove = useCallback(() => {
+    setShowControls(true)
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+
+    if (isPlaying) {
+      hideTimerRef.current = setTimeout(() => {
+        setShowControls(false)
+      }, 3000)
+    }
+  }, [isPlaying])
+
+  const handleMouseLeave = () => {
+    if (isPlaying) setShowControls(false)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setShowControls(true)
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+    }
+  }, [isPlaying])
 
   const toggleMute = () => {
     const video = videoRef.current
@@ -190,9 +231,12 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full bg-black group overflow-hidden flex items-center justify-center outline-none"
+      className={`relative w-full h-full bg-black overflow-hidden flex items-center justify-center outline-none ${!showControls && isFullscreen ? 'cursor-none' : 'cursor-default'
+        }`}
       onDoubleClick={toggleFullscreen}
-      tabIndex={0} // Necesario para recibir eventos de teclado
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      tabIndex={0}
     >
       <video
         ref={videoRef}
@@ -214,7 +258,6 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         playsInline
       />
 
-      {/* OVERLAY DE CARGA */}
       {isLoading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--surface)]/60 backdrop-blur-sm z-10 pointer-events-none">
           <div className="w-12 h-12 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin shadow-[0_0_15px_rgba(168,85,247,0.5)] mb-4" />
@@ -222,7 +265,6 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         </div>
       )}
 
-      {/* OVERLAY DE ERROR */}
       {error && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10 p-6 text-center">
           <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-3 border border-red-500/50">
@@ -232,7 +274,6 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         </div>
       )}
 
-      {/* BOTÓN CENTRAL GIGANTE */}
       <div className={`absolute inset-0 flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ${showCenterIcon ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
         <button
           onClick={togglePlay}
@@ -253,8 +294,7 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         </button>
       </div>
 
-      {/* CONTROLES SUPERIORES (Volumen fijo arriba a la derecha) */}
-      <div className="absolute top-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className={`absolute top-6 right-6 z-20 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div className="glass-card flex items-center h-12 px-4 rounded-2xl gap-3">
           <button onClick={toggleMute} className="text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors shrink-0">
             {isMuted || volume === 0 ? (
@@ -279,20 +319,46 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         </div>
       </div>
 
-      {/* BARRA DE CONTROLES INFERIOR MINIMALISTA */}
-      <div className="absolute bottom-6 left-6 right-6 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <div className={`absolute bottom-6 left-6 right-6 z-20 transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         <div className="glass-card flex items-center h-14 px-5 rounded-2xl gap-5">
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => skipTime(-10)}
+              className="text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors p-1"
+              title="Atrasar 10s"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" d="M4 12a8 8 0 1 1 2.3 5.7" />
+                <polyline strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" points="4 4 4 10 10 10" />
+                <text x="12" y="16" textAnchor="middle" fontSize="8" fill="currentColor">10</text>
+              </svg>
+            </button>
 
-          {/* 1. Play / Pause (Izquierda) */}
-          <button onClick={togglePlay} className="text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors shrink-0">
-            {isPlaying ? (
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" /></svg>
-            ) : (
-              <svg className="w-6 h-6 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-            )}
-          </button>
+            <button onClick={togglePlay} className="text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors px-1 shrink-0">
+              {isPlaying ? (
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              )}
+            </button>
 
-          {/* 2. Barra de Progreso y Tiempo (Centro) */}
+            <button
+              onClick={() => skipTime(10)}
+              className="text-[var(--text-secondary)] hover:text-[var(--primary)] transition-colors p-1"
+              title="Adelantar 10s"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" d="M20 12a8 8 0 1 0-2.3 5.7" />
+                <polyline strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" points="20 4 20 10 14 10" />
+                <text x="12" y="16" textAnchor="middle" fontSize="8" fill="currentColor">10</text>
+              </svg>
+            </button>
+          </div>
+
           <div className="flex-1 flex items-center gap-3">
             <span className="text-[11px] text-[var(--text-secondary)] font-mono w-10 text-right">{formatTime(currentTime)}</span>
 
@@ -314,7 +380,6 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
             <span className="text-[11px] text-[var(--text-secondary)] font-mono w-10">{formatTime(duration)}</span>
           </div>
 
-          {/* 3. Pantalla Completa (Extremo Derecho) */}
           <button onClick={toggleFullscreen} className="text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors shrink-0">
             {isFullscreen ? (
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
