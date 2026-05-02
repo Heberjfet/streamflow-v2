@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
 import { VideoPlayer } from '@/components/VideoPlayer'
 import type { PlaybackResponse } from '@/lib/api'
 
@@ -21,7 +20,7 @@ export default function WatchPage() {
       const { data, error: fetchError } = await getPlayback(params.playbackId)
 
       if (fetchError || !data) {
-        setError(fetchError || 'Video not found or is private')
+        setError(fetchError || 'Video no encontrado o es privado')
       } else {
         setPlayback(data)
       }
@@ -33,25 +32,28 @@ export default function WatchPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="w-12 h-12 border-3 border-white border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--text-secondary)] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
   if (error || !playback) {
     return (
-      <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-20 h-20 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-[var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold font-[var(--font-display)] mb-3">Video Not Found</h1>
-          <p className="text-[var(--color-text-secondary)] mb-8">{error}</p>
-          <Link href="/">
-            <Button>Go to StreamFlow</Button>
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center relative">
+        <Link
+          href="/"
+          className="absolute top-8 left-8 w-10 h-10 flex items-center justify-center border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--border)] transition-colors"
+          aria-label="Volver"
+        >
+          <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+          </svg>
+        </Link>
+        <div className="text-center bg-[var(--surface)] border border-[var(--border)] p-8 animate-fade-in">
+          <p className="text-[var(--text-secondary)] mb-4">{error}</p>
+          <Link href="/" className="btn-secondary inline-block">
+            Ir a StreamFlow
           </Link>
         </div>
       </div>
@@ -59,77 +61,69 @@ export default function WatchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[var(--color-accent)] rounded-lg flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-            <span className="text-lg font-bold font-[var(--font-display)] text-white">
-              Stream<span className="text-[var(--color-accent)]">Flow</span>
-            </span>
+    <div className="min-h-screen bg-[var(--background)] flex flex-col">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--surface)]/80 backdrop-blur-md border-b border-[var(--border)]">
+        <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
+
+          <Link
+            href="/"
+            className="w-10 h-10 flex items-center justify-center border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--border)] transition-colors shrink-0"
+            aria-label="Volver al inicio"
+          >
+            <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+            </svg>
           </Link>
 
-          <div className="flex items-center gap-4">
-            {playback.title && (
-              <span className="text-sm text-white/60 hidden sm:block truncate max-w-[200px]">
-                {playback.title}
-              </span>
-            )}
+          <div className="flex-1 text-center overflow-hidden">
+            <h1 className="text-lg font-bold text-[var(--text-primary)] truncate px-4">
+              {playback.title}
+            </h1>
           </div>
+
+          <div className="shrink-0 hidden sm:block">
+            <span className="text-lg font-bold font-[var(--font-display)] text-[var(--text-primary)]">
+              Stream<span className="text-[var(--primary)]">Flow</span>
+            </span>
+          </div>
+
         </div>
       </header>
 
-      <main className="pt-14">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="rounded-xl overflow-hidden bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-2xl">
+      <main className="pt-16 flex-1 flex flex-col items-center w-full">
+        <div className="w-full animate-fade-in-up">
+          <div className="bg-black border border-[var(--border)] w-full aspect-video relative">
             <VideoPlayer
               src={playback.manifestUrl}
               poster={playback.thumbnailUrl}
               autoplay
             />
           </div>
+        </div>
 
-          <div className="mt-8">
-            <h1 className="text-2xl font-bold font-[var(--font-display)] text-white mb-4">
-              {playback.title}
-            </h1>
-            <div className="flex items-center gap-6 text-sm text-white/60">
-              {playback.duration && (
-                <span>
-                  Duration: {Math.floor(playback.duration / 60)}:{String(Math.floor(playback.duration % 60)).padStart(2, '0')}
-                </span>
-              )}
-              <Link href="/" className="hover:text-white transition-colors">
-                StreamFlow
-              </Link>
-            </div>
-          </div>
-
-          <div className="mt-12 pt-8 border-t border-white/10">
-            <div className="bg-[var(--color-bg-elevated)] rounded-xl p-6 text-center">
-              <h2 className="text-lg font-semibold text-white mb-2">
-                Want to host your own videos?
-              </h2>
-              <p className="text-[var(--color-text-secondary)] mb-4">
-                Create your own StreamFlow instance and get full control.
-              </p>
-              <Link href="/register">
-                <Button>Get Started</Button>
-              </Link>
-            </div>
+        {/* Sección de Promoción Restaurada */}
+        <div className="w-full mt-12">
+          <div className="bg-[var(--surface)] border border-[var(--border)] p-8 text-center flex flex-col items-center">
+            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+              ¿Quieres alojar tus propios videos?
+            </h2>
+            <p className="text-[var(--text-secondary)] mb-6">
+              Crea tu propia instancia de StreamFlow y obtén el control total de tu contenido.
+            </p>
+            <Link href="/register" className="btn-secondary">
+              Comenzar ahora
+            </Link>
           </div>
         </div>
       </main>
 
-      <footer className="border-t border-white/10 py-6 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-white/40">
+      {/* Footer Restaurado */}
+      <footer className="border-t border-[var(--border)] py-6 bg-[var(--surface)] mt-auto">
+        <div className="w-full px-4 text-center text-sm text-[var(--text-secondary)]">
           Powered by StreamFlow
         </div>
       </footer>
+
     </div>
   )
 }
