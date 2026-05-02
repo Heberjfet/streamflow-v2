@@ -62,7 +62,7 @@ export default function WatchPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--surface)]/80 backdrop-blur-md border-b border-[var(--border)]">
+      <header className="sticky top-0 left-0 right-0 z-50 bg-[var(--surface)]/80 backdrop-blur-md border-b border-[var(--border)]">
         <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
 
           <Link
@@ -90,7 +90,7 @@ export default function WatchPage() {
         </div>
       </header>
 
-      <main className="pt-16 flex-1 flex flex-col items-center w-full">
+      <main className="flex-1 flex flex-col items-center w-full">
         <div className="w-full animate-fade-in-up">
           <div className="bg-black border border-[var(--border)] w-full aspect-video relative">
             <VideoPlayer
@@ -102,8 +102,8 @@ export default function WatchPage() {
         </div>
 
         {/* Sección de Promoción Restaurada */}
-        <div className="w-full mt-12">
-          <div className="bg-[var(--surface)] border border-[var(--border)] p-8 text-center flex flex-col items-center">
+        <div className="w-full">
+          <div className="bg-[var(--surface)] border border-[var(--border)] p-12 text-center flex flex-col items-center">
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
               ¿Quieres alojar tus propios videos?
             </h2>

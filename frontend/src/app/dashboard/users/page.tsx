@@ -94,8 +94,8 @@ export default function UsersAdminPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter uppercase italic">
-            User <span className="gradient-text">Directory</span>
+          <h1 className="text-4xl font-black">
+            Directorio de usuarios
           </h1>
           <p className="text-[var(--text-secondary)] mt-2 text-sm max-w-md">
             Gestiona privilegios de acceso, roles de administración y monitorea la actividad de los usuarios en tiempo real.
