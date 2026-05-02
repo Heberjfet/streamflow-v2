@@ -12,7 +12,6 @@ export function DashboardNavbar({ onMenuClick }: NavbarProps) {
       <div className="mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
-            {/* Toggle Sidebar */}
             <button
               onClick={onMenuClick}
               className="p-2 rounded-lg hover:bg-white/5 transition-colors text-[var(--text-secondary)]"
@@ -30,11 +29,6 @@ export function DashboardNavbar({ onMenuClick }: NavbarProps) {
               </div>
               <span className="text-lg font-bold tracking-tight">StreamFlow</span>
             </Link>
-          </div>
-
-          {/* El lado derecho ahora queda vacío o para notificaciones futuras */}
-          <div className="flex items-center gap-4">
-            {/* Aquí podrías poner un botón de notificaciones o dejarlo vacío */}
           </div>
         </div>
       </div>

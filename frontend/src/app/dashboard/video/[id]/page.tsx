@@ -118,14 +118,12 @@ export default function VideoDetailPage() {
   return (
     <div className="w-full max-w-[1600px] mx-auto space-y-6 animate-fade-in pb-12">
 
-      {/* 1. BARRA SUPERIOR: BOTÓN DE ATRÁS Y BOTÓN ELIMINAR */}
       <div className="flex items-center justify-between w-full">
         <Link href="/dashboard/videos" className="text-[var(--text-secondary)] hover:text-white flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold transition-colors w-fit">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-          Directorio de Videos
+          Catálogo de vídeos
         </Link>
 
-        {/* Botón Eliminar en la misma fila (Lado derecho, solo icono) */}
         <button
           onClick={handleDelete}
           disabled={deleting}
@@ -142,13 +140,54 @@ export default function VideoDetailPage() {
         </button>
       </div>
 
-      {/* 2. CONTENEDOR DEL VIDEO (Arriba y grande) */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 border-b border-white/5 pb-6 pt-2">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <span className={`flex items-center gap-1.5 text-[10px] uppercase font-black tracking-widest px-2 py-1 rounded border ${status.border} ${status.color} bg-white/5`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${status.glow} shadow-[0_0_8px_currentColor]`} />
+              {status.label}
+            </span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight uppercase">{asset.title}</h1>
+        </div>
+
+        {asset.status === 'ready' && asset.playbackId && (
+          <div className="flex gap-3">
+            {allowDownload && (
+              <button
+                onClick={() => window.open(`/api/playback/${asset.playbackId}/download?quality=original`, '_blank')}
+                className="btn-secondary py-2.5 px-5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Descargar Original
+              </button>
+            )}
+            <Link href={`/watch/${asset.playbackId}`} target="_blank">
+              <button className="btn-secondary py-2.5 px-5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                Probar Player
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+        <div className="glass-card p-5 rounded-2xl border border-white/5 hover:border-[var(--primary)]/20 transition-colors">
+          <dt className="text-[10px] text-[var(--text-secondary)] uppercase tracking-widest mb-2">Identificador Único</dt>
+          <dd className="font-mono text-sm text-white/80">{asset.id}</dd>
+        </div>
+
+        <div className="glass-card p-5 rounded-2xl border border-white/5 hover:border-[var(--primary)]/20 transition-colors">
+          <dt className="text-[10px] text-[var(--text-secondary)] uppercase tracking-widest mb-2">Creación</dt>
+          <dd className="font-mono text-sm text-white/80">{new Date(asset.createdAt).toLocaleDateString()}</dd>
+        </div>
+      </div>
+
       <div className="w-full">
         <div className="glass-card p-2 rounded-[2rem] border border-white/5 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-6 left-6 text-[10px] font-mono text-white/20 z-10 pointer-events-none">MONITOR OUT // CH-1</div>
-
           {hlsUrl ? (
-            <div className="rounded-[1.5rem] overflow-hidden bg-black border border-white/10 aspect-video max-h-[70vh] w-full flex justify-center items-center">
+            <div className="rounded-[1.5rem] overflow-hidden bg-black border border-white/10 aspect-video max-h-[100vh] w-full flex justify-center items-center">
               <div className="w-full h-full">
                 <VideoPlayer
                   src={hlsUrl}
@@ -158,7 +197,6 @@ export default function VideoDetailPage() {
             </div>
           ) : (
             <div className="rounded-[1.5rem] aspect-video max-h-[70vh] flex items-center justify-center bg-black/40 border border-white/5 relative overflow-hidden">
-              <div className="noise-overlay opacity-30" />
               <div className="text-center relative z-10">
                 {asset.status === 'processing' && (
                   <div className="flex flex-col items-center">
@@ -189,56 +227,6 @@ export default function VideoDetailPage() {
               </div>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* 3. TÍTULO Y ESTADO (Más compacto) */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-white/5 pb-6 pt-4">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <span className={`flex items-center gap-1.5 text-[10px] uppercase font-black tracking-widest px-2 py-1 rounded border ${status.border} ${status.color} bg-white/5`}>
-              <div className={`w-1.5 h-1.5 rounded-full ${status.glow} shadow-[0_0_8px_currentColor]`} />
-              {status.label}
-            </span>
-          </div>
-          {/* Título de menor tamaño */}
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight uppercase">{asset.title}</h1>
-        </div>
-
-        {asset.status === 'ready' && asset.playbackId && (
-          <div className="flex gap-3">
-            {allowDownload && (
-              <button
-                onClick={() => window.open(`/api/playback/${asset.playbackId}/download?quality=original`, '_blank')}
-                className="btn-secondary py-2.5 px-5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                Descargar Original
-              </button>
-            )}
-            <Link href={`/watch/${asset.playbackId}`} target="_blank">
-              <button className="btn-secondary py-2.5 px-5 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                Probar Player
-              </button>
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* 4. METADATA SIMPLIFICADA (Grid 2 columnas) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-
-        {/* Bloque Identificador */}
-        <div className="glass-card p-5 rounded-2xl border border-white/5 hover:border-[var(--primary)]/20 transition-colors">
-          <dt className="text-[10px] text-[var(--text-secondary)] uppercase tracking-widest mb-2">Identificador Único</dt>
-          <dd className="font-mono text-sm text-white/80">{asset.id}</dd>
-        </div>
-
-        {/* Bloque Creación */}
-        <div className="glass-card p-5 rounded-2xl border border-white/5 hover:border-[var(--primary)]/20 transition-colors">
-          <dt className="text-[10px] text-[var(--text-secondary)] uppercase tracking-widest mb-2">Creación</dt>
-          <dd className="font-mono text-sm text-white/80">{new Date(asset.createdAt).toLocaleDateString()}</dd>
         </div>
       </div>
     </div>

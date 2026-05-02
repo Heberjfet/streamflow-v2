@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { VideoCard, VideoCardSkeleton } from '@/components/VideoCard'
-import { UploadForm } from '@/components/UploadForm'
 import { useAssets } from '@/hooks/useAssets'
 import { useAuth } from '@/hooks/useAuth'
+import Link from 'next/link'
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -49,9 +49,9 @@ export default function DashboardPage() {
             <p className="text-[var(--text-secondary)] mb-8 max-w-md mx-auto">
               El catálogo está vacío. Sube el primer video al sistema para comenzar a poblar tu plataforma.
             </p>
-            <button onClick={() => setShowUpload(true)} className="btn-primary">
+            <Link href="/dashboard/videos" className="btn-primary">
               Subir mi primer video
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

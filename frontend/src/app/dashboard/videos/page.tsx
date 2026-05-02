@@ -100,9 +100,6 @@ export default function NetflixAdminVideos() {
                         </div>
                         <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">Base de datos vacía</h3>
                         <p className="text-[var(--text-secondary)] mb-8 max-w-md mx-auto text-sm">No hay activos multimedia en el servidor. Inicia el proceso de ingesta para poblar el CMS.</p>
-                        <button onClick={() => setShowUpload(true)} className="btn-secondary px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest">
-                            Iniciar Primera Ingesta
-                        </button>
                     </div>
                 ) : viewMode === 'table' ? (
 
