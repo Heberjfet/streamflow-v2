@@ -33,7 +33,7 @@ export default function WatchPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--text-secondary)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -42,18 +42,18 @@ export default function WatchPage() {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center relative">
         <Link
-          href="/"
-          className="absolute top-8 left-8 w-10 h-10 flex items-center justify-center border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--border)] transition-colors"
-          aria-label="Volver"
+          href="/dashboard/videos"
+          className="absolute top-6 left-6 w-12 h-12 flex items-center justify-center rounded-full glass-card hover:bg-white/5 transition-colors z-50"
+          aria-label="Volver a videos"
         >
           <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
-        <div className="text-center bg-[var(--surface)] border border-[var(--border)] p-8 animate-fade-in">
+        <div className="text-center bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl animate-fade-in max-w-md">
           <p className="text-[var(--text-secondary)] mb-4">{error}</p>
-          <Link href="/" className="btn-secondary inline-block">
-            Ir a StreamFlow
+          <Link href="/dashboard/videos" className="btn-secondary inline-block">
+            Volver a Videos
           </Link>
         </div>
       </div>
@@ -62,64 +62,66 @@ export default function WatchPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col">
-      <header className="sticky top-0 left-0 right-0 z-50 bg-[var(--surface)]/80 backdrop-blur-md border-b border-[var(--border)]">
-        <div className="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-6">
 
-          <Link
-            href="/"
-            className="w-10 h-10 flex items-center justify-center border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--border)] transition-colors shrink-0"
-            aria-label="Volver al inicio"
-          >
-            <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-            </svg>
-          </Link>
+      <main className="flex-1 flex flex-col w-full">
+        <div className="relative w-full h-screen bg-black animate-fade-in-up">
+          <header className="absolute top-6 left-6 z-50 flex flex-col items-start gap-3 pointer-events-none">
+            <div className="flex items-center gap-3">
+              <Link
+                href="/dashboard/videos"
+                className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-full glass-card hover:bg-white/10 transition-colors shrink-0"
+                aria-label="Volver a videos"
+              >
+                <svg className="w-5 h-5 text-[var(--text-primary)] translate-x-[-1px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
 
-          <div className="flex-1 text-center overflow-hidden">
-            <h1 className="text-lg font-bold text-[var(--text-primary)] truncate px-4">
-              {playback.title}
-            </h1>
-          </div>
+              <div className="pointer-events-auto h-12 px-6 flex items-center justify-center rounded-full glass-card max-w-xs sm:max-w-md">
+                <h1 className="text-sm font-bold text-[var(--text-primary)] truncate">
+                  {playback.title}
+                </h1>
+              </div>
+            </div>
 
-          <div className="shrink-0 hidden sm:block">
-            <span className="text-lg font-bold font-[var(--font-display)] text-[var(--text-primary)]">
-              Stream<span className="text-[var(--primary)]">Flow</span>
-            </span>
-          </div>
+            <div className="pointer-events-auto px-2">
+              <span className="text-xl font-bold font-[var(--font-display)] text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                Stream<span className="text-[var(--primary)] drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">Flow</span>
+              </span>
+            </div>
+          </header>
 
-        </div>
-      </header>
-
-      <main className="flex-1 flex flex-col items-center w-full">
-        <div className="w-full animate-fade-in-up">
-          <div className="bg-black border border-[var(--border)] w-full aspect-video relative">
-            <VideoPlayer
-              src={playback.manifestUrl}
-              poster={playback.thumbnailUrl}
-              autoplay
-            />
-          </div>
+          <VideoPlayer
+            src={playback.manifestUrl}
+            poster={playback.thumbnailUrl}
+            autoplay
+          />
         </div>
 
-        {/* Sección de Promoción Restaurada */}
-        <div className="w-full">
-          <div className="bg-[var(--surface)] border border-[var(--border)] p-12 text-center flex flex-col items-center">
-            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-              ¿Quieres alojar tus propios videos?
+        <div className="w-full relative overflow-hidden border-y border-[var(--border)] py-24 sm:py-32">
+          <div className="absolute inset-0 gradient-radial-primary opacity-20 pointer-events-none" />
+          <div className="absolute inset-0 noise-overlay opacity-30 pointer-events-none" />
+
+          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
+
+            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4">
+              ¿Quieres alojar tus <span className="gradient-text">propios videos?</span>
             </h2>
-            <p className="text-[var(--text-secondary)] mb-6">
-              Crea tu propia instancia de StreamFlow y obtén el control total de tu contenido.
+
+            <p className="text-lg text-[var(--text-secondary)] mb-10 max-w-2xl">
+              Crea tu propia instancia de StreamFlow y obtén el control total de tu catálogo.
+              Infraestructura autohospedada, transcodificación HLS y cero límites.
             </p>
-            <Link href="/register" className="btn-secondary">
-              Comenzar ahora
+
+            <Link href="/register" className="btn-primary text-base px-8 py-4 uppercase tracking-wider font-bold shadow-[0_0_30px_rgba(168,85,247,0.3)]">
+              Iniciar Ahora
             </Link>
           </div>
         </div>
       </main>
 
-      {/* Footer Restaurado */}
-      <footer className="border-t border-[var(--border)] py-6 bg-[var(--surface)] mt-auto">
-        <div className="w-full px-4 text-center text-sm text-[var(--text-secondary)]">
+      <footer className="py-8 bg-[var(--background)] mt-auto">
+        <div className="w-full px-4 text-center text-sm font-mono text-[var(--text-secondary)]/50 uppercase tracking-widest">
           Powered by StreamFlow
         </div>
       </footer>
