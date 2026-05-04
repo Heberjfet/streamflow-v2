@@ -67,7 +67,7 @@ export default function CatalogsPage() {
     const openAddVideoModal = async () => {
         const { data } = await getAssets()
         if (data?.data) {
-            const notInCatalog = data.data.filter(v => v.categoryId !== selectedCatalog?.id)
+            const notInCatalog = data.data.filter(v => v.categoryId !== selectedCatalog?.id && v.categoryId !== undefined)
             setAvailableVideos(notInCatalog)
             setShowAddVideoModal(true)
         }
@@ -96,6 +96,11 @@ export default function CatalogsPage() {
             await updateAsset(vid, { categoryId: selectedCatalog.id })
         }
         await loadVideosForCatalog(selectedCatalog.id)
+        const { data } = await getAssets()
+        if (data?.data) {
+            const notInCatalog = data.data.filter(v => v.categoryId !== selectedCatalog?.id)
+            setAvailableVideos(notInCatalog)
+        }
         setSelectedVideoIds([])
         setShowAddVideoModal(false)
     }
