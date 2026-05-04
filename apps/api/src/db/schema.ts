@@ -56,10 +56,12 @@ export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull(),
   name: varchar('name', { length: 255 }).notNull(),
-  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  slug: varchar('slug', { length: 255 }).notNull(),
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow()
-});
+}, (table) => ({
+  userSlugIdx: unique().on(table.userId, table.slug)
+}));
 
 export const assets = pgTable('assets', {
   id: uuid('id').primaryKey().defaultRandom(),
