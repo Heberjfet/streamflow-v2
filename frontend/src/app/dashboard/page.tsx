@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { VideoCard, VideoCardSkeleton } from '@/components/VideoCard'
 import { useAssets } from '@/hooks/useAssets'
 import { useAuth } from '@/hooks/useAuth'
@@ -12,10 +12,23 @@ export default function DashboardPage() {
   const { assets, loading: assetsLoading, fetchAssets } = useAssets()
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showResults, setShowResults] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchAssets()
     loadCategories()
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowResults(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const loadCategories = async () => {
@@ -30,6 +43,16 @@ export default function DashboardPage() {
   }
 
   const recentVideos = assets.slice(0, 4)
+
+  const filteredCategories = searchQuery.trim()
+    ? categories.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : []
+
+  const filteredVideos = searchQuery.trim()
+    ? assets.filter(a => a.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    : []
+
+  const hasResults = filteredCategories.length > 0 || filteredVideos.length > 0
   const uncategorizedVideos = assets.filter(a => !a.categoryId)
 
   return (
@@ -45,7 +68,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Search Bar */}
-      <div className="mb-8 animate-fade-in-up stagger-2">
+      <div className="mb-8 animate-fade-in-up stagger-2" ref={searchRef}>
         <div className="glass-card flex items-center gap-4 px-4 py-3 rounded-2xl border border-white/5">
           <svg className="w-5 h-5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -54,11 +77,81 @@ export default function DashboardPage() {
             type="text"
             placeholder="Buscar videos, carpetas..."
             className="flex-1 bg-transparent outline-none text-sm"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setShowResults(true)
+            }}
+            onFocus={() => setShowResults(true)}
           />
           <Link href="/dashboard/videos" className="btn-primary text-sm py-2 px-4">
             + Subir
           </Link>
         </div>
+
+        {/* Search Results Dropdown */}
+        {showResults && searchQuery.trim() && (
+          <div className="mt-2 glass-card rounded-2xl border border-white/10 overflow-hidden max-h-[400px] overflow-y-auto">
+            {hasResults ? (
+              <div className="p-2">
+                {filteredCategories.length > 0 && (
+                  <div className="mb-3">
+                    <h3 className="text-xs font-bold text-white/50 uppercase px-3 py-2">Carpetas</h3>
+                    {filteredCategories.map(category => (
+                      <Link
+                        key={category.id}
+                        href={`/dashboard/catalogs?id=${category.id}`}
+                        onClick={() => { setSearchQuery(''); setShowResults(false); }}
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <div className="p-2 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                          </svg>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{category.name}</p>
+                          <p className="text-xs text-[var(--text-secondary)]">{getCategoryVideoCount(category.id)} videos</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+                {filteredVideos.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-bold text-white/50 uppercase px-3 py-2">Videos</h3>
+                    {filteredVideos.map(video => (
+                      <Link
+                        key={video.id}
+                        href={`/dashboard/video/${video.id}`}
+                        onClick={() => { setSearchQuery(''); setShowResults(false); }}
+                        className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <div className="w-16 h-10 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-transparent flex items-center justify-center overflow-hidden shrink-0">
+                          {video.thumbnailKey ? (
+                            <img src={`http://localhost:9000/streamflow/${video.thumbnailKey}`} alt={video.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{video.title}</p>
+                          <p className="text-xs text-[var(--text-secondary)] capitalize">{video.status}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-8 text-center">
+                <p className="text-[var(--text-secondary)]">Sin resultados para "{searchQuery}"</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tus Catálogos */}
