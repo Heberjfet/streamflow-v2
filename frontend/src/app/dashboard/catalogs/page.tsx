@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getCategories, createCategory, deleteCategory, Category, getAssets, updateAsset, Asset } from '@/lib/api'
+import { VideoCard } from '@/components/VideoCard'
 
 export default function CatalogsPage() {
     const [catalogs, setCatalogs] = useState<Category[]>([])
@@ -159,12 +160,9 @@ export default function CatalogsPage() {
                                     <p className="text-[var(--text-secondary)] text-sm">No hay videos asignados a este catálogo todavía.</p>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                     {catalogVideos.map(video => (
-                                        <div key={video.id} className="glass-card p-4 rounded-xl border border-white/[0.05]">
-                                            <h3 className="font-bold truncate">{video.title}</h3>
-                                            <p className="text-sm text-[var(--text-secondary)]">Estado: {video.status}</p>
-                                        </div>
+                                        <VideoCard key={video.id} asset={video} />
                                     ))}
                                 </div>
                             )}
