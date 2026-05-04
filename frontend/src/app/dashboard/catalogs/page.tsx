@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { getCategories, createCategory, deleteCategory, Category, getAssets, updateAsset, Asset } from '@/lib/api'
 import { VideoCard } from '@/components/VideoCard'
 
 export default function CatalogsPage() {
+    const searchParams = useSearchParams()
     const [catalogs, setCatalogs] = useState<Category[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedCatalog, setSelectedCatalog] = useState<Category | null>(null)
@@ -22,10 +24,15 @@ export default function CatalogsPage() {
     }, [])
 
     useEffect(() => {
-        if (selectedCatalog) {
-            loadVideosForCatalog(selectedCatalog.id)
+        const catalogId = searchParams.get('id')
+        if (catalogId && catalogs.length > 0) {
+            const found = catalogs.find(c => c.id === catalogId)
+            if (found) {
+                setSelectedCatalog(found)
+                loadVideosForCatalog(found.id)
+            }
         }
-    }, [selectedCatalog])
+    }, [searchParams, catalogs])
 
     const loadCategories = async () => {
         setLoading(true)
@@ -60,7 +67,10 @@ export default function CatalogsPage() {
     const loadVideosForCatalog = async (categoryId: string) => {
         const { data } = await getAssets()
         if (data?.data) {
+            console.log('All assets:', data.data.map(v => ({ id: v.id, title: v.title, categoryId: v.categoryId })))
+            console.log('Looking for categoryId:', categoryId)
             const filtered = data.data.filter(v => v.categoryId === categoryId)
+            console.log('Filtered videos:', filtered)
             setCatalogVideos(filtered)
         }
     }
