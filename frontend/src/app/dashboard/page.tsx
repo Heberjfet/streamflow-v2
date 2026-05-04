@@ -29,7 +29,7 @@ export default function DashboardPage() {
     return assets.filter(a => a.categoryId === categoryId).length
   }
 
-  const recentVideos = assets.slice(0, 8)
+  const recentVideos = assets.slice(0, 4)
   const uncategorizedVideos = assets.filter(a => !a.categoryId)
 
   return (
@@ -97,7 +97,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {categories.slice(0, 4).map((category) => (
+            {categories.slice(0, 3).map((category) => (
               <Link
                 key={category.id}
                 href={`/dashboard/catalogs?id=${category.id}`}
