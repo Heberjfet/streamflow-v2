@@ -54,6 +54,7 @@ export const users = pgTable('users', {
 
 export const categories = pgTable('categories', {
   id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id),
   name: varchar('name', { length: 255 }).notNull(),
   slug: varchar('slug', { length: 255 }).notNull().unique(),
   description: text('description'),

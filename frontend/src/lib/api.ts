@@ -129,6 +129,7 @@ export const processAsset = async (assetId: string): Promise<ApiResponse<void>> 
 
 export interface Category {
   id: string;
+  userId: string;
   name: string;
   slug: string;
   description?: string;
@@ -314,4 +315,11 @@ export const getAdminLogs = async (limit?: number): Promise<ApiResponse<AdminLog
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
   })
   return handleResponse<AdminLogs>(res)
+}
+
+export const getUserContent = async (userId: string): Promise<ApiResponse<{ assets: Asset[]; categories: Category[] }>> => {
+  const res = await fetch(`${getApiUrl()}/v1/admin/${userId}/content`, {
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  return handleResponse<{ assets: Asset[]; categories: Category[] }>(res)
 }

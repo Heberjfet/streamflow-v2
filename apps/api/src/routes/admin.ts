@@ -222,4 +222,30 @@ export async function adminRoutes(fastify: FastifyInstance) {
       clearInterval(interval);
     });
   });
+
+  fastify.get<{ Params: { userId: string } }>('/:userId/content', async (request, reply) => {
+    try {
+      const { userId } = request.params;
+
+      const userAssets = await fastify.db.query.assets.findMany({
+        where: (assets, { eq }) => eq(assets.userId, userId),
+        orderBy: [fastify.desc(fastify.schema.assets.createdAt)],
+        limit: 10
+      });
+
+      const userCategories = await fastify.db.query.categories.findMany({
+        where: (categories, { eq }) => eq(categories.userId, userId),
+        orderBy: [fastify.desc(fastify.schema.categories.createdAt)],
+        limit: 10
+      });
+
+      return reply.send({
+        assets: userAssets,
+        categories: userCategories
+      });
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
 }

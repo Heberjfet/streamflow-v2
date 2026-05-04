@@ -23,10 +23,12 @@ export async function categoryRoutes(fastify: FastifyInstance) {
     }
   };
 
-  fastify.get('/', async (request, reply) => {
+  fastify.get('/', { onRequest: [authenticate] }, async (request, reply) => {
     try {
+      const userId = request.currentUser!.userId;
       const categories = await fastify.db.query.categories.findMany({
-        orderBy: [fastify.schema.categories.name]
+        where: (categories, { eq }) => eq(categories.userId, userId),
+        orderBy: [fastify.desc(fastify.schema.categories.createdAt)]
       });
 
       return reply.send(categories);
@@ -46,7 +48,8 @@ export async function categoryRoutes(fastify: FastifyInstance) {
         .values({
           name,
           slug,
-          description
+          description,
+          userId: request.currentUser!.userId
         })
         .returning();
 

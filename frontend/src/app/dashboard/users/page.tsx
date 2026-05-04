@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getUsers, createUser, updateUser, deleteUser, User } from '@/lib/api'
+import { getUsers, createUser, updateUser, deleteUser, getUserContent, User } from '@/lib/api'
 import { Input } from '@/components/ui/Input'
 
 const roleColors: Record<string, string> = {
@@ -28,6 +28,10 @@ export default function UsersAdminPage() {
   const [nameFocused, setNameFocused] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
   const [roleFocused, setRoleFocused] = useState(false)
+  const [selectedUserProfile, setSelectedUserProfile] = useState<User | null>(null)
+  const [userAssets, setUserAssets] = useState<any[]>([])
+  const [userCategories, setUserCategories] = useState<any[]>([])
+  const [loadingProfile, setLoadingProfile] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -81,6 +85,17 @@ export default function UsersAdminPage() {
         fetchUsers()
       }
     }
+  }
+
+  const openUserProfile = async (user: User) => {
+    setSelectedUserProfile(user)
+    setLoadingProfile(true)
+    const { data, error } = await getUserContent(user.id)
+    if (data) {
+      setUserAssets(data.assets.slice(0, 5))
+      setUserCategories(data.categories.slice(0, 5))
+    }
+    setLoadingProfile(false)
   }
 
   const filteredUsers = users.filter(u =>
@@ -194,6 +209,13 @@ export default function UsersAdminPage() {
                   <td className="px-8 py-6 text-right">
                     <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
+                        onClick={() => openUserProfile(user)}
+                        className="p-2 hover:bg-white/10 rounded-xl text-[var(--text-secondary)] hover:text-[var(--primary)] transition-all"
+                        title="Ver Perfil"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth={2} /></svg>
+                      </button>
+                      <button
                         onClick={() => handleEdit(user)}
                         className="p-2 hover:bg-white/10 rounded-xl text-[var(--text-secondary)] hover:text-white transition-all"
                         title="Editar Usuario"
@@ -290,6 +312,89 @@ export default function UsersAdminPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* User Profile Modal */}
+      {selectedUserProfile && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[100] p-4">
+          <div className="glass-card border border-white/10 w-full max-w-2xl rounded-3xl overflow-hidden max-h-[85vh] flex flex-col">
+            <div className="p-8 border-b border-white/5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${roleColors[selectedUserProfile.role]} flex items-center justify-center font-black text-black text-2xl shadow-lg`}>
+                    {selectedUserProfile.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">{selectedUserProfile.name}</h2>
+                    <p className="text-[var(--text-secondary)]">{selectedUserProfile.email}</p>
+                    <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-md font-black border uppercase tracking-tighter ${selectedUserProfile.role === 'admin' ? 'border-[var(--primary)]/30 text-[var(--primary)] bg-[var(--primary)]/5' : 'border-white/10 text-white/40 bg-white/5'}`}>
+                      {roleLabels[selectedUserProfile.role]}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedUserProfile(null)}
+                  className="p-2 hover:bg-white/10 rounded-xl text-[var(--text-secondary)] transition-all"
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" strokeWidth={2} /></svg>
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-8">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-4">Contenido de este usuario</h3>
+              {loadingProfile ? (
+                <div className="text-center py-8 text-[var(--text-secondary)]">Cargando...</div>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-xs font-bold text-white/30 uppercase mb-3">Videos subidos</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {userAssets.slice(0, 5).map(asset => (
+                        <div key={asset.id} className="glass-card rounded-xl p-3 border border-white/5">
+                          <div className="aspect-video rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-transparent mb-2 flex items-center justify-center">
+                            {asset.thumbnailKey ? (
+                              <img src={`http://localhost:9000/streamflow/${asset.thumbnailKey}`} alt={asset.title} className="w-full h-full object-cover rounded-lg" />
+                            ) : (
+                              <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            )}
+                          </div>
+                          <p className="text-xs font-medium truncate">{asset.title}</p>
+                          <p className="text-[10px] text-[var(--text-secondary)] capitalize">{asset.status}</p>
+                        </div>
+                      ))}
+                      {userAssets.length === 0 && (
+                        <div className="col-span-full text-center py-4 text-[var(--text-secondary)] text-sm">Sin videos</div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white/30 uppercase mb-3">Carpetas creadas</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {userCategories.slice(0, 5).map(cat => (
+                        <div key={cat.id} className="glass-card rounded-xl p-4 border border-white/5 flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{cat.name}</p>
+                            <p className="text-xs text-[var(--text-secondary)]">{userAssets.filter(a => a.categoryId === cat.id).length} videos</p>
+                          </div>
+                        </div>
+                      ))}
+                      {userCategories.length === 0 && (
+                        <div className="col-span-full text-center py-4 text-[var(--text-secondary)] text-sm">Sin carpetas</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
