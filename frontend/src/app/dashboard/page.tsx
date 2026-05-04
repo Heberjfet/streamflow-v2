@@ -4,16 +4,33 @@ import { useEffect, useState } from 'react'
 import { VideoCard, VideoCardSkeleton } from '@/components/VideoCard'
 import { useAssets } from '@/hooks/useAssets'
 import { useAuth } from '@/hooks/useAuth'
+import { getCategories, Category, Asset } from '@/lib/api'
 import Link from 'next/link'
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { assets, loading, error, fetchAssets } = useAssets()
-  const [showUpload, setShowUpload] = useState(false)
+  const { assets, loading: assetsLoading, fetchAssets } = useAssets()
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchAssets()
-  }, [fetchAssets])
+    loadCategories()
+  }, [])
+
+  const loadCategories = async () => {
+    setLoading(true)
+    const { data } = await getCategories()
+    if (data) setCategories(data)
+    setLoading(false)
+  }
+
+  const getCategoryVideoCount = (categoryId: string) => {
+    return assets.filter(a => a.categoryId === categoryId).length
+  }
+
+  const recentVideos = assets.slice(0, 8)
+  const uncategorizedVideos = assets.filter(a => !a.categoryId)
 
   return (
     <div className="w-full max-w-7xl mx-auto">
@@ -27,17 +44,110 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {/* Grid de Videos */}
-      <div className="animate-fade-in-up stagger-3">
-        <h2 className="text-xl font-semibold mb-6">Catálogo de Videos</h2>
+      {/* Search Bar */}
+      <div className="mb-8 animate-fade-in-up stagger-2">
+        <div className="glass-card flex items-center gap-4 px-4 py-3 rounded-2xl border border-white/5">
+          <svg className="w-5 h-5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar videos, carpetas..."
+            className="flex-1 bg-transparent outline-none text-sm"
+          />
+          <Link href="/dashboard/videos" className="btn-primary text-sm py-2 px-4">
+            + Subir
+          </Link>
+        </div>
+      </div>
+
+      {/* Tus Catálogos */}
+      <div className="mb-10 animate-fade-in-up stagger-3">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Tus Catálogos</h2>
+          <Link href="/dashboard/catalogs" className="text-sm text-[var(--primary)] hover:underline flex items-center gap-1">
+            Ver todos
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
 
         {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="glass-card rounded-2xl p-6 animate-pulse">
+                <div className="h-12 w-12 rounded-lg bg-white/5 mb-4" />
+                <div className="h-4 w-24 rounded bg-white/5 mb-2" />
+                <div className="h-3 w-16 rounded bg-white/5" />
+              </div>
+            ))}
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="glass-card rounded-2xl p-8 text-center border border-dashed border-white/10">
+            <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+            </div>
+            <p className="text-[var(--text-secondary)] text-sm mb-4">Aún no tienes catálogos creados.</p>
+            <Link href="/dashboard/catalogs" className="btn-primary text-sm">
+              Crear mi primer catálogo
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {categories.slice(0, 4).map((category) => (
+              <Link
+                key={category.id}
+                href={`/dashboard/catalogs?id=${category.id}`}
+                className="glass-card glow-border group hover:bg-white/[0.04] transition-all p-6 rounded-2xl cursor-pointer block"
+              >
+                <div className="p-3 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] w-fit mb-4 group-hover:scale-110 transition-transform">
+                  <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-lg mb-1 group-hover:text-[var(--primary)] transition-colors truncate">{category.name}</h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  {getCategoryVideoCount(category.id)} videos
+                </p>
+              </Link>
+            ))}
+            <Link
+              href="/dashboard/catalogs"
+              className="glass-card group hover:bg-white/[0.04] transition-all p-6 rounded-2xl cursor-pointer block border border-dashed border-white/20 hover:border-[var(--primary)]/50"
+            >
+              <div className="p-3 rounded-xl bg-white/5 text-white/30 w-fit mb-4 group-hover:bg-[var(--primary)]/10 group-hover:text-[var(--primary)] transition-all">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-lg text-white/50 group-hover:text-[var(--primary)] transition-colors">Nueva carpeta</h3>
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Videos Recientes */}
+      <div className="animate-fade-in-up stagger-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Videos Recientes</h2>
+          <Link href="/dashboard/videos" className="text-sm text-[var(--primary)] hover:underline flex items-center gap-1">
+            Ver todos
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+
+        {assetsLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
               <VideoCardSkeleton key={i} />
             ))}
           </div>
-        ) : assets.length === 0 ? (
+        ) : recentVideos.length === 0 ? (
           <div className="glass-card rounded-2xl py-16 text-center border border-[var(--border)]">
             <div className="w-20 h-20 rounded-full bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center mx-auto mb-6 relative">
               <div className="absolute inset-0 gradient-radial-primary rounded-full opacity-50" />
@@ -55,7 +165,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {assets.map((asset) => (
+            {recentVideos.map((asset) => (
               <VideoCard key={asset.id} asset={asset} />
             ))}
           </div>

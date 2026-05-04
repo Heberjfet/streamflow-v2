@@ -127,6 +127,48 @@ export const processAsset = async (assetId: string): Promise<ApiResponse<void>> 
   return handleResponse<void>(res)
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  createdAt: string;
+}
+
+export const getCategories = async (): Promise<ApiResponse<Category[]>> => {
+  const res = await fetch(`${getApiUrl()}/v1/categories`, {
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  return handleResponse<Category[]>(res)
+}
+
+export const createCategory = async (data: { name: string; description?: string }): Promise<ApiResponse<Category>> => {
+  const res = await fetch(`${getApiUrl()}/v1/categories`, {
+    method: 'POST',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse<Category>(res)
+}
+
+export const deleteCategory = async (categoryId: string): Promise<ApiResponse<void>> => {
+  const res = await fetch(`${getApiUrl()}/v1/categories/${categoryId}`, {
+    method: 'DELETE',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+  })
+  if (res.status === 204) return { data: undefined }
+  return handleResponse<void>(res)
+}
+
+export const updateAsset = async (assetId: string, data: { categoryId?: string; title?: string; description?: string }): Promise<ApiResponse<Asset>> => {
+  const res = await fetch(`${getApiUrl()}/v1/assets/${assetId}`, {
+    method: 'PUT',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse<Asset>(res)
+}
+
 export interface PlaybackResponse {
   manifestUrl: string
   thumbnailUrl?: string
@@ -211,48 +253,6 @@ export const deleteUser = async (userId: string): Promise<ApiResponse<void>> => 
   })
   if (res.status === 204) return { data: undefined }
   return handleResponse<void>(res)
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  createdAt: string;
-}
-
-export const getCategories = async (): Promise<ApiResponse<Category[]>> => {
-  const res = await fetch(`${getApiUrl()}/v1/categories`, {
-    headers: { ...authHeader(), 'Content-Type': 'application/json' },
-  })
-  return handleResponse<Category[]>(res)
-}
-
-export const createCategory = async (data: { name: string; description?: string }): Promise<ApiResponse<Category>> => {
-  const res = await fetch(`${getApiUrl()}/v1/categories`, {
-    method: 'POST',
-    headers: { ...authHeader(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  return handleResponse<Category>(res)
-}
-
-export const deleteCategory = async (categoryId: string): Promise<ApiResponse<void>> => {
-  const res = await fetch(`${getApiUrl()}/v1/categories/${categoryId}`, {
-    method: 'DELETE',
-    headers: { ...authHeader(), 'Content-Type': 'application/json' },
-  })
-  if (res.status === 204) return { data: undefined }
-  return handleResponse<void>(res)
-}
-
-export const updateAsset = async (assetId: string, data: { categoryId?: string; title?: string; description?: string }): Promise<ApiResponse<Asset>> => {
-  const res = await fetch(`${getApiUrl()}/v1/assets/${assetId}`, {
-    method: 'PUT',
-    headers: { ...authHeader(), 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  return handleResponse<Asset>(res)
 }
 
 export interface AdminStats {
