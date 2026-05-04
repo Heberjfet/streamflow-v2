@@ -1,31 +1,49 @@
 'use client'
 
-import { useState } from 'react'
-
-interface Catalog {
-    id: number;
-    name: string;
-    description: string;
-    status: string;
-}
+import { useState, useEffect } from 'react'
+import { getCategories, createCategory, deleteCategory, Category } from '@/lib/api'
 
 export default function CatalogsPage() {
-    // Estado inicializado completamente vacío (Esqueleto puro)
-    const [catalogs, setCatalogs] = useState<Catalog[]>([])
-
-    const [selectedCatalog, setSelectedCatalog] = useState<Catalog | null>(null)
+    const [catalogs, setCatalogs] = useState<Category[]>([])
+    const [loading, setLoading] = useState(true)
+    const [selectedCatalog, setSelectedCatalog] = useState<Category | null>(null)
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [newCatalogName, setNewCatalogName] = useState('')
+    const [newCatalogDescription, setNewCatalogDescription] = useState('')
+    const [creating, setCreating] = useState(false)
 
-    // Función esqueleto para el formulario
-    const handleCreate = (e: React.FormEvent) => {
+    useEffect(() => {
+        loadCategories()
+    }, [])
+
+    const loadCategories = async () => {
+        setLoading(true)
+        const { data, error } = await getCategories()
+        if (data) setCatalogs(data)
+        setLoading(false)
+    }
+
+    const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!newCatalogName.trim()) return
+        setCreating(true)
+        const { data, error } = await createCategory({
+            name: newCatalogName.trim(),
+            description: newCatalogDescription.trim() || undefined
+        })
+        if (data) {
+            setCatalogs([...catalogs, data])
+            setNewCatalogName('')
+            setNewCatalogDescription('')
+            setShowCreateModal(false)
+        }
+        setCreating(false)
+    }
 
-        // TODO: Aquí irá la petición POST a tu backend
-        // fetch('/api/catalogs', { ... })
-
-        setNewCatalogName('')
-        setShowCreateModal(false)
+    const handleDelete = async (id: string) => {
+        if (!confirm('¿Estás seguro de eliminar este catálogo?')) return
+        const { error } = await deleteCategory(id)
+        if (!error) setCatalogs(catalogs.filter(c => c.id !== id))
     }
 
     // --- VISTA DE DETALLE (SUBPÁGINA) ---
@@ -54,7 +72,14 @@ export default function CatalogsPage() {
                                 <p className="text-lg text-[var(--text-secondary)] max-w-2xl">{selectedCatalog.description}</p>
                             </div>
                             <div className="flex gap-3">
-                                <button className="bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl hover:bg-red-500/20 transition-all text-sm font-bold">
+                                <button
+                                    onClick={() => {
+                                        if (confirm('¿Eliminar este catálogo?')) {
+                                            handleDelete(selectedCatalog.id)
+                                            setSelectedCatalog(null)
+                                        }
+                                    }}
+                                    className="bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl hover:bg-red-500/20 transition-all text-sm font-bold">
                                     Eliminar Catálogo
                                 </button>
                             </div>
@@ -93,8 +118,11 @@ export default function CatalogsPage() {
                 </button>
             </div>
 
-            {/* Grid de Catálogos o Estado Vacío */}
-            {catalogs.length === 0 ? (
+            {loading ? (
+                <div className="glass-card rounded-3xl py-24 text-center border-dashed border-2 border-white/10">
+                    <p className="text-[var(--text-secondary)] text-sm">Cargando catálogos...</p>
+                </div>
+            ) : catalogs.length === 0 ? (
                 <div className="glass-card rounded-3xl py-24 text-center border-dashed border-2 border-white/10">
                     <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/10">
                         <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
@@ -115,12 +143,17 @@ export default function CatalogsPage() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                                     </svg>
                                 </div>
-                                <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-white/5 border border-white/10">
-                                    {catalog.status}
-                                </span>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleDelete(catalog.id); }}
+                                    className="text-white/30 hover:text-red-500 transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
                             </div>
                             <h3 className="text-xl font-bold mb-1 group-hover:text-[var(--primary)] transition-colors">{catalog.name}</h3>
-                            <p className="text-[var(--text-secondary)] text-sm line-clamp-1">{catalog.description}</p>
+                            <p className="text-[var(--text-secondary)] text-sm line-clamp-1">{catalog.description || 'Sin descripción'}</p>
                         </div>
                     ))}
                 </div>
@@ -148,9 +181,19 @@ export default function CatalogsPage() {
                                     required
                                 />
                             </div>
+                            <div>
+                                <label className="text-xs font-bold uppercase text-[var(--text-secondary)] mb-2 block">Descripción (opcional)</label>
+                                <textarea
+                                    value={newCatalogDescription}
+                                    onChange={(e) => setNewCatalogDescription(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-[var(--primary)]/50 focus:outline-none resize-none"
+                                    placeholder="Ej: Colección de videos de la temporada de invierno 2026"
+                                    rows={3}
+                                />
+                            </div>
                             <div className="flex gap-3 pt-4">
                                 <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 btn-secondary py-3">Cancelar</button>
-                                <button type="submit" className="flex-1 btn-primary py-3">Crear Ahora</button>
+                                <button type="submit" disabled={creating || !newCatalogName.trim()} className="flex-1 btn-primary py-3 disabled:opacity-50">{creating ? 'Creando...' : 'Crear Ahora'}</button>
                             </div>
                         </form>
                     </div>
