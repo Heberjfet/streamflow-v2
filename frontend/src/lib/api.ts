@@ -245,6 +245,15 @@ export const deleteCategory = async (categoryId: string): Promise<ApiResponse<vo
   return handleResponse<void>(res)
 }
 
+export const updateAsset = async (assetId: string, data: { categoryId?: string; title?: string; description?: string }): Promise<ApiResponse<Asset>> => {
+  const res = await fetch(`${getApiUrl()}/v1/assets/${assetId}`, {
+    method: 'PUT',
+    headers: { ...authHeader(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return handleResponse<Asset>(res)
+}
+
 export interface AdminStats {
   totalAssets: number;
   totalUsers: number;

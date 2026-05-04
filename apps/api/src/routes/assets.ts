@@ -126,6 +126,46 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
+  fastify.put<{ Params: AssetParams; Body: { categoryId?: string; title?: string; description?: string } }>('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const userId = request.currentUser!.userId;
+
+      const [asset] = await fastify.db.query.assets.findMany({
+        where: (assets, { eq }) => eq(assets.id, id)
+      });
+
+      if (!asset) {
+        return reply.status(404).send({ error: 'Asset not found' });
+      }
+
+      if (asset.userId !== userId && request.currentUser!.role !== 'admin') {
+        return reply.status(403).send({ error: 'Forbidden' });
+      }
+
+      const { categoryId, title, description } = request.body;
+      const updates: any = {};
+      if (categoryId !== undefined) updates.categoryId = categoryId;
+      if (title !== undefined) updates.title = title;
+      if (description !== undefined) updates.description = description;
+
+      if (Object.keys(updates).length === 0) {
+        return reply.status(400).send({ error: 'No updates provided' });
+      }
+
+      const [updated] = await fastify.db
+        .update(fastify.schema.assets)
+        .set(updates)
+        .where(fastify.eq(fastify.schema.assets.id, id))
+        .returning();
+
+      return reply.send(updated);
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
+
   fastify.post<{ Params: AssetParams; Body: { filename: string; contentType: string } }>('/:id/upload-url', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;

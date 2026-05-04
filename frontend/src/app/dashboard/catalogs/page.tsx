@@ -1,13 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getCategories, createCategory, deleteCategory, Category } from '@/lib/api'
+import { getCategories, createCategory, deleteCategory, Category, getAssets, updateAsset, Asset } from '@/lib/api'
 
 export default function CatalogsPage() {
     const [catalogs, setCatalogs] = useState<Category[]>([])
     const [loading, setLoading] = useState(true)
     const [selectedCatalog, setSelectedCatalog] = useState<Category | null>(null)
+    const [catalogVideos, setCatalogVideos] = useState<Asset[]>([])
     const [showCreateModal, setShowCreateModal] = useState(false)
+    const [showAddVideoModal, setShowAddVideoModal] = useState(false)
+    const [selectedVideoIds, setSelectedVideoIds] = useState<string[]>([])
+    const [availableVideos, setAvailableVideos] = useState<Asset[]>([])
     const [newCatalogName, setNewCatalogName] = useState('')
     const [newCatalogDescription, setNewCatalogDescription] = useState('')
     const [creating, setCreating] = useState(false)
@@ -15,6 +19,12 @@ export default function CatalogsPage() {
     useEffect(() => {
         loadCategories()
     }, [])
+
+    useEffect(() => {
+        if (selectedCatalog) {
+            loadVideosForCatalog(selectedCatalog.id)
+        }
+    }, [selectedCatalog])
 
     const loadCategories = async () => {
         setLoading(true)
@@ -44,6 +54,50 @@ export default function CatalogsPage() {
         if (!confirm('¿Estás seguro de eliminar este catálogo?')) return
         const { error } = await deleteCategory(id)
         if (!error) setCatalogs(catalogs.filter(c => c.id !== id))
+    }
+
+    const loadVideosForCatalog = async (categoryId: string) => {
+        const { data } = await getAssets()
+        if (data?.data) {
+            const filtered = data.data.filter(v => v.categoryId === categoryId)
+            setCatalogVideos(filtered)
+        }
+    }
+
+    const openAddVideoModal = async () => {
+        const { data } = await getAssets()
+        if (data?.data) {
+            const notInCatalog = data.data.filter(v => v.categoryId !== selectedCatalog?.id)
+            setAvailableVideos(notInCatalog)
+            setShowAddVideoModal(true)
+        }
+    }
+
+    const handleAddVideo = async (assetId: string) => {
+        if (!selectedCatalog) return
+        const { data, error } = await updateAsset(assetId, { categoryId: selectedCatalog.id })
+        if (data && !error) {
+            await loadVideosForCatalog(selectedCatalog.id)
+            setShowAddVideoModal(false)
+        }
+    }
+
+    const toggleVideoSelection = (id: string) => {
+        if (selectedVideoIds.includes(id)) {
+            setSelectedVideoIds(selectedVideoIds.filter(vid => vid !== id))
+        } else {
+            setSelectedVideoIds([...selectedVideoIds, id])
+        }
+    }
+
+    const handleAddSelectedVideos = async () => {
+        if (!selectedCatalog || selectedVideoIds.length === 0) return
+        for (const vid of selectedVideoIds) {
+            await updateAsset(vid, { categoryId: selectedCatalog.id })
+        }
+        await loadVideosForCatalog(selectedCatalog.id)
+        setSelectedVideoIds([])
+        setShowAddVideoModal(false)
     }
 
     // --- VISTA DE DETALLE (SUBPÁGINA) ---
@@ -86,13 +140,106 @@ export default function CatalogsPage() {
                         </div>
 
                         <div className="mt-12 pt-12 border-t border-white/5">
-                            <h2 className="text-xl font-semibold mb-6 text-[var(--primary)]">Videos en este catálogo</h2>
-                            <div className="p-12 border-2 border-dashed border-white/5 rounded-2xl text-center">
-                                <p className="text-[var(--text-secondary)] text-sm">No hay videos asignados a este catálogo todavía.</p>
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-semibold text-[var(--primary)]">Videos en este catálogo ({catalogVideos.length})</h2>
+                                <button
+                                    onClick={openAddVideoModal}
+                                    className="btn-primary flex items-center gap-2 text-sm">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 4v16m8-8H4" strokeWidth={2.5} /></svg>
+                                    Agregar Video
+                                </button>
                             </div>
+                            {catalogVideos.length === 0 ? (
+                                <div className="p-12 border-2 border-dashed border-white/5 rounded-2xl text-center">
+                                    <p className="text-[var(--text-secondary)] text-sm">No hay videos asignados a este catálogo todavía.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {catalogVideos.map(video => (
+                                        <div key={video.id} className="glass-card p-4 rounded-xl border border-white/[0.05]">
+                                            <h3 className="font-bold truncate">{video.title}</h3>
+                                            <p className="text-sm text-[var(--text-secondary)]">Estado: {video.status}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {/* MODAL PARA AGREGAR VIDEOS */}
+                {showAddVideoModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => { setShowAddVideoModal(false); setSelectedVideoIds([]); }} />
+                        <div className="relative glass-card border border-white/10 w-full max-w-2xl p-8 rounded-3xl animate-slide-in max-h-[80vh] flex flex-col">
+                            <h2 className="text-2xl font-bold mb-6">Agregar <span className="gradient-text">Videos</span></h2>
+                            {availableVideos.length === 0 ? (
+                                <p className="text-[var(--text-secondary)]">No hay videos disponibles para agregar.</p>
+                            ) : (
+                                <div className="space-y-3 max-h-[400px] overflow-y-auto flex-1">
+                                    {availableVideos.map(video => {
+                                        const isSelected = selectedVideoIds.includes(video.id)
+                                        return (
+                                            <div
+                                                key={video.id}
+                                                onClick={() => toggleVideoSelection(video.id)}
+                                                className={`relative flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all border ${
+                                                    isSelected 
+                                                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]/50' 
+                                                        : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                                }`}
+                                            >
+                                                <div
+                                                    className="w-24 h-16 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-transparent flex items-center justify-center overflow-hidden shrink-0"
+                                                >
+                                                    {video.thumbnailKey ? (
+                                                        <img 
+                                                            src={`http://localhost:9000/streamflow/${video.thumbnailKey}`}
+                                                            alt={video.title}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="font-bold truncate">{video.title}</h3>
+                                                    <p className="text-xs text-[var(--text-secondary)] capitalize">{video.status}</p>
+                                                </div>
+                                                <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
+                                                    isSelected 
+                                                        ? 'border-[var(--primary)] bg-[var(--primary)]' 
+                                                        : 'border-white/30'
+                                                }`}>
+                                                    {isSelected && (
+                                                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                            <div className="flex gap-3 mt-6 pt-4 border-t border-white/10">
+                                <button
+                                    onClick={() => { setShowAddVideoModal(false); setSelectedVideoIds([]); }}
+                                    className="flex-1 py-3 px-4 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all font-bold">
+                                    Cerrar
+                                </button>
+                                <button
+                                    onClick={handleAddSelectedVideos}
+                                    disabled={selectedVideoIds.length === 0}
+                                    className="flex-1 py-3 px-4 rounded-xl bg-[var(--primary)]/20 text-[var(--primary)] border border-[var(--primary)]/50 hover:bg-[var(--primary)]/30 transition-all font-bold disabled:opacity-30">
+                                    Agregar {selectedVideoIds.length > 0 && `(${selectedVideoIds.length})`}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         )
     }
