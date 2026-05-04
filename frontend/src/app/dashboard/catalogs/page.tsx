@@ -24,12 +24,17 @@ export default function CatalogsPage() {
     }, [])
 
     useEffect(() => {
+        if (selectedCatalog) {
+            loadVideosForCatalog(selectedCatalog.id)
+        }
+    }, [selectedCatalog])
+
+    useEffect(() => {
         const catalogId = searchParams.get('id')
         if (catalogId && catalogs.length > 0) {
             const found = catalogs.find(c => c.id === catalogId)
             if (found) {
                 setSelectedCatalog(found)
-                loadVideosForCatalog(found.id)
             }
         }
     }, [searchParams, catalogs])
@@ -67,10 +72,7 @@ export default function CatalogsPage() {
     const loadVideosForCatalog = async (categoryId: string) => {
         const { data } = await getAssets()
         if (data?.data) {
-            console.log('All assets:', data.data.map(v => ({ id: v.id, title: v.title, categoryId: v.categoryId })))
-            console.log('Looking for categoryId:', categoryId)
-            const filtered = data.data.filter(v => v.categoryId === categoryId)
-            console.log('Filtered videos:', filtered)
+            const filtered = data.data.filter(v => v.categoryId && v.categoryId === categoryId)
             setCatalogVideos(filtered)
         }
     }
