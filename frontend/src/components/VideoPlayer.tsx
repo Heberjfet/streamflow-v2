@@ -33,6 +33,9 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showCenterIcon, setShowCenterIcon] = useState(true)
   const [showControls, setShowControls] = useState(true)
+  const [showQualityMenu, setShowQualityMenu] = useState(false)
+  const [qualityLevels, setQualityLevels] = useState<{ height: number; index: number }[]>([])
+  const [currentQuality, setCurrentQuality] = useState(-1)
 
   const [videoSrc, setVideoSrc] = useState(src)
   const [posterImg, setPosterImg] = useState(poster)
@@ -64,9 +67,14 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
         hlsInstance.loadSource(videoSrc)
         hlsInstance.attachMedia(video)
 
-        hlsInstance.on(hls.Events.MANIFEST_PARSED, () => {
+        hlsInstance.on(hls.Events.MANIFEST_PARSED, (_, data) => {
           setIsLoading(false)
           if (autoplay) video.play().catch(() => { })
+          const levels = hlsInstance.levels.map((level, index) => ({
+            height: level.height,
+            index
+          }))
+          setQualityLevels(levels)
         })
 
         hlsInstance.on(hls.Events.ERROR, (_, data) => {
@@ -379,6 +387,53 @@ export function VideoPlayer({ src, poster, autoplay = false }: VideoPlayerProps)
 
             <span className="text-[11px] text-[var(--text-secondary)] font-mono w-10">{formatTime(duration)}</span>
           </div>
+
+          {qualityLevels.length > 0 && (
+            <div className="relative">
+              <button
+                onClick={() => setShowQualityMenu(!showQualityMenu)}
+                className="text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors shrink-0"
+                title="Calidad"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </button>
+
+              {showQualityMenu && (
+                <div className="absolute bottom-full right-0 mb-2 glass-card rounded-xl py-2 min-w-[120px]">
+                  <button
+                    onClick={() => {
+                      if (hlsRef.current) {
+                        hlsRef.current.currentLevel = -1
+                        setCurrentQuality(-1)
+                      }
+                      setShowQualityMenu(false)
+                    }}
+                    className={`w-full px-3 py-1.5 text-xs text-left hover:bg-white/10 transition-colors ${currentQuality === -1 ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}
+                  >
+                    Auto
+                  </button>
+                  {qualityLevels.map((level) => (
+                    <button
+                      key={level.index}
+                      onClick={() => {
+                        if (hlsRef.current) {
+                          hlsRef.current.currentLevel = level.index
+                          setCurrentQuality(level.index)
+                        }
+                        setShowQualityMenu(false)
+                      }}
+                      className={`w-full px-3 py-1.5 text-xs text-left hover:bg-white/10 transition-colors ${currentQuality === level.index ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}
+                    >
+                      {level.height}p
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <button onClick={toggleFullscreen} className="text-[var(--text-primary)] hover:text-[var(--primary)] transition-colors shrink-0">
             {isFullscreen ? (
