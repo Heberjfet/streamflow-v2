@@ -56,7 +56,7 @@ export default function DashboardPage() {
   const uncategorizedVideos = assets.filter(a => !a.categoryId)
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div className="space-y-6 animate-fade-in">
       {/* Encabezado */}
       <div className="mb-8 animate-fade-in-up stagger-1">
         <h1 className="text-4xl font-bold mb-2">

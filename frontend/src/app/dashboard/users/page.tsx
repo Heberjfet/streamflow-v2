@@ -104,7 +104,7 @@ export default function UsersAdminPage() {
   )
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">

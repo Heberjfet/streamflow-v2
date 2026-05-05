@@ -18,6 +18,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/login')
   }
 
+  const handleProfileUpdate = async (name: string, email?: string, password?: string) => {
+    if (user) {
+      const { updateUser } = await import('@/lib/api')
+      await updateUser(user.id, { name, email, password })
+    }
+  }
+
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/login')
@@ -40,7 +47,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] gradient-radial-secondary pointer-events-none" />
 
       <div className="flex flex-1 overflow-hidden relative z-10">
-
         {isProfileOpen && (
           <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />
         )}
@@ -48,13 +54,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <aside
           className={`
             transition-[width] duration-300 ease-in-out flex flex-col
-            ${isSidebarOpen ? 'w-64' : 'w-28'} 
+            ${isSidebarOpen ? 'w-[250px]' : 'w-[110px]'}
             relative border-r border-white/[0.03] bg-[var(--surface)]/30 backdrop-blur-md
             z-50
           `}
         >
           <div className="flex shrink-0 border-b border-white/[0.03] h-14 items-center px-4 overflow-hidden relative">
-
             <div className="flex items-center w-full min-w-max">
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -107,7 +112,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
 
           <div className={`mt-auto p-4 border-t border-white/[0.03] bg-white/[0.01] flex flex-col ${isSidebarOpen ? 'items-stretch' : 'items-center'}`}>
-
             <div
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className={`flex items-center ${isSidebarOpen ? 'justify-between px-2' : 'justify-center'} py-3 mb-2 cursor-pointer hover:bg-white/5 rounded-xl transition-colors group relative`}
@@ -142,7 +146,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {isProfileOpen && (
             <div
-              className={`fixed bottom-6 ${isSidebarOpen ? 'left-64 ml-4' : 'left-24 ml-4'} w-72 bg-black p-5 rounded-2xl border-b border-[var(--primary)]/30 z-50`}
+              className={`fixed bottom-6 ${isSidebarOpen ? 'left-[210px]' : 'left-[100px]'} w-72 bg-black p-5 rounded-2xl border-b border-[var(--primary)]/30 z-50`}
             >
               <div className="flex items-center justify-between mb-4">
                 <h4 className="font-bold text-[var(--text-primary)] text-lg truncate pr-2">{user?.name}</h4>

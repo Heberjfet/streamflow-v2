@@ -38,7 +38,7 @@ export default function NetflixAdminVideos() {
     }, [fetchAssets])
 
     return (
-        <div className="w-full max-w-7xl mx-auto">
+    <div className="space-y-6 animate-fade-in">
 
             {/* HEADER ESTILO STUDIO */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8 animate-fade-in">

@@ -174,7 +174,7 @@ export default function VideoDetailPage() {
               <Link
                 href={`/watch/${asset.playbackId}`}
                 className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 text-[var(--primary)] transition-colors"
-                title="Probar en el Player"
+                title="Reproducir"
               >
                 <svg className="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
               </Link>
