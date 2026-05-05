@@ -198,17 +198,16 @@ export default function CatalogsPage() {
                                             <div
                                                 key={video.id}
                                                 onClick={() => toggleVideoSelection(video.id)}
-                                                className={`relative flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all border ${
-                                                    isSelected 
-                                                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]/50' 
+                                                className={`relative flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all border ${isSelected
+                                                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]/50'
                                                         : 'bg-white/5 border-white/10 hover:bg-white/10'
-                                                }`}
+                                                    }`}
                                             >
                                                 <div
                                                     className="w-24 h-16 rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-transparent flex items-center justify-center overflow-hidden shrink-0"
                                                 >
                                                     {video.thumbnailKey ? (
-                                                        <img 
+                                                        <img
                                                             src={`http://localhost:9000/streamflow/${video.thumbnailKey}`}
                                                             alt={video.title}
                                                             className="w-full h-full object-cover"
@@ -223,11 +222,10 @@ export default function CatalogsPage() {
                                                     <h3 className="font-bold truncate">{video.title}</h3>
                                                     <p className="text-xs text-[var(--text-secondary)] capitalize">{video.status}</p>
                                                 </div>
-                                                <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
-                                                    isSelected 
-                                                        ? 'border-[var(--primary)] bg-[var(--primary)]' 
+                                                <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${isSelected
+                                                        ? 'border-[var(--primary)] bg-[var(--primary)]'
                                                         : 'border-white/30'
-                                                }`}>
+                                                    }`}>
                                                     {isSelected && (
                                                         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -261,7 +259,7 @@ export default function CatalogsPage() {
 
     // --- VISTA PRINCIPAL ---
     return (
-        <div className="w-full max-w-7xl mx-auto space-y-8 relative">
+        <div className="space-y-6 animate-fade-in">
 
             <div className="flex justify-between items-end animate-fade-in">
                 <div>

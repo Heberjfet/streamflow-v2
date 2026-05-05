@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <aside
           className={`
             transition-[width] duration-300 ease-in-out flex flex-col
-            ${isSidebarOpen ? 'w-[210px]' : 'w-[100px]'}
+            ${isSidebarOpen ? 'w-[250px]' : 'w-[110px]'}
             relative border-r border-white/[0.03] bg-[var(--surface)]/30 backdrop-blur-md
             z-50
           `}
