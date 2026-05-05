@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { VideoPlayer } from '@/components/VideoPlayer'
+import { ShareDropdown } from '@/components/ShareDropdown'
 import { useAssets } from '@/hooks/useAssets'
 import type { Asset } from '@/lib/api'
 
@@ -37,7 +38,6 @@ export default function VideoDetailPage() {
   const [allowDownload, setAllowDownload] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [copiedEmbed, setCopiedEmbed] = useState(false)
-  const [copiedLink, setCopiedLink] = useState(false)
 
   useEffect(() => {
     const loadAsset = async () => {
@@ -159,22 +159,7 @@ export default function VideoDetailPage() {
                 )}
               </button>
 
-              <button
-                onClick={() => {
-                  const fullUrl = `${window.location.origin}/watch/${asset.playbackId}`
-                  navigator.clipboard.writeText(fullUrl)
-                  setCopiedLink(true)
-                  setTimeout(() => setCopiedLink(false), 2000)
-                }}
-                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 hover:text-[var(--primary)] transition-colors"
-                title="Copiar Link"
-              >
-                {copiedLink ? (
-                  <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                )}
-              </button>
+              <ShareDropdown playbackId={asset.playbackId} />
 
               {allowDownload && (
                 <button

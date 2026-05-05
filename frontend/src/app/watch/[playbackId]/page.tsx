@@ -11,6 +11,12 @@ export default function WatchPage() {
   const [playback, setPlayback] = useState<PlaybackResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem('streamflow_token')
+    setIsLoggedIn(!!token)
+  }, [])
 
   useEffect(() => {
     const loadPlayback = async () => {
@@ -30,6 +36,14 @@ export default function WatchPage() {
     loadPlayback()
   }, [params.playbackId])
 
+  const handleBackNavigation = () => {
+    if (isLoggedIn) {
+      window.location.href = '/dashboard/videos'
+    } else {
+      window.location.href = '/'
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
@@ -41,20 +55,20 @@ export default function WatchPage() {
   if (error || !playback) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center relative">
-        <Link
-          href="/dashboard/videos"
+        <button
+          onClick={handleBackNavigation}
           className="absolute top-6 left-6 w-12 h-12 flex items-center justify-center rounded-full glass-card hover:bg-white/5 transition-colors z-50"
-          aria-label="Volver a videos"
+          aria-label="Volver"
         >
           <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
           </svg>
-        </Link>
+        </button>
         <div className="text-center bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl animate-fade-in max-w-md">
           <p className="text-[var(--text-secondary)] mb-4">{error}</p>
-          <Link href="/dashboard/videos" className="btn-secondary inline-block">
-            Volver a Videos
-          </Link>
+          <button onClick={handleBackNavigation} className="btn-secondary inline-block">
+            Volver
+          </button>
         </div>
       </div>
     )
@@ -62,20 +76,19 @@ export default function WatchPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] flex flex-col">
-
       <main className="flex-1 flex flex-col w-full">
         <div className="relative w-full h-screen bg-black animate-fade-in-up">
           <header className="absolute top-6 left-6 z-50 flex flex-col items-start gap-3 pointer-events-none">
             <div className="flex items-center gap-3">
-              <Link
-                href="/dashboard/videos"
+              <button
+                onClick={handleBackNavigation}
                 className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-full glass-card hover:bg-white/10 transition-colors shrink-0"
-                aria-label="Volver a videos"
+                aria-label="Volver"
               >
                 <svg className="w-5 h-5 text-[var(--text-primary)] translate-x-[-1px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-              </Link>
+              </button>
 
               <div className="pointer-events-auto h-12 px-6 flex items-center justify-center rounded-full glass-card max-w-xs sm:max-w-md">
                 <h1 className="text-sm font-bold text-[var(--text-primary)] truncate">
@@ -103,14 +116,13 @@ export default function WatchPage() {
           <div className="absolute inset-0 noise-overlay opacity-30 pointer-events-none" />
 
           <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
-
             <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4">
               ¿Quieres alojar tus <span className="gradient-text">propios videos?</span>
             </h2>
 
             <p className="text-lg text-[var(--text-secondary)] mb-10 max-w-2xl">
-              Crea tu propia instancia de StreamFlow y obtén el control total de tu catálogo.
-              Infraestructura autohospedada, transcodificación HLS y cero límites.
+              Crea tu propia instancia de StreamFlow y obtén el control total de tu catálogo.
+              Infraestructura autohospedada, transcodificación HLS y cero límites.
             </p>
 
             <Link href="/register" className="btn-primary text-base px-8 py-4 uppercase tracking-wider font-bold shadow-[0_0_30px_rgba(168,85,247,0.3)]">
@@ -125,7 +137,6 @@ export default function WatchPage() {
           Powered by StreamFlow
         </div>
       </footer>
-
     </div>
   )
 }

@@ -60,10 +60,9 @@ export default function VideoPlayerPage() {
           <h1 className="text-2xl font-bold text-white">{playback.title}</h1>
         </div>
         <VideoPlayer
-          hlsUrl={playback.hlsUrl}
-          mp4Url={playback.mp4Url}
+          src={playback.manifestUrl}
           poster={playback.thumbnailUrl}
-          autoPlay
+          autoplay
         />
         <div className="mt-4 text-center">
           <Link href="/" className="text-[var(--color-text-muted)] hover:text-white transition-colors text-sm">

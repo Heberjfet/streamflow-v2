@@ -23,18 +23,19 @@ interface StatsResponse {
 export async function adminRoutes(fastify: FastifyInstance) {
   fastify.addHook('onRequest', async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const decoded = await request.jwtVerify() as { userId: string; email: string; role: 'admin' | 'editor' | 'viewer'; orgId?: string };
+      const decoded = await request.jwtVerify() as { userId: string; email: string; role: 'admin' | 'editor' | 'viewer'; orgId?: string; name?: string };
       request.currentUser = {
         userId: decoded.userId,
         email: decoded.email,
+        name: decoded.name || '',
         role: decoded.role,
         orgId: decoded.orgId
       };
     } catch (err) {
-      fastify.log.error('JWT verify failed:', err);
+      fastify.log.error({ err }, 'JWT verify failed');
       return reply.status(401).send({ error: 'Unauthorized' });
     }
-    fastify.log.info('Current user role:', request.currentUser?.role);
+    fastify.log.info({ role: request.currentUser?.role }, 'Current user role');
     if (request.currentUser?.role !== 'admin') {
       return reply.status(403).send({ error: 'Forbidden - Admin only' });
     }
@@ -75,7 +76,13 @@ export async function adminRoutes(fastify: FastifyInstance) {
         totalUsers,
         totalViews,
         assetsByStatus,
-        recentAssets: assets,
+        recentAssets: assets.map(a => ({
+          id: a.id,
+          title: a.title,
+          status: a.status,
+          views: a.views || 0,
+          createdAt: a.createdAt?.toISOString() || ''
+        })),
         systemInfo: {
           uptime: process.uptime(),
           memoryUsage: {
@@ -211,7 +218,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 
         reply.raw.write(`data: ${data}\n\n`);
       } catch (error) {
-        fastify.log.error('Stream error:', error);
+        fastify.log.error({ error }, 'Stream error');
       }
     };
 

@@ -81,7 +81,7 @@ export function useAssets(): UseAssetsReturn {
 
   const uploadVideo = useCallback(
     async (assetId: string, file: File, onProgress?: (progress: number) => void): Promise<boolean> => {
-      const { data: uploadData, error: uploadUrlError } = await apiGetUploadUrl(assetId)
+      const { data: uploadData, error: uploadUrlError } = await apiGetUploadUrl(assetId, file.name, file.type)
       if (uploadUrlError || !uploadData) {
         return false
       }
