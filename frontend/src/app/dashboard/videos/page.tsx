@@ -28,7 +28,7 @@ const fixS3Url = (url?: string): string | undefined => {
 }
 
 export default function NetflixAdminVideos() {
-    const { assets, loading, fetchAssets } = useAssets()
+    const { assets, loading, fetchAssets, refreshAsset } = useAssets()
     const [viewMode, setViewMode] = useState<'grid' | 'table'>('table')
     const [showUpload, setShowUpload] = useState(false)
 
@@ -36,6 +36,20 @@ export default function NetflixAdminVideos() {
     useEffect(() => {
         fetchAssets()
     }, [fetchAssets])
+
+    // Polling silencioso para actualizar assets en procesamiento
+    useEffect(() => {
+        const processingAssets = assets.filter(a => a.status === 'processing' || a.status === 'pending')
+        if (processingAssets.length === 0) return
+
+        const interval = setInterval(async () => {
+            for (const asset of processingAssets) {
+                await refreshAsset(asset.id)
+            }
+        }, 3000)
+
+        return () => clearInterval(interval)
+    }, [assets])
 
     return (
     <div className="space-y-6 animate-fade-in">

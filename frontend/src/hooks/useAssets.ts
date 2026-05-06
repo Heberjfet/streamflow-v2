@@ -34,6 +34,7 @@ interface UseAssetsReturn {
     onProgress?: (progress: number) => void
   ) => Promise<boolean>
   processVideo: (assetId: string) => Promise<boolean>
+  refreshAsset: (assetId: string) => Promise<void>
 }
 
 export function useAssets(): UseAssetsReturn {
@@ -77,6 +78,13 @@ export function useAssets(): UseAssetsReturn {
     }
     setAssets((prev) => prev.filter((a) => a.id !== assetId))
     return true
+  }, [])
+
+  const refreshAsset = useCallback(async (assetId: string): Promise<void> => {
+    const { data, error: fetchError } = await apiGetAsset(assetId)
+    if (!fetchError && data) {
+      setAssets((prev) => prev.map((a) => (a.id === assetId ? data : a)))
+    }
   }, [])
 
   const uploadVideo = useCallback(
@@ -134,5 +142,6 @@ export function useAssets(): UseAssetsReturn {
     deleteAsset,
     uploadVideo,
     processVideo,
+    refreshAsset,
   }
 }

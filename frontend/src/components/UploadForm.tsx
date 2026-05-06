@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 // Mantenemos las importaciones originales por si las usas en otros lados, 
 // aunque aquí usaremos HTML nativo estilizado para asegurar el glassmorphism
 import { Button } from './ui/Button'
@@ -20,8 +20,18 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current)
+      }
+    }
+  }, [])
 
   const resetForm = () => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
     setStatus('idle')
     setProgress(0)
     setError(null)
@@ -124,13 +134,21 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
         throw new Error(processError)
       }
 
-      setStatus('processing')
-      setTimeout(() => {
-        setStatus('done')
-        onUploadComplete?.()
-      }, 2000)
+      onUploadComplete?.()
+
+      pollIntervalRef.current = setInterval(async () => {
+        const { getAsset } = await import('@/lib/api')
+        const polledAsset = await getAsset(asset.id)
+
+        if (polledAsset?.status === 'ready') {
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
+        } else if (polledAsset?.status === 'failed') {
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
+        }
+      }, 3000)
 
     } catch (err) {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
       setStatus('error')
       setError(err instanceof Error ? err.message : 'Upload failed')
     }
