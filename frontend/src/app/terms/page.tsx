@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Navbar } from '@/components/Navbar'
 
 export default function TermsPage() {
   const router = useRouter()
@@ -25,44 +26,7 @@ export default function TermsPage() {
         </div>
       </div>
 
-      <header className="fixed top-0 left-0 right-0 z-50">
-        <div className="glass-nav mx-4 mt-4 rounded-2xl">
-          <nav className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => router.push('/')}
-                className="flex items-center gap-3 group"
-              >
-                <div className="relative">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-primary flex items-center justify-center animate-gradient group-hover:scale-105 transition-transform">
-                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                  <div className="absolute inset-0 w-11 h-11 rounded-xl bg-gradient-primary blur-lg opacity-60 -z-10 group-hover:opacity-80 transition-opacity" />
-                </div>
-                <span className="text-xl font-bold tracking-tight text-white">StreamFlow</span>
-              </button>
-
-              <div className="flex items-center gap-3">
-                <Link
-                  href="/login"
-                  className="px-5 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white transition-all duration-300 hover:bg-white/5 border border-transparent hover:border-white/10"
-                >
-                  Iniciar Sesión
-                </Link>
-                <Link
-                  href="/register"
-                  className="btn-primary text-sm py-2.5 px-5 relative overflow-hidden"
-                >
-                  <span className="relative z-10">Registrarse</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-[length:200%_100%] animate-gradient-shift opacity-0 hover:opacity-100 transition-opacity" />
-                </Link>
-              </div>
-            </div>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="relative z-10 max-w-4xl mx-auto px-6 pt-32 pb-20">
         <div className="text-center mb-12">
