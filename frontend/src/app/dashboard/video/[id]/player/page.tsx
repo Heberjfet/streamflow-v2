@@ -63,6 +63,7 @@ export default function VideoPlayerPage() {
           src={playback.manifestUrl}
           poster={playback.thumbnailUrl}
           autoplay
+          playbackId={playback.playbackId}
         />
         <div className="mt-4 text-center">
           <Link href="/" className="text-[var(--color-text-muted)] hover:text-white transition-colors text-sm">

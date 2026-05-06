@@ -64,6 +64,7 @@ export default function EmbedPage() {
       <VideoPlayer
         src={data.manifestUrl}
         poster={data.thumbnailUrl}
+        playbackId={Array.isArray(params.playbackId) ? params.playbackId[0] : params.playbackId}
       />
     </div>
   )

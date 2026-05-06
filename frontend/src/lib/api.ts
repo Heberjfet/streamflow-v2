@@ -323,3 +323,27 @@ export const getUserContent = async (userId: string): Promise<ApiResponse<{ asse
   })
   return handleResponse<{ assets: Asset[]; categories: Category[] }>(res)
 }
+
+export interface PlaybackEventBody {
+  eventType: string
+  sessionId: string
+  currentTime?: number
+  duration?: number
+  qualityHeight?: number
+  referrer?: string
+  playerType?: string
+  bufferDurationMs?: number
+  errorMessage?: string
+}
+
+export const sendPlaybackEvent = async (playbackId: string, event: PlaybackEventBody): Promise<void> => {
+  try {
+    await fetch(`${getApiUrl()}/v1/playback/${playbackId}/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(event),
+    })
+  } catch (err) {
+    console.error('Failed to send playback event:', err)
+  }
+}

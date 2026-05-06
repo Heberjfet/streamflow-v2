@@ -140,9 +140,9 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
         const { getAsset } = await import('@/lib/api')
         const polledAsset = await getAsset(asset.id)
 
-        if (polledAsset?.status === 'ready') {
+        if (polledAsset.data?.status === 'ready') {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
-        } else if (polledAsset?.status === 'failed') {
+        } else if (polledAsset.data?.status === 'failed') {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
         }
       }, 3000)

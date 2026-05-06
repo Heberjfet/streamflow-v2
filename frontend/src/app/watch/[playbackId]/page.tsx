@@ -108,6 +108,7 @@ export default function WatchPage() {
             src={playback.manifestUrl}
             poster={playback.thumbnailUrl}
             autoplay
+            playbackId={Array.isArray(params.playbackId) ? params.playbackId[0] : params.playbackId}
           />
         </div>
 

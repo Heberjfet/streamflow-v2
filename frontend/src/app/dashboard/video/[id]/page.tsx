@@ -38,6 +38,7 @@ export default function VideoDetailPage() {
   const [allowDownload, setAllowDownload] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [copiedEmbed, setCopiedEmbed] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   useEffect(() => {
     const loadAsset = async () => {
@@ -66,10 +67,14 @@ export default function VideoDetailPage() {
   }, [params.id, getAsset])
 
   const handleDelete = async () => {
-    if (!asset || !confirm('¿Estás seguro de que deseas eliminar permanentemente este video?')) return
+    if (!asset) return
+    setShowDeleteModal(true)
+  }
 
+  const confirmDelete = async () => {
+    if (!asset) return
     setDeleting(true)
-
+    setShowDeleteModal(false)
     try {
       const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:3001` : 'http://localhost:3001'
 
@@ -244,6 +249,45 @@ export default function VideoDetailPage() {
           )}
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !deleting && setShowDeleteModal(false)} />
+          <div className="relative glass-card border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden animate-slide-in shadow-2xl">
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Eliminar Video</h3>
+              <p className="text-white/60 text-sm mb-8">
+                ¿Estás seguro de que deseas eliminar <span className="text-white font-medium">"{asset?.title}"</span>? Esta acción no se puede deshacer.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-3 rounded-xl border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all font-medium text-sm"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-all font-medium text-sm flex items-center justify-center gap-2"
+                >
+                  {deleting ? (
+                    <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    'Eliminar'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )
