@@ -286,22 +286,7 @@ export default function AuthPage() {
                       Iniciar Sesión
                     </Button>
 
-                    <div className="py-4 flex justify-center">
-                      <span className="text-sm text-[var(--color-text-muted)]">
-                        o continúa con
-                      </span>
-                    </div>
-
-                    <div className="flex justify-center">
-                      <button type="button" className="auth-social-btn group flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[var(--color-accent-muted)]/20 min-w-[180px]">
-                        <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.955-5.445 3.955-3.316 0-6-2.684-6-6s2.684-6 6-6c1.66 0 3.14.569 4.237 1.498l2.31-2.311C16.503 2.924 14.697 2.239 12.545 2.239 6.706 2.239 2.079 6.866 2.079 12.405s4.627 10.166 10.466 10.166c5.839 0 10.166-4.682 10.166-10.166 0-.773-.07-1.528-.199-2.263h-.002z"/>
-                        </svg>
-                        <span className="text-sm text-[var(--color-text-primary)] font-medium">Google</span>
-                      </button>
-                    </div>
-
-                    <p className="text-center text-sm text-[var(--color-text-secondary)] pt-2">
+                    <p className="text-center text-sm text-[var(--color-text-secondary)]">
                       ¿No tienes cuenta?{' '}
                       <button type="button" onClick={() => handleModeChange('register')} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors duration-300 inline-flex items-center gap-1 group">
                         Crea una
@@ -496,22 +481,7 @@ export default function AuthPage() {
                       Crear Cuenta
                     </Button>
 
-                    <div className="py-4 flex justify-center">
-                      <span className="text-sm text-[var(--color-text-muted)]">
-                        o continúa con
-                      </span>
-                    </div>
-
-                    <div className="flex justify-center">
-                      <button type="button" className="auth-social-btn group flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] hover:bg-[var(--color-bg-elevated)] hover:border-[var(--color-accent)]/50 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-[var(--color-accent-muted)]/20 min-w-[180px]">
-                        <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.955-5.445 3.955-3.316 0-6-2.684-6-6s2.684-6 6-6c1.66 0 3.14.569 4.237 1.498l2.31-2.311C16.503 2.924 14.697 2.239 12.545 2.239 6.706 2.239 2.079 6.866 2.079 12.405s4.627 10.166 10.466 10.166c5.839 0 10.166-4.682 10.166-10.166 0-.773-.07-1.528-.199-2.263h-.002z"/>
-                        </svg>
-                        <span className="text-sm text-[var(--color-text-primary)] font-medium">Google</span>
-                      </button>
-                    </div>
-
-                    <p className="text-center text-sm text-[var(--color-text-secondary)] pt-2">
+                    <p className="text-center text-sm text-[var(--color-text-secondary)]">
                       ¿Ya tienes cuenta?{' '}
                       <button type="button" onClick={() => handleModeChange('login')} className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-semibold transition-colors duration-300 inline-flex items-center gap-1 group">
                         Iniciar Sesión
