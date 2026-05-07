@@ -18,6 +18,7 @@ export default function CatalogsPage() {
     const [newCatalogName, setNewCatalogName] = useState('')
     const [newCatalogDescription, setNewCatalogDescription] = useState('')
     const [creating, setCreating] = useState(false)
+    const [catalogToDelete, setCatalogToDelete] = useState<string | null>(null)
 
     useEffect(() => {
         loadCategories()
@@ -63,10 +64,17 @@ export default function CatalogsPage() {
         setCreating(false)
     }
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('¿Estás seguro de eliminar este catálogo?')) return
-        const { error } = await deleteCategory(id)
-        if (!error) setCatalogs(catalogs.filter(c => c.id !== id))
+    const executeDelete = async () => {
+        if (!catalogToDelete) return
+        const { error } = await deleteCategory(catalogToDelete)
+
+        if (!error) {
+            setCatalogs(catalogs.filter(c => c.id !== catalogToDelete))
+            if (selectedCatalog?.id === catalogToDelete) {
+                setSelectedCatalog(null)
+            }
+        }
+        setCatalogToDelete(null)
     }
 
     const loadVideosForCatalog = async (categoryId: string) => {
@@ -118,7 +126,37 @@ export default function CatalogsPage() {
         setShowAddVideoModal(false)
     }
 
-    // --- VISTA DE DETALLE (SUBPÁGINA) ---
+    const DeleteConfirmationModal = catalogToDelete && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setCatalogToDelete(null)} />
+            <div className="relative glass-card border border-white/10 w-full max-w-md p-8 rounded-3xl animate-slide-in text-center">
+                <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+                    <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+
+                <h2 className="text-2xl font-bold mb-2">Eliminar Catálogo</h2>
+                <p className="text-[var(--text-secondary)] mb-8 text-sm">
+                    ¿Estás seguro de que deseas eliminar este catálogo? Esta acción no se puede deshacer. Los videos que contenga no serán borrados de tu cuenta.
+                </p>
+
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setCatalogToDelete(null)}
+                        className="flex-1 py-3 px-4 rounded-xl bg-white/5 text-white border border-white/10 hover:bg-white/10 transition-all font-bold text-sm">
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={executeDelete}
+                        className="flex-1 py-3 px-4 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all font-bold text-sm shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+                        Sí, eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+
     if (selectedCatalog) {
         return (
             <div className="animate-fade-in space-y-6">
@@ -145,14 +183,10 @@ export default function CatalogsPage() {
                             </div>
                             <div className="flex gap-3">
                                 <button
-                                    onClick={() => {
-                                        if (confirm('¿Eliminar este catálogo?')) {
-                                            handleDelete(selectedCatalog.id)
-                                            setSelectedCatalog(null)
-                                        }
-                                    }}
-                                    className="bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl hover:bg-red-500/20 transition-all text-sm font-bold">
-                                    Eliminar Catálogo
+                                    onClick={() => setCatalogToDelete(selectedCatalog.id)}
+                                    className="bg-red-500/10 text-red-500 border border-red-500/20 px-4 py-2 rounded-xl hover:bg-red-500/20 transition-all text-sm font-bold flex items-center gap-2">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    Eliminar
                                 </button>
                             </div>
                         </div>
@@ -182,7 +216,6 @@ export default function CatalogsPage() {
                     </div>
                 </div>
 
-                {/* MODAL PARA AGREGAR VIDEOS */}
                 {showAddVideoModal && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => { setShowAddVideoModal(false); setSelectedVideoIds([]); }} />
@@ -191,7 +224,7 @@ export default function CatalogsPage() {
                             {availableVideos.length === 0 ? (
                                 <p className="text-[var(--text-secondary)]">No hay videos disponibles para agregar.</p>
                             ) : (
-                                <div className="space-y-3 max-h-[400px] overflow-y-auto flex-1">
+                                <div className="space-y-3 max-h-[400px] overflow-y-auto flex-1 pr-2 custom-scrollbar">
                                     {availableVideos.map(video => {
                                         const isSelected = selectedVideoIds.includes(video.id)
                                         return (
@@ -199,8 +232,8 @@ export default function CatalogsPage() {
                                                 key={video.id}
                                                 onClick={() => toggleVideoSelection(video.id)}
                                                 className={`relative flex items-center gap-4 p-3 rounded-xl cursor-pointer transition-all border ${isSelected
-                                                        ? 'bg-[var(--primary)]/10 border-[var(--primary)]/50'
-                                                        : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                                    ? 'bg-[var(--primary)]/10 border-[var(--primary)]/50'
+                                                    : 'bg-white/5 border-white/10 hover:bg-white/10'
                                                     }`}
                                             >
                                                 <div
@@ -223,8 +256,8 @@ export default function CatalogsPage() {
                                                     <p className="text-xs text-[var(--text-secondary)] capitalize">{video.status}</p>
                                                 </div>
                                                 <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${isSelected
-                                                        ? 'border-[var(--primary)] bg-[var(--primary)]'
-                                                        : 'border-white/30'
+                                                    ? 'border-[var(--primary)] bg-[var(--primary)]'
+                                                    : 'border-white/30'
                                                     }`}>
                                                     {isSelected && (
                                                         <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -240,8 +273,8 @@ export default function CatalogsPage() {
                             <div className="flex gap-3 mt-6 pt-4 border-t border-white/10">
                                 <button
                                     onClick={() => { setShowAddVideoModal(false); setSelectedVideoIds([]); }}
-                                    className="flex-1 py-3 px-4 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all font-bold">
-                                    Cerrar
+                                    className="flex-1 py-3 px-4 rounded-xl bg-white/5 text-white border border-white/10 hover:bg-white/10 transition-all font-bold">
+                                    Cancelar
                                 </button>
                                 <button
                                     onClick={handleAddSelectedVideos}
@@ -253,11 +286,12 @@ export default function CatalogsPage() {
                         </div>
                     </div>
                 )}
+
+                {DeleteConfirmationModal}
             </div>
         )
     }
 
-    // --- VISTA PRINCIPAL ---
     return (
         <div className="space-y-6 animate-fade-in">
 
@@ -295,24 +329,16 @@ export default function CatalogsPage() {
                         <div
                             key={catalog.id}
                             onClick={() => setSelectedCatalog(catalog)}
-                            className="glass-card glow-border group hover:bg-white/[0.04] transition-all p-6 cursor-pointer"
+                            className="glass-card glow-border group hover:bg-white/[0.04] transition-all p-6 cursor-pointer rounded-2xl"
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div className="p-3 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                                     </svg>
                                 </div>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); handleDelete(catalog.id); }}
-                                    className="text-white/30 hover:text-red-500 transition-colors"
-                                >
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
                             </div>
-                            <h3 className="text-xl font-bold mb-1 group-hover:text-[var(--primary)] transition-colors">{catalog.name}</h3>
+                            <h3 className="text-xl font-bold mb-1">{catalog.name}</h3>
                             <p className="text-[var(--text-secondary)] text-sm line-clamp-1">{catalog.description || 'Sin descripción'}</p>
                         </div>
                     ))}
@@ -322,10 +348,7 @@ export default function CatalogsPage() {
             {/* MODAL SIMPLE DE CREACIÓN */}
             {showCreateModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    {/* Backdrop */}
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowCreateModal(false)} />
-
-                    {/* Card del Modal */}
                     <div className="relative glass-card border border-white/10 w-full max-w-md p-8 rounded-3xl animate-slide-in">
                         <h2 className="text-2xl font-bold mb-6">Nuevo <span className="gradient-text">Catálogo</span></h2>
                         <form onSubmit={handleCreate} className="space-y-4">
@@ -359,6 +382,9 @@ export default function CatalogsPage() {
                     </div>
                 </div>
             )}
+
+            {/* RENDERIZADO DEL MODAL DE ELIMINACIÓN */}
+            {DeleteConfirmationModal}
         </div>
     )
 }

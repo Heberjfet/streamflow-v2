@@ -93,6 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               Navegación
             </p>
             <nav className="space-y-2">
+              <SidebarLink href="/dashboard/search" icon="search" active={pathname === '/dashboard/search'} isOpen={isSidebarOpen}>Buscar</SidebarLink>
               <SidebarLink href="/dashboard" icon="home" active={pathname === '/dashboard'} isOpen={isSidebarOpen}>Inicio</SidebarLink>
               <SidebarLink href="/dashboard/videos" icon="video" active={pathname === '/dashboard/videos'} isOpen={isSidebarOpen}>Videos</SidebarLink>
               <SidebarLink href="/dashboard/catalogs" icon="folder" active={pathname === '/dashboard/catalogs'} isOpen={isSidebarOpen}>Catálogos</SidebarLink>
@@ -182,6 +183,7 @@ function SidebarLink({ href, icon, children, active, isOpen }: { href: string, i
   const getIcon = () => {
     switch (icon) {
       case 'home': return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      case 'search': return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       case 'video': return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
       case 'folder': return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
       case 'users': return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
