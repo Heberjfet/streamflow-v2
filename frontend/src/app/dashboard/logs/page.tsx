@@ -19,12 +19,12 @@ function formatBytes(mb: number): string {
 }
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-white/20 text-white/60',
-  uploading: 'bg-yellow-400/20 text-yellow-400',
-  uploaded: 'bg-blue-400/20 text-blue-400',
-  processing: 'bg-blue-400/20 text-blue-400',
-  ready: 'bg-green-400/20 text-green-400',
-  failed: 'bg-red-400/20 text-red-400',
+  pending: 'bg-white/10 text-white/60',
+  uploading: 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20',
+  uploaded: 'bg-blue-400/10 text-blue-400 border-blue-400/20',
+  processing: 'bg-purple-400/10 text-purple-400 border-purple-400/20',
+  ready: 'bg-green-500/10 text-green-400 border-green-500/20',
+  failed: 'bg-red-500/10 text-red-400 border-red-500/20',
 }
 
 export default function LogsPage() {
@@ -69,9 +69,9 @@ export default function LogsPage() {
 
   if (loading && !stats) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
-        <div className="w-12 h-12 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
-        <p className="text-[var(--primary)] font-mono text-sm tracking-widest uppercase animate-pulse">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 bg-[#050505]">
+        <div className="w-10 h-10 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+        <p className="text-white/40 font-medium text-sm tracking-widest uppercase animate-pulse">
           Cargando panel...
         </p>
       </div>
@@ -80,17 +80,19 @@ export default function LogsPage() {
 
   if (error && !stats) {
     return (
-      <div className="glass-card border border-red-500/20 max-w-2xl mx-auto mt-20 p-12 text-center rounded-3xl">
-        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
+      <div className="min-h-[60vh] flex items-center justify-center bg-[#050505]">
+        <div className="bg-white/[0.02] border border-red-500/20 max-w-lg w-full p-10 text-center rounded-[2rem]">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold mb-2 text-white">Error de Conexión</h2>
+          <p className="text-white/40 text-sm mb-8">{error}</p>
+          <button onClick={loadData} className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-colors">
+            Reintentar
+          </button>
         </div>
-        <h2 className="text-2xl font-bold mb-2">Error de Conexión</h2>
-        <p className="text-[var(--text-secondary)] font-mono text-sm mb-8">{error}</p>
-        <button onClick={loadData} className="btn-secondary px-8 py-3">
-          Reintentar
-        </button>
       </div>
     )
   }
@@ -98,36 +100,43 @@ export default function LogsPage() {
   if (!stats) return null
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+    <div className="min-h-full pb-20 animate-fade-in bg-[#050505] space-y-8">
+
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight uppercase">Panel de Control</h1>
-          <p className="text-[var(--text-secondary)] text-sm mt-1">
+          <h1 className="text-3xl font-semibold tracking-tight text-white mb-2">
+            Panel de Control
+          </h1>
+          <p className="text-white/40 text-sm font-medium flex items-center gap-2">
             Estado del sistema en tiempo real
             {lastUpdate && (
-              <span className="ml-2 text-white/40">
-                · Actualizado: {lastUpdate.toLocaleTimeString()}
-              </span>
+              <>
+                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span>Actualizado: {lastUpdate.toLocaleTimeString()}</span>
+              </>
             )}
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/20 text-green-400">
+
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs font-mono uppercase tracking-wider">
-              Live · 3s
-            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Live · 3s</span>
           </div>
-          <button onClick={loadData} className="btn-secondary py-2 px-4 flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+          <button
+            onClick={loadData}
+            className="p-2.5 bg-white/[0.05] hover:bg-white/10 border border-white/5 text-white rounded-xl transition-all active:scale-95 flex items-center justify-center"
+            title="Forzar actualización"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Actualizar
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         <StatCard
           label="Total Videos"
           value={stats.totalAssets}
@@ -156,74 +165,76 @@ export default function LogsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-2xl border border-white/5">
-          <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Uso de Memoria</h3>
-          <div className="space-y-3">
+
+        <div className="bg-white/[0.02] p-8 rounded-[2rem] border border-white/5">
+          <h3 className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] mb-6">Uso de Memoria</h3>
+          <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">RSS</span>
-              <span className="text-sm font-mono">{formatBytes(stats.systemInfo.memoryUsage.rss)}</span>
+              <span className="text-sm text-white/60">RSS</span>
+              <span className="text-sm font-mono text-white">{formatBytes(stats.systemInfo.memoryUsage.rss)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">Heap Used</span>
-              <span className="text-sm font-mono">{formatBytes(stats.systemInfo.memoryUsage.heapUsed)}</span>
+              <span className="text-sm text-white/60">Heap Used</span>
+              <span className="text-sm font-mono text-white">{formatBytes(stats.systemInfo.memoryUsage.heapUsed)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">Heap Total</span>
-              <span className="text-sm font-mono">{formatBytes(stats.systemInfo.memoryUsage.heapTotal)}</span>
+              <span className="text-sm text-white/60">Heap Total</span>
+              <span className="text-sm font-mono text-white">{formatBytes(stats.systemInfo.memoryUsage.heapTotal)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">External</span>
-              <span className="text-sm font-mono">{formatBytes(stats.systemInfo.memoryUsage.external)}</span>
+              <span className="text-sm text-white/60">External</span>
+              <span className="text-sm font-mono text-white">{formatBytes(stats.systemInfo.memoryUsage.external)}</span>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t border-white/5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-white/40">Heap Usage</span>
-              <span className="text-xs font-mono text-white/60">
+
+          <div className="mt-8 pt-6 border-t border-white/5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-white/60">Carga de Heap</span>
+              <span className="text-xs font-bold text-white">
                 {Math.round((stats.systemInfo.memoryUsage.heapUsed / stats.systemInfo.memoryUsage.heapTotal) * 100)}%
               </span>
             </div>
-            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500"
+                className="h-full bg-purple-500 rounded-full transition-all duration-500"
                 style={{ width: `${Math.round((stats.systemInfo.memoryUsage.heapUsed / stats.systemInfo.memoryUsage.heapTotal) * 100)}%` }}
               />
             </div>
           </div>
         </div>
 
-        <div className="glass-card p-6 rounded-2xl border border-white/5">
-          <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Estado Videos</h3>
+        <div className="bg-white/[0.02] p-8 rounded-[2rem] border border-white/5">
+          <h3 className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] mb-6">Estado Videos</h3>
           <div className="space-y-3">
             {Object.entries(stats.assetsByStatus).map(([status, count]) => (
-              <div key={status} className="flex justify-between items-center">
-                <span className={`text-xs px-2 py-1 rounded ${statusColors[status] || 'bg-white/10 text-white/60'}`}>
-                  {status.toUpperCase()}
+              <div key={status} className="flex justify-between items-center p-2 rounded-xl hover:bg-white/[0.02] transition-colors">
+                <span className={`text-[10px] px-2.5 py-1 rounded-md uppercase font-bold tracking-widest border ${statusColors[status] || 'bg-white/5 text-white/60 border-white/10'}`}>
+                  {status}
                 </span>
-                <span className="text-sm font-mono">{count}</span>
+                <span className="text-sm font-mono text-white">{count}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="glass-card p-6 rounded-2xl border border-white/5">
-          <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Sistema</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">CPU User</span>
-              <span className="text-xs font-mono text-white/60">
+        <div className="bg-white/[0.02] p-8 rounded-[2rem] border border-white/5">
+          <h3 className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] mb-6">Sistema</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-2">
+              <span className="text-sm text-white/60">CPU User</span>
+              <span className="text-sm font-mono text-white">
                 {(stats.systemInfo.cpuUsage.user / 1000000).toFixed(2)}s
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">CPU System</span>
-              <span className="text-xs font-mono text-white/60">
+            <div className="flex justify-between items-center p-2">
+              <span className="text-sm text-white/60">CPU System</span>
+              <span className="text-sm font-mono text-white">
                 {(stats.systemInfo.cpuUsage.system / 1000000).toFixed(2)}s
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">Tiempo Actual</span>
-              <span className="text-xs font-mono text-white/60">
+            <div className="flex justify-between items-center p-2">
+              <span className="text-sm text-white/60">Tiempo Servidor</span>
+              <span className="text-sm font-mono text-white">
                 {new Date().toLocaleTimeString()}
               </span>
             </div>
@@ -232,18 +243,19 @@ export default function LogsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass-card p-6 rounded-2xl border border-white/5">
-          <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Videos Recientes</h3>
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+
+        <div className="bg-white/[0.02] p-8 rounded-[2rem] border border-white/5 flex flex-col h-[500px]">
+          <h3 className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] mb-6 shrink-0">Videos Recientes</h3>
+          <div className="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1">
             {stats.recentAssets.map((asset) => (
-              <div key={asset.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{asset.title}</p>
-                  <p className="text-xs text-white/40">{new Date(asset.createdAt).toLocaleString()}</p>
+              <div key={asset.id} className="flex items-center justify-between p-4 bg-white/[0.01] border border-transparent rounded-2xl hover:bg-white/[0.03] hover:border-white/5 transition-all">
+                <div className="flex-1 min-w-0 pr-4">
+                  <p className="text-sm font-semibold text-white truncate">{asset.title}</p>
+                  <p className="text-xs text-white/40 mt-1">{new Date(asset.createdAt).toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-1 rounded ${statusColors[asset.status] || 'bg-white/10 text-white/60'}`}>
-                    {asset.status.toUpperCase()}
+                <div className="shrink-0">
+                  <span className={`text-[10px] px-2.5 py-1 rounded-md uppercase font-bold tracking-widest border ${statusColors[asset.status] || 'bg-white/5 text-white/60 border-white/10'}`}>
+                    {asset.status}
                   </span>
                 </div>
               </div>
@@ -251,29 +263,34 @@ export default function LogsPage() {
           </div>
         </div>
 
-        <div className="glass-card p-6 rounded-2xl border border-white/5">
-          <h3 className="text-sm font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-4">Actividad Reciente</h3>
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="bg-white/[0.02] p-8 rounded-[2rem] border border-white/5 flex flex-col h-[500px]">
+          <h3 className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] mb-6 shrink-0">Nuevos Usuarios</h3>
+          <div className="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1">
             {logs?.users.slice(0, 10).map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{user.name}</p>
-                  <p className="text-xs text-white/40">{user.email}</p>
+              <div key={user.id} className="flex items-center justify-between p-4 bg-white/[0.01] border border-transparent rounded-2xl hover:bg-white/[0.03] hover:border-white/5 transition-all">
+                <div className="flex items-center gap-4 min-w-0 flex-1 pr-4">
+                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white font-bold shrink-0">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">{user.name}</p>
+                    <p className="text-xs text-white/40 mt-0.5 truncate">{user.email}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    user.role === 'admin' ? 'bg-red-400/20 text-red-400' : 'bg-white/10 text-white/60'
-                  }`}>
-                    {user.role.toUpperCase()}
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <span className={`text-[9px] px-2 py-0.5 rounded-md uppercase font-bold tracking-widest border ${user.role === 'admin' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-white/5 text-white/60 border-white/10'
+                    }`}>
+                    {user.role}
                   </span>
-                  <span className="text-xs font-mono text-white/40">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                  <span className="text-[10px] font-medium text-white/30">
+                    {new Date(user.createdAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
               </div>
             ))}
           </div>
         </div>
+
       </div>
     </div>
   )
@@ -286,25 +303,27 @@ function StatCard({ label, value, icon, color, isText }: {
   color: string;
   isText?: boolean;
 }) {
-  const colorClasses: Record<string, string> = {
-    blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/20 text-blue-400',
-    purple: 'from-purple-500/20 to-purple-600/5 border-purple-500/20 text-purple-400',
-    green: 'from-green-500/20 to-green-600/5 border-green-500/20 text-green-400',
-    yellow: 'from-yellow-500/20 to-yellow-600/5 border-yellow-500/20 text-yellow-400',
-    red: 'from-red-500/20 to-red-600/5 border-red-500/20 text-red-400',
+  const iconColors: Record<string, string> = {
+    blue: 'bg-blue-500/10 text-blue-400',
+    purple: 'bg-purple-500/10 text-purple-400',
+    green: 'bg-green-500/10 text-green-400',
+    yellow: 'bg-yellow-500/10 text-yellow-400',
+    red: 'bg-red-500/10 text-red-400',
   }
 
   return (
-    <div className={`glass-card p-5 rounded-2xl border bg-gradient-to-br ${colorClasses[color]}`}>
-      <div className="flex items-center justify-between mb-3">
-        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="bg-white/[0.02] p-6 rounded-[2rem] border border-white/5 flex flex-col justify-between">
+      <div className="flex items-start justify-between mb-6">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${iconColors[color]}`}>
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {icon}
           </svg>
         </div>
       </div>
-      <p className="text-xs text-white/40 uppercase tracking-widest mb-1">{label}</p>
-      <p className="text-2xl font-bold font-mono">{isText ? value : value.toLocaleString()}</p>
+      <div>
+        <p className="text-[11px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <p className="text-3xl font-bold text-white tracking-tight">{isText ? value : value.toLocaleString()}</p>
+      </div>
     </div>
   )
 }
