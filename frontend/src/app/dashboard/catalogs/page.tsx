@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { getCategories, createCategory, deleteCategory, Category, getAssets, updateAsset, Asset } from '@/lib/api'
+import { getS3Url } from '@/lib/s3'
 import { VideoCard } from '@/components/VideoCard'
 
 export default function CatalogsPage() {
@@ -237,7 +238,7 @@ export default function CatalogsPage() {
                                                 >
                                                     {video.thumbnailKey ? (
                                                         <img
-                                                            src={`http://localhost:9000/streamflow/${video.thumbnailKey}`}
+                                                            src={getS3Url(video.thumbnailKey)}
                                                             alt={video.title}
                                                             className="w-full h-full object-cover"
                                                         />

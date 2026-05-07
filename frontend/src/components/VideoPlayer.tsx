@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import hls from 'hls.js'
 import { sendPlaybackEvent } from '@/lib/api'
+import { fixS3Hostname } from '@/lib/s3'
 
 interface VideoPlayerProps {
   src: string
@@ -11,14 +12,6 @@ interface VideoPlayerProps {
   playbackId?: string
 }
 
-const fixLocalhostUrl = (url: string): string => {
-  if (!url) return url
-  const hostname = window.location.hostname
-  if (url.includes('localhost:9000') || url.includes('minio:9000')) {
-    return url.replace(/localhost:9000|minio:9000/, `${hostname}:9000`)
-  }
-  return url
-}
 
 export function VideoPlayer({ src, poster, autoplay = false, playbackId }: VideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -45,8 +38,8 @@ export function VideoPlayer({ src, poster, autoplay = false, playbackId }: Video
   const heartbeatSentRef = useRef(false)
 
   useEffect(() => {
-    setVideoSrc(fixLocalhostUrl(src))
-    setPosterImg(poster ? fixLocalhostUrl(poster) : undefined)
+    setVideoSrc(fixS3Hostname(src))
+    setPosterImg(poster ? fixS3Hostname(poster) : undefined)
   }, [src, poster])
 
   useEffect(() => {

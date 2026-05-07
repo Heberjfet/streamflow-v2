@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useAssets } from '@/hooks/useAssets'
 import { getCategories, Category } from '@/lib/api'
+import { getS3Url } from '@/lib/s3'
 import Link from 'next/link'
 
 export default function SearchPage() {
@@ -119,7 +120,7 @@ export default function SearchPage() {
                                                 >
                                                     <div className="w-28 h-16 rounded-2xl bg-white/5 overflow-hidden shrink-0">
                                                         {video.thumbnailKey ? (
-                                                            <img src={`http://localhost:9000/streamflow/${video.thumbnailKey}`} alt={video.title} className="w-full h-full object-cover" />
+                                                            <img src={getS3Url(video.thumbnailKey)} alt={video.title} className="w-full h-full object-cover" />
                                                         ) : (
                                                             <div className="w-full h-full flex items-center justify-center text-white/10">
                                                                 <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

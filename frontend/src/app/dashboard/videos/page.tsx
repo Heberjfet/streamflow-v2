@@ -16,16 +16,7 @@ const statusStyles = {
 }
 const defaultStatus = { label: 'DESCONOCIDO', color: 'text-white/40', bg: 'bg-white/5', border: 'border-white/10', glow: 'bg-white/20' }
 
-// Utilidad para URLs locales de miniaturas
-const fixS3Url = (url?: string): string | undefined => {
-    if (!url) return undefined
-    if (typeof window === 'undefined') return url
-    const hostname = window.location.hostname
-    if (url.includes('localhost:9000') || url.includes('minio:9000')) {
-        return url.replace(/localhost:9000|minio:9000/, `${hostname}:9000`)
-    }
-    return url
-}
+import { getS3Url } from '@/lib/s3'
 
 export default function NetflixAdminVideos() {
     const { assets, loading, fetchAssets, refreshAsset } = useAssets()
@@ -132,7 +123,7 @@ export default function NetflixAdminVideos() {
                             <tbody className="divide-y divide-white/5">
                                 {assets.map((asset) => {
                                     const status = statusStyles[asset.status as keyof typeof statusStyles] || defaultStatus
-                                    const thumbUrl = asset.thumbnailKey ? fixS3Url(`http://localhost:9000/streamflow/${asset.thumbnailKey}`) : null
+                                    const thumbUrl = asset.thumbnailKey ? getS3Url(asset.thumbnailKey) : null
 
                                     return (
                                         <tr key={asset.id} className="group hover:bg-white/[0.02] transition-colors">
@@ -190,7 +181,7 @@ export default function NetflixAdminVideos() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {assets.map((asset) => {
                             const status = statusStyles[asset.status as keyof typeof statusStyles] || defaultStatus
-                            const thumbUrl = asset.thumbnailKey ? fixS3Url(`http://localhost:9000/streamflow/${asset.thumbnailKey}`) : null
+                            const thumbUrl = asset.thumbnailKey ? getS3Url(asset.thumbnailKey) : null
 
                             return (
                                 <Link href={`/dashboard/video/${asset.id}`} key={asset.id} className="group">

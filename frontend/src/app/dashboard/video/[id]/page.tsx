@@ -8,14 +8,7 @@ import { ShareDropdown } from '@/components/ShareDropdown'
 import { useAssets } from '@/hooks/useAssets'
 import type { Asset } from '@/lib/api'
 
-const fixS3Url = (url: string): string => {
-  if (!url) return url
-  const hostname = window.location.hostname
-  if (url.includes('localhost:9000') || url.includes('minio:9000')) {
-    return url.replace(/localhost:9000|minio:9000/, `${hostname}:9000`)
-  }
-  return url
-}
+import { getS3Url } from '@/lib/s3'
 
 const statusConfig = {
   pending: { label: 'Pendiente', color: 'text-white/60', bg: 'bg-white/5' },
@@ -76,16 +69,9 @@ export default function VideoDetailPage() {
     setDeleting(true)
     setShowDeleteModal(false)
     try {
-      const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:3001` : 'http://localhost:3001'
-
-      const res = await fetch(`${apiUrl}/v1/assets/${asset.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('streamflow_token')}`,
-        }
-      })
-
-      if (!res.ok) throw new Error('Fallo al eliminar en el servidor')
+      const { deleteAsset } = await import('@/lib/api')
+      const { error: deleteError } = await deleteAsset(asset.id)
+      if (deleteError) throw new Error(deleteError)
 
       router.push('/dashboard/videos')
 
@@ -213,7 +199,7 @@ export default function VideoDetailPage() {
               <div className="w-full h-full">
                 <VideoPlayer
                   src={hlsUrl}
-                  poster={asset.thumbnailKey ? fixS3Url(`http://localhost:9000/streamflow/${asset.thumbnailKey}`) : undefined}
+                  poster={asset.thumbnailKey ? getS3Url(asset.thumbnailKey) : undefined}
                 />
               </div>
             </div>

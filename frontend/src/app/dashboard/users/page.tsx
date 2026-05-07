@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getUsers, createUser, updateUser, deleteUser, getUserContent, User } from '@/lib/api'
+import { getS3Url } from '@/lib/s3'
 import { Input } from '@/components/ui/Input'
 
 const roleColors: Record<string, string> = {
@@ -369,7 +370,7 @@ export default function UsersAdminPage() {
                         <div key={asset.id} className="glass-card rounded-xl p-3 border border-white/5">
                           <div className="aspect-video rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-transparent mb-2 flex items-center justify-center">
                             {asset.thumbnailKey ? (
-                              <img src={`http://localhost:9000/streamflow/${asset.thumbnailKey}`} alt={asset.title} className="w-full h-full object-cover rounded-lg" />
+                              <img src={getS3Url(asset.thumbnailKey)} alt={asset.title} className="w-full h-full object-cover rounded-lg" />
                             ) : (
                               <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />

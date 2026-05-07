@@ -21,10 +21,14 @@ async function buildApp() {
     }
   });
 
+  const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
+    : ['*'];
+
   await fastify.register(cors, {
-    origin: (origin, cb) => {
-      cb(null, true);
-    },
+    origin: allowedOrigins.includes('*')
+      ? true
+      : allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
   });

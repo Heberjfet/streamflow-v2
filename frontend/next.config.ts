@@ -11,10 +11,18 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    const apiDestination = process.env.NEXT_PUBLIC_API_URL
+      ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/?$/, '')}/v1/:path*`
+      : 'http://api:3001/v1/:path*'
+
+    if (!apiDestination.startsWith('http://') && !apiDestination.startsWith('https://')) {
+      return []
+    }
+
     return [
       {
         source: '/api/:path*',
-        destination: 'http://api:3001/v1/:path*',
+        destination: apiDestination,
       },
     ]
   },

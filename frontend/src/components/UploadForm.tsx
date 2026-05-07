@@ -94,7 +94,8 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
     setError(null)
 
     try {
-      const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:3001` : 'http://localhost:3001'
+      const { getApiUrl } = await import('@/lib/api')
+      const apiUrl = getApiUrl()
       const { createAsset, processAsset } = await import('@/lib/api')
 
       const { data: asset, error: createError } = await createAsset(videoTitle.trim())

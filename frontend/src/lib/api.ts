@@ -1,8 +1,16 @@
-const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    return `http://${window.location.hostname}:3001`
+export const getApiUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL
+  if (envUrl) {
+    if (envUrl.startsWith('http://') || envUrl.startsWith('https://') || envUrl.startsWith('/')) {
+      return envUrl
+    }
+    return envUrl
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol
+    return `${protocol}//${window.location.hostname}:3001`
+  }
+  return 'http://localhost:3001'
 }
 
 const authHeader = (): HeadersInit => {
