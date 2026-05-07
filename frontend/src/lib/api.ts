@@ -248,7 +248,7 @@ export const updateUser = async (userId: string, data: { name?: string; email?: 
 }
 
 export const deleteUser = async (userId: string): Promise<ApiResponse<void>> => {
-  const res = await fetch(`${getApiUrl()}/v1/users/${userId}`, {
+  const res = await fetch(`${getApiUrl()}/v1/admin/${userId}`, {
     method: 'DELETE',
     headers: { ...authHeader(), 'Content-Type': 'application/json' },
   })

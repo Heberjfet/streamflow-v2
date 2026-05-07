@@ -255,4 +255,53 @@ export async function adminRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({ error: 'Internal server error' });
     }
   });
+
+  fastify.delete<{ Params: { userId: string } }>('/:userId', async (request, reply) => {
+    try {
+      const { userId } = request.params;
+
+      await fastify.db.delete(fastify.schema.sessions)
+        .where(fastify.eq(fastify.schema.sessions.userId, userId));
+
+      const userCategories = await fastify.db.query.categories.findMany({
+        where: (categories, { eq }) => eq(categories.userId, userId)
+      });
+      for (const cat of userCategories) {
+        await fastify.db.update(fastify.schema.assets)
+          .set({ categoryId: null })
+          .where(fastify.eq(fastify.schema.assets.categoryId, cat.id));
+      }
+
+      await fastify.db.delete(fastify.schema.categories)
+        .where(fastify.eq(fastify.schema.categories.userId, userId));
+
+      await fastify.db.delete(fastify.schema.analyticsEvents)
+        .where(fastify.eq(fastify.schema.analyticsEvents.assetId, userId as any));
+
+      await fastify.db.delete(fastify.schema.comments)
+        .where(fastify.eq(fastify.schema.comments.userId, userId as any));
+
+      const userAssets = await fastify.db.query.assets.findMany({
+        where: (assets, { eq }) => eq(assets.userId, userId)
+      });
+      for (const asset of userAssets) {
+        await fastify.db.delete(fastify.schema.reactions)
+          .where(fastify.eq(fastify.schema.reactions.assetId, asset.id));
+      }
+
+      await fastify.db.delete(fastify.schema.assets)
+        .where(fastify.eq(fastify.schema.assets.userId, userId));
+
+      await fastify.db.delete(fastify.schema.orgMembers)
+        .where(fastify.eq(fastify.schema.orgMembers.userId, userId));
+
+      await fastify.db.delete(fastify.schema.users)
+        .where(fastify.eq(fastify.schema.users.id, userId));
+
+      return reply.status(204).send();
+    } catch (error) {
+      fastify.log.error(error);
+      return reply.status(500).send({ error: 'Internal server error' });
+    }
+  });
 }
