@@ -63,7 +63,7 @@ export default function SearchPage() {
                         ¿Qué estás buscando?
                     </h1>
                     <p className="text-white/30 text-lg max-w-lg mx-auto font-medium">
-                        Encuentra videos y colecciones en segundos.
+                        Encuentra videos y catálgoos en segundos.
                     </p>
                 </div>
 
@@ -71,7 +71,7 @@ export default function SearchPage() {
                     <div className={`flex items-center gap-4 px-8 py-6 rounded-[2rem] border transition-all duration-300 bg-[#1c1c1e]/80 backdrop-blur-2xl shadow-2xl ${isSearching ? 'border-purple-500/40 shadow-[0_10px_40px_rgba(147,51,234,0.1)]' : 'border-white/10 hover:border-white/20'}`}>
                         <input
                             type="text"
-                            placeholder="Escribe el nombre de un video o colección..."
+                            placeholder="Escribe el nombre de un video o catálogo..."
                             className="flex-1 bg-transparent outline-none text-xl sm:text-2xl font-medium text-white placeholder:text-white/10 text-center w-full"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -95,7 +95,7 @@ export default function SearchPage() {
                             {filteredCategories.length > 0 && (
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     <h3 className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] mb-6 text-center">
-                                        Colecciones
+                                        Catálogos
                                     </h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {filteredCategories.map(category => (
