@@ -66,7 +66,13 @@ export function VideoPlayer({ src, poster, autoplay = false, playbackId }: Video
 
         hlsInstance.on(hls.Events.MANIFEST_PARSED, (_, data) => {
           setIsLoading(false)
-          if (autoplay) video.play().catch(() => { })
+          if (autoplay) {
+            video.play().catch(() => {
+              video.muted = true
+              setIsMuted(true)
+              video.play().catch(() => {})
+            })
+          }
           const levels = hlsInstance.levels.map((level, index) => ({
             height: level.height,
             index
@@ -84,7 +90,13 @@ export function VideoPlayer({ src, poster, autoplay = false, playbackId }: Video
         video.src = videoSrc
         video.addEventListener('loadedmetadata', () => {
           setIsLoading(false)
-          if (autoplay) video.play().catch(() => { })
+          if (autoplay) {
+            video.play().catch(() => {
+              video.muted = true
+              setIsMuted(true)
+              video.play().catch(() => {})
+            })
+          }
         })
       } else {
         setError('Tu navegador no soporta reproducción HLS')
