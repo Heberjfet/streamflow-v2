@@ -171,10 +171,6 @@ export default function CatalogsPage() {
                 </button>
 
                 <div className="glass-card p-8 rounded-3xl border border-white/[0.05] relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-5">
-                        <svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
-                    </div>
-
                     <div className="relative z-10">
                         <div className="flex justify-between items-start">
                             <div>
@@ -329,23 +325,33 @@ export default function CatalogsPage() {
                         <div
                             key={catalog.id}
                             onClick={() => setSelectedCatalog(catalog)}
-                            className="glass-card glow-border group hover:bg-white/[0.04] transition-all p-6 cursor-pointer rounded-2xl"
+                            className="glass-card group relative overflow-hidden transition-all duration-300 p-6 cursor-pointer rounded-2xl border border-white/5 hover:bg-white/[0.04] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] hover:border-white/10"
                         >
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="p-3 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                    </svg>
+                            <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                            <div className="relative z-10 flex flex-col h-full">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div className="p-3.5 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] group-hover:scale-110 group-hover:bg-[var(--primary)]/20 transition-all duration-300 shadow-inner">
+                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div className="mt-auto">
+                                    <h3 className="text-xl font-bold mb-2 group-hover:text-[var(--primary)] transition-colors line-clamp-1">
+                                        {catalog.name}
+                                    </h3>
+                                    <p className="text-[var(--text-secondary)] text-sm line-clamp-2 leading-relaxed">
+                                        {catalog.description || 'Sin descripción'}
+                                    </p>
                                 </div>
                             </div>
-                            <h3 className="text-xl font-bold mb-1">{catalog.name}</h3>
-                            <p className="text-[var(--text-secondary)] text-sm line-clamp-1">{catalog.description || 'Sin descripción'}</p>
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* MODAL SIMPLE DE CREACIÓN */}
             {showCreateModal && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setShowCreateModal(false)} />
@@ -383,7 +389,6 @@ export default function CatalogsPage() {
                 </div>
             )}
 
-            {/* RENDERIZADO DEL MODAL DE ELIMINACIÓN */}
             {DeleteConfirmationModal}
         </div>
     )
