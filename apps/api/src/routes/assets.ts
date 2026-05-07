@@ -599,6 +599,22 @@ export async function assetRoutes(fastify: FastifyInstance) {
       }
 
       await fastify.db
+        .delete(fastify.schema.assetCategories)
+        .where(fastify.eq(fastify.schema.assetCategories.assetId, id));
+
+      await fastify.db
+        .delete(fastify.schema.analyticsEvents)
+        .where(fastify.eq(fastify.schema.analyticsEvents.assetId, id));
+
+      await fastify.db
+        .delete(fastify.schema.comments)
+        .where(fastify.eq(fastify.schema.comments.assetId, id));
+
+      await fastify.db
+        .delete(fastify.schema.reactions)
+        .where(fastify.eq(fastify.schema.reactions.assetId, id));
+
+      await fastify.db
         .delete(fastify.schema.assets)
         .where(fastify.eq(fastify.schema.assets.id, id));
 
