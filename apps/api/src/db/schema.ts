@@ -59,7 +59,7 @@ export const categories = pgTable('categories', {
   slug: varchar('slug', { length: 255 }).notNull(),
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow()
-}));
+});
 
 export const assetCategories = pgTable('asset_categories', {
   id: uuid('id').primaryKey().defaultRandom(),
