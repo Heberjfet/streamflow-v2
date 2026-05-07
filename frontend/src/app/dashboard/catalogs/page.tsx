@@ -81,7 +81,7 @@ export default function CatalogsPage() {
     const loadVideosForCatalog = async (categoryId: string) => {
         const { data } = await getAssets()
         if (data?.data) {
-            const filtered = data.data.filter(v => v.categoryId && v.categoryId === categoryId)
+            const filtered = data.data.filter(v => v.categoryIds?.includes(categoryId))
             setCatalogVideos(filtered)
         }
     }
@@ -89,7 +89,7 @@ export default function CatalogsPage() {
     const openAddVideoModal = async () => {
         const { data } = await getAssets()
         if (data?.data) {
-            const notInCatalog = data.data.filter(v => v.categoryId !== selectedCatalog?.id && v.categoryId !== undefined)
+            const notInCatalog = data.data.filter(v => !v.categoryIds?.includes(selectedCatalog!.id))
             setAvailableVideos(notInCatalog)
             setShowAddVideoModal(true)
         }
@@ -97,7 +97,9 @@ export default function CatalogsPage() {
 
     const handleAddVideo = async (assetId: string) => {
         if (!selectedCatalog) return
-        const { data, error } = await updateAsset(assetId, { categoryId: selectedCatalog.id })
+        const asset = availableVideos.find(v => v.id === assetId)
+        const currentIds = asset?.categoryIds || []
+        const { data, error } = await updateAsset(assetId, { categoryIds: [...currentIds, selectedCatalog.id] })
         if (data && !error) {
             await loadVideosForCatalog(selectedCatalog.id)
             setShowAddVideoModal(false)
@@ -114,15 +116,16 @@ export default function CatalogsPage() {
 
     const handleAddSelectedVideos = async () => {
         if (!selectedCatalog || selectedVideoIds.length === 0) return
+        const { data: allAssets } = await getAssets()
+        if (!allAssets?.data) return
         for (const vid of selectedVideoIds) {
-            await updateAsset(vid, { categoryId: selectedCatalog.id })
+            const asset = allAssets.data.find(v => v.id === vid)
+            const currentIds = asset?.categoryIds || []
+            await updateAsset(vid, { categoryIds: [...new Set([...currentIds, selectedCatalog.id])] })
         }
         await loadVideosForCatalog(selectedCatalog.id)
-        const { data } = await getAssets()
-        if (data?.data) {
-            const notInCatalog = data.data.filter(v => v.categoryId !== selectedCatalog?.id)
-            setAvailableVideos(notInCatalog)
-        }
+        const notInCatalog = allAssets.data.filter(v => !v.categoryIds?.includes(selectedCatalog.id))
+        setAvailableVideos(notInCatalog)
         setSelectedVideoIds([])
         setShowAddVideoModal(false)
     }

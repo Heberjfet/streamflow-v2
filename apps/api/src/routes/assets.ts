@@ -65,7 +65,24 @@ export async function assetRoutes(fastify: FastifyInstance) {
         orderBy: [fastify.desc(fastify.schema.assets.createdAt)]
       });
 
-      return reply.send({ data: assets, page, limit });
+      const assetIds = assets.map(a => a.id);
+      let categoryMap: Record<string, string[]> = {};
+      if (assetIds.length > 0) {
+        const links = await fastify.db.query.assetCategories.findMany({
+          where: (ac, { inArray }) => inArray(ac.assetId, assetIds)
+        });
+        for (const link of links) {
+          if (!categoryMap[link.assetId]) categoryMap[link.assetId] = [];
+          categoryMap[link.assetId].push(link.categoryId);
+        }
+      }
+
+      const data = assets.map(asset => ({
+        ...asset,
+        categoryIds: categoryMap[asset.id] || []
+      }));
+
+      return reply.send({ data, page, limit });
     } catch (error) {
       fastify.log.error(error);
       return reply.status(500).send({ error: 'Internal server error' });
@@ -126,7 +143,7 @@ export async function assetRoutes(fastify: FastifyInstance) {
     }
   });
 
-  fastify.put<{ Params: AssetParams; Body: { categoryId?: string; title?: string; description?: string } }>('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+  fastify.put<{ Params: AssetParams; Body: { categoryId?: string; categoryIds?: string[]; title?: string; description?: string } }>('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     try {
       const { id } = request.params;
       const userId = request.currentUser!.userId;
@@ -143,23 +160,50 @@ export async function assetRoutes(fastify: FastifyInstance) {
         return reply.status(403).send({ error: 'Forbidden' });
       }
 
-      const { categoryId, title, description } = request.body;
-      const updates: any = {};
-      if (categoryId !== undefined) updates.categoryId = categoryId;
+      const { categoryId, categoryIds, title, description } = request.body;
+      const updates: any = { updatedAt: new Date() };
       if (title !== undefined) updates.title = title;
       if (description !== undefined) updates.description = description;
 
-      if (Object.keys(updates).length === 0) {
+      const targetCategoryIds = categoryIds !== undefined ? categoryIds : (categoryId !== undefined ? [categoryId] : undefined);
+      if (targetCategoryIds !== undefined && categoryIds !== undefined) {
+        await fastify.db
+          .delete(fastify.schema.assetCategories)
+          .where(fastify.eq(fastify.schema.assetCategories.assetId, id));
+        if (targetCategoryIds.length > 0) {
+          await fastify.db
+            .insert(fastify.schema.assetCategories)
+            .values(targetCategoryIds.map(catId => ({ assetId: id, categoryId: catId })));
+        }
+      }
+
+      if (Object.keys(updates).length === 0 && targetCategoryIds === undefined) {
         return reply.status(400).send({ error: 'No updates provided' });
       }
 
-      const [updated] = await fastify.db
-        .update(fastify.schema.assets)
-        .set(updates)
-        .where(fastify.eq(fastify.schema.assets.id, id))
-        .returning();
+      if (Object.keys(updates).length > 0) {
+        await fastify.db
+          .update(fastify.schema.assets)
+          .set(updates)
+          .where(fastify.eq(fastify.schema.assets.id, id));
+      }
 
-      return reply.send(updated);
+      const [updated] = await fastify.db.query.assets.findMany({
+        where: (assets, { eq }) => eq(assets.id, id),
+        limit: 1
+      });
+
+      let resultCategoryIds: string[] = [];
+      if (targetCategoryIds !== undefined) {
+        resultCategoryIds = targetCategoryIds;
+      } else {
+        const links = await fastify.db.query.assetCategories.findMany({
+          where: (ac, { eq }) => eq(ac.assetId, id)
+        });
+        resultCategoryIds = links.map(l => l.categoryId);
+      }
+
+      return reply.send({ ...updated, categoryIds: resultCategoryIds });
     } catch (error) {
       fastify.log.error(error);
       return reply.status(500).send({ error: 'Internal server error' });

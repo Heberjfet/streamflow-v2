@@ -63,13 +63,22 @@ export const categories = pgTable('categories', {
   userSlugIdx: unique().on(table.userId, table.slug)
 }));
 
+export const assetCategories = pgTable('asset_categories', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  assetId: uuid('asset_id').notNull().references(() => assets.id, { onDelete: 'cascade' }),
+  categoryId: uuid('category_id').notNull().references(() => categories.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow()
+}, (table) => ({
+  assetCategoryUnique: unique('asset_cat_unique').on(table.assetId, table.categoryId)
+}));
+
 export const assets = pgTable('assets', {
   id: uuid('id').primaryKey().defaultRandom(),
   orgId: uuid('org_id').references(() => organizations.id),
   userId: uuid('user_id').notNull().references(() => users.id),
   title: varchar('title', { length: 500 }).notNull(),
   description: text('description'),
-  categoryId: uuid('category_id').references(() => categories.id),
+  categoryId: uuid('category_id').references(() => categories.id, { onDelete: 'set null' }),
   status: varchar('status', { length: 50 }).notNull().default('pending'),
   playbackId: varchar('playback_id', { length: 255 }).unique(),
   duration: integer('duration'),
@@ -153,6 +162,7 @@ export const schema = {
   webhooks,
   users,
   categories,
+  assetCategories,
   assets,
   sessions,
   analyticsEvents,

@@ -102,6 +102,10 @@ export async function categoryRoutes(fastify: FastifyInstance) {
       const { id } = request.params;
 
       await fastify.db
+        .delete(fastify.schema.assetCategories)
+        .where(fastify.eq(fastify.schema.assetCategories.categoryId, id));
+
+      await fastify.db
         .delete(fastify.schema.categories)
         .where(fastify.eq(fastify.schema.categories.id, id));
 

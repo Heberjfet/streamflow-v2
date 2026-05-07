@@ -65,6 +65,7 @@ export interface Asset {
   title: string
   description?: string
   categoryId?: string
+  categoryIds?: string[]
   status: 'pending' | 'uploading' | 'processing' | 'ready' | 'completed' | 'failed'
   playbackId?: string
   thumbnailKey?: string
