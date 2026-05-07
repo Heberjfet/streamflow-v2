@@ -6,6 +6,15 @@ import { getCategories, Category } from '@/lib/api'
 import { getS3Url } from '@/lib/s3'
 import Link from 'next/link'
 
+const statusColors: Record<string, string> = {
+    pending: 'text-white/40',
+    uploading: 'text-yellow-400',
+    processing: 'text-blue-400',
+    ready: 'text-green-400',
+    completed: 'text-green-400',
+    failed: 'text-red-400',
+}
+
 export default function SearchPage() {
     const { assets, fetchAssets } = useAssets()
     const [categories, setCategories] = useState<Category[]>([])
@@ -37,121 +46,128 @@ export default function SearchPage() {
     const isSearching = searchQuery.trim().length > 0
 
     return (
-        <div className={`flex flex-col transition-all duration-500 ease-in-out ${!isSearching ? 'justify-center min-h-[80vh]' : 'pt-10'}`}>
-            <div className="w-full max-w-4xl mx-auto space-y-8 animate-fade-in">
+        <div className="flex flex-col w-full min-h-[80vh] justify-center items-center bg-[#050505] transition-all duration-700">
+            <div className="w-full max-w-3xl mx-auto px-6">
 
-                {/* Título y Descripción Centrados */}
-                <div className={`text-center transition-all duration-500 ${isSearching ? 'mb-8' : 'mb-12'}`}>
-                    <h1 className="text-5xl font-bold mb-4 tracking-tight">
-                        ¿Qué estás <span className="gradient-text">buscando?</span>
+                <div className={`text-center transition-all duration-700 ${isSearching ? 'mb-8 opacity-40 scale-95' : 'mb-12 opacity-100 scale-100'}`}>
+                    <h1 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight text-white">
+                        ¿Qué estás buscando?
                     </h1>
-                    <p className="text-[var(--text-secondary)] text-xl max-w-lg mx-auto">
-                        Encuentra videos, catálogos y recursos en segundos.
+                    <p className="text-white/30 text-lg max-w-lg mx-auto font-medium">
+                        Encuentra videos y catálgoos en segundos.
                     </p>
                 </div>
 
-                {/* Buscador Estilo Editorial */}
-                <div className="relative z-10">
-                    <div className="glass-card flex items-center gap-4 px-8 py-6 rounded-[2.5rem] border border-white/10 focus-within:border-[var(--primary)]/40 focus-within:shadow-[0_0_50px_rgba(168,85,247,0.15)] transition-all duration-300">
-                        <svg className="w-7 h-7 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                <div className="relative z-20 w-full">
+                    <div className={`flex items-center gap-4 px-8 py-6 rounded-[2rem] border transition-all duration-300 bg-[#1c1c1e]/80 backdrop-blur-2xl shadow-2xl ${isSearching ? 'border-purple-500/40 shadow-[0_10px_40px_rgba(147,51,234,0.1)]' : 'border-white/10 hover:border-white/20'}`}>
                         <input
                             type="text"
-                            placeholder="Escribe el nombre de un video o carpeta..."
-                            className="flex-1 bg-transparent outline-none text-xl placeholder:text-white/20"
+                            placeholder="Escribe el nombre de un video o catálogo..."
+                            className="flex-1 bg-transparent outline-none text-xl sm:text-2xl font-medium text-white placeholder:text-white/10 text-center w-full"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             autoFocus
                         />
+                        {isSearching && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors shrink-0"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        )}
                     </div>
                 </div>
 
-                {/* Resultados de Búsqueda */}
-                {isSearching && (
-                    <div className="animate-fade-in-up stagger-1 pt-8 pb-20">
-                        {hasResults ? (
-                            <div className="space-y-12">
+                <div className={`transition-all duration-700 ease-out w-full ${isSearching ? 'opacity-100 translate-y-0 mt-12' : 'opacity-0 translate-y-8 pointer-events-none absolute'}`}>
+                    {hasResults ? (
+                        <div className="space-y-12 pb-20">
 
-                                {/* Carpetas */}
-                                {filteredCategories.length > 0 && (
-                                    <div>
-                                        <h3 className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mb-6 px-2">
-                                            Catálogos Relacionados
-                                        </h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {filteredCategories.map(category => (
-                                                <Link
-                                                    key={category.id}
-                                                    href={`/dashboard/catalogs?id=${category.id}`}
-                                                    className="glass-card group hover:bg-white/[0.04] transition-all p-6 rounded-3xl cursor-pointer block"
-                                                >
-                                                    <div className="flex items-center gap-5">
-                                                        <div className="p-4 rounded-2xl bg-[var(--primary)]/10 text-[var(--primary)] group-hover:scale-110 transition-transform">
-                                                            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                                                            </svg>
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <h3 className="font-bold text-lg mb-1 group-hover:text-[var(--primary)] transition-colors truncate">{category.name}</h3>
-                                                            <p className="text-sm text-[var(--text-secondary)]">
-                                                                {getCategoryVideoCount(category.id)} videos almacenados
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </Link>
-                                            ))}
-                                        </div>
+                            {filteredCategories.length > 0 && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <h3 className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] mb-6 text-center">
+                                        Catálogos
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {filteredCategories.map(category => (
+                                            <Link
+                                                key={category.id}
+                                                href={`/dashboard/catalogs?id=${category.id}`}
+                                                className="group flex items-center gap-4 bg-white/[0.02] border border-white/5 hover:border-purple-500/30 hover:bg-white/[0.04] transition-all p-5 rounded-2xl cursor-pointer"
+                                            >
+                                                <div className="w-10 h-10 shrink-0 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-all">
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                                    </svg>
+                                                </div>
+                                                <div className="flex-1 min-w-0 text-left">
+                                                    <h3 className="font-bold text-white truncate text-base">{category.name}</h3>
+                                                    <p className="text-[10px] text-white/30 font-bold uppercase tracking-widest">{getCategoryVideoCount(category.id)} items</p>
+                                                </div>
+                                            </Link>
+                                        ))}
                                     </div>
-                                )}
+                                </div>
+                            )}
 
-                                {/* Videos */}
-                                {filteredVideos.length > 0 && (
-                                    <div>
-                                        <h3 className="text-xs font-bold text-white/40 uppercase tracking-[0.2em] mb-6 px-2">
-                                            Resultados de Video
-                                        </h3>
-                                        <div className="grid grid-cols-1 gap-3">
-                                            {filteredVideos.map(video => (
+                            {filteredVideos.length > 0 && (
+                                <div className="animate-in fade-in slide-in-from-bottom-6 duration-500">
+                                    <h3 className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] mb-6 text-center">
+                                        Videos
+                                    </h3>
+                                    <div className="bg-white/[0.01] border border-white/5 rounded-[2rem] overflow-hidden">
+                                        {filteredVideos.map((video, index) => {
+                                            const thumbUrl = video.thumbnailKey ? getS3Url(video.thumbnailKey) : null
+
+                                            return (
                                                 <Link
                                                     key={video.id}
                                                     href={`/dashboard/video/${video.id}`}
-                                                    className="glass-card flex items-center gap-5 p-4 rounded-3xl hover:bg-white/5 transition-all cursor-pointer group"
+                                                    className={`group flex items-center gap-5 p-4 hover:bg-white/[0.03] transition-colors cursor-pointer ${index !== filteredVideos.length - 1 ? 'border-b border-white/5' : ''}`}
                                                 >
-                                                    <div className="w-28 h-16 rounded-2xl bg-white/5 overflow-hidden shrink-0">
-                                                        {video.thumbnailKey ? (
-                                                            <img src={getS3Url(video.thumbnailKey)} alt={video.title} className="w-full h-full object-cover" />
+                                                    <div className="w-24 shrink-0 aspect-video rounded-xl bg-black overflow-hidden relative border border-white/5">
+                                                        {thumbUrl ? (
+                                                            <img src={thumbUrl} alt={video.title} className="w-full h-full object-cover" />
                                                         ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-white/10">
-                                                                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                                </svg>
+                                                            <div className="w-full h-full flex items-center justify-center">
+                                                                <svg className="w-6 h-6 text-white/10" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-bold text-lg truncate group-hover:text-[var(--primary)] transition-colors">{video.title}</p>
-                                                        <span className="text-xs font-mono text-[var(--primary)]/60 uppercase tracking-widest">{video.status}</span>
-                                                    </div>
-                                                    <svg className="w-6 h-6 text-white/10 group-hover:text-[var(--primary)] transition-colors mr-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                    </svg>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
 
-                            </div>
-                        ) : (
-                            <div className="text-center py-20 animate-fade-in">
-                                <p className="text-xl text-[var(--text-secondary)]">
-                                    No hay resultados para "<span className="text-white">{searchQuery}</span>"
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                )}
+                                                    <div className="flex-1 min-w-0 text-left">
+                                                        <h4 className="text-base font-bold text-white truncate group-hover:text-purple-400 transition-colors">
+                                                            {video.title}
+                                                        </h4>
+                                                        <div className="flex items-center gap-3 text-[10px] uppercase font-black tracking-widest mt-1">
+                                                            <span className={statusColors[video.status] || 'text-white/40'}>
+                                                                {video.status}
+                                                            </span>
+                                                            <span className="text-white/10">•</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="pr-4 text-white/10 group-hover:text-purple-500 transition-colors">
+                                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                        </svg>
+                                                    </div>
+                                                </Link>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 animate-in fade-in zoom-in-95">
+                            <h3 className="text-xl font-bold text-white mb-2 opacity-50">Sin coincidencias</h3>
+                            <p className="text-white/20">No encontramos nada para "<span className="text-white/40 italic">{searchQuery}</span>"</p>
+                        </div>
+                    )}
+                </div>
+
             </div>
         </div>
     )

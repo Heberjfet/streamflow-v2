@@ -46,28 +46,29 @@ export default function WatchPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+        <div className="w-12 h-12 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
       </div>
     )
   }
 
   if (error || !playback) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center relative">
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center relative p-6">
         <button
           onClick={handleBackNavigation}
-          className="absolute top-6 left-6 w-12 h-12 flex items-center justify-center rounded-full glass-card hover:bg-white/5 transition-colors z-50"
-          aria-label="Volver"
+          className="absolute top-8 left-8 w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 transition-colors z-50 text-white/60 hover:text-white border border-white/10"
         >
-          <svg className="w-5 h-5 text-[var(--text-primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <div className="text-center bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl animate-fade-in max-w-md">
-          <p className="text-[var(--text-secondary)] mb-4">{error}</p>
-          <button onClick={handleBackNavigation} className="btn-secondary inline-block">
-            Volver
+
+        <div className="text-center bg-[#1c1c1e] border border-white/10 p-10 rounded-[2rem] animate-fade-in max-w-md shadow-2xl">
+          <h2 className="text-xl font-bold text-white mb-2">Contenido no disponible</h2>
+          <p className="text-white/40 mb-8 text-sm">{error}</p>
+          <button onClick={handleBackNavigation} className="w-full py-3.5 bg-white/5 hover:bg-white/10 text-white rounded-xl font-medium transition-colors border border-white/10">
+            Regresar
           </button>
         </div>
       </div>
@@ -75,33 +76,43 @@ export default function WatchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] flex flex-col">
+    <div className="min-h-screen bg-[#050505] flex flex-col selection:bg-purple-500/30">
       <main className="flex-1 flex flex-col w-full">
-        <div className="relative w-full h-screen bg-black animate-fade-in-up">
-          <header className="absolute top-6 left-6 z-50 flex flex-col items-start gap-3 pointer-events-none">
-            <div className="flex items-center gap-3">
+
+        <div className="relative w-full h-screen bg-black group overflow-hidden">
+
+          {/* Header sin gradiente de fondo para no oscurecer el volumen */}
+          <header className="absolute top-0 left-0 w-full z-50 flex items-start justify-between p-6 md:p-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+
+            <div className="flex items-center gap-6">
               <button
                 onClick={handleBackNavigation}
-                className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-full glass-card hover:bg-white/10 transition-colors shrink-0"
-                aria-label="Volver"
+                className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-colors shrink-0 border border-white/10 text-white"
               >
-                <svg className="w-5 h-5 text-[var(--text-primary)] translate-x-[-1px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-6 h-6 translate-x-[-1px]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
 
-              <div className="pointer-events-auto h-12 px-6 flex items-center justify-center rounded-full glass-card max-w-xs sm:max-w-md">
-                <h1 className="text-sm font-bold text-[var(--text-primary)] truncate">
+              <div className="pointer-events-auto hidden sm:block">
+                <span className="text-[10px] text-white/50 uppercase tracking-[0.2em] font-bold block mb-1">
+                  Reproduciendo
+                </span>
+                <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight drop-shadow-lg line-clamp-1">
                   {playback.title}
                 </h1>
+
+                <div className="flex items-center gap-1 mt-2">
+                  <span className="text-xs font-black tracking-tighter text-white/40 uppercase">
+                    Stream<span className="text-purple-500/60">Flow</span>
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="pointer-events-auto px-2">
-              <span className="text-xl font-bold font-[var(--font-display)] text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                Stream<span className="text-[var(--primary)] drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">Flow</span>
-              </span>
-            </div>
+            {/* Espacio derecho vacío para dejar libre el control de volumen del player */}
+            <div className="w-32" />
+
           </header>
 
           <VideoPlayer
@@ -112,30 +123,36 @@ export default function WatchPage() {
           />
         </div>
 
-        <div className="w-full relative overflow-hidden border-y border-[var(--border)] py-24 sm:py-32">
-          <div className="absolute inset-0 gradient-radial-primary opacity-20 pointer-events-none" />
-          <div className="absolute inset-0 noise-overlay opacity-30 pointer-events-none" />
+        {!isLoggedIn && (
+          <div className="w-full relative border-t border-white/5 bg-[#050505] py-32 md:py-40">
+            <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
 
-          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4">
-              ¿Quieres alojar tus <span className="gradient-text">propios videos?</span>
-            </h2>
+              <h2 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
+                El control total de tu <br className="hidden sm:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+                  catálogo multimedia.
+                </span>
+              </h2>
 
-            <p className="text-lg text-[var(--text-secondary)] mb-10 max-w-2xl">
-              Crea tu propia instancia de StreamFlow y obtén el control total de tu catálogo.
-              Infraestructura autohospedada, transcodificación HLS y cero límites.
-            </p>
+              <p className="text-lg md:text-xl text-white/40 mb-12 max-w-2xl font-medium leading-relaxed">
+                Crea tu propia instancia de StreamFlow y obtén independencia tecnológica.
+                Infraestructura autohospedada y transcodificación HLS en tiempo real.
+              </p>
 
-            <Link href="/register" className="btn-primary text-base px-8 py-4 uppercase tracking-wider font-bold shadow-[0_0_30px_rgba(168,85,247,0.3)]">
-              Iniciar Ahora
-            </Link>
+              <Link
+                href="/register"
+                className="inline-block bg-white text-black px-10 py-5 rounded-2xl font-bold uppercase tracking-[0.15em] text-sm transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.15)]"
+              >
+                Inicia tu Instancia Hoy
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </main>
 
-      <footer className="py-8 bg-[var(--background)] mt-auto">
-        <div className="w-full px-4 text-center text-sm font-mono text-[var(--text-secondary)]/50 uppercase tracking-widest">
-          Powered by StreamFlow
+      <footer className="py-8 bg-[#050505] mt-auto border-t border-white/5">
+        <div className="w-full px-4 text-center text-xs font-bold text-white/20 uppercase tracking-[0.3em]">
+          Powered by StreamFlow Engine
         </div>
       </footer>
     </div>

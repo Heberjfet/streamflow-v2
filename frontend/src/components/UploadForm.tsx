@@ -1,18 +1,16 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
-// Mantenemos las importaciones originales por si las usas en otros lados, 
-// aunque aquí usaremos HTML nativo estilizado para asegurar el glassmorphism
-import { Button } from './ui/Button'
-import { Input } from './ui/Input'
 
 interface UploadFormProps {
   onUploadComplete?: () => void
 }
 
+type Step = 1 | 2 | 3
 type UploadStatus = 'idle' | 'uploading' | 'complete' | 'processing' | 'done' | 'error'
 
 export function UploadForm({ onUploadComplete }: UploadFormProps) {
+  const [step, setStep] = useState<Step>(1)
   const [status, setStatus] = useState<UploadStatus>('idle')
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -37,11 +35,13 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
     setError(null)
     setVideoTitle('')
     setSelectedFile(null)
+    setStep(1)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
   }
 
+  // --- NAVEGACIÓN Y SELECCIÓN DE ARCHIVO ---
   const handleFileSelect = useCallback((file: File) => {
     const validTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
     if (!validTypes.includes(file.type)) {
@@ -58,6 +58,7 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
       const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '')
       setVideoTitle(nameWithoutExt)
     }
+    setStep(2) // Avanzamos al paso de título
   }, [videoTitle])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -82,9 +83,9 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
     if (file) handleFileSelect(file)
   }
 
-  // --- LÓGICA INTACTA (INCLUYENDO LA LÍNEA 95) ---
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // --- LÓGICA DE BACKEND INTACTA (Exactamente igual a tu archivo original) ---
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault() // Lo hacemos opcional porque en el paso 3 no usamos un tag <form>
     if (!selectedFile || !videoTitle.trim()) {
       setError('Please provide a title and select a video file')
       return
@@ -154,173 +155,122 @@ export function UploadForm({ onUploadComplete }: UploadFormProps) {
       setError(err instanceof Error ? err.message : 'Upload failed')
     }
   }
-  // ------------------------------------------------
+  // -------------------------------------------------------------------------
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-
-      {/* INPUT DE TÍTULO */}
-      <div>
-        <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2 block">
-          Título del Activo
-        </label>
-        <input
-          type="text"
-          placeholder="Ej: Temporada 1 - Episodio 1"
-          value={videoTitle}
-          onChange={(e) => setVideoTitle(e.target.value)}
-          disabled={status !== 'idle'}
-          required
-          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:border-[var(--primary)] focus:outline-none transition-colors disabled:opacity-50 font-medium"
-        />
-      </div>
-
-      {/* ZONA DE DROP (DROPZONE ESTILO STUDIO) */}
-      <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] block">
-          Archivo Multimedia (Source)
-        </label>
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={() => fileInputRef.current?.click()}
-          className={`
-            relative rounded-2xl p-10 text-center cursor-pointer overflow-hidden
-            transition-all duration-300 border-2 border-dashed
-            ${isDragging
-              ? 'border-[var(--primary)] bg-[var(--primary)]/5 shadow-[inset_0_0_50px_rgba(var(--primary-rgb),0.1)]'
-              : 'border-white/10 bg-white/[0.01] hover:border-[var(--primary)]/30 hover:bg-white/[0.02]'
-            }
-            ${status !== 'idle' ? 'pointer-events-none opacity-50 grayscale' : ''}
-          `}
-        >
-          {/* Ruido sutil de fondo para textura */}
-          <div className="noise-overlay opacity-20 pointer-events-none" />
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="video/*"
-            onChange={handleInputChange}
-            className="hidden"
-            disabled={status !== 'idle'}
-          />
-
-          {selectedFile ? (
-            <div className="flex flex-col items-center justify-center gap-4 relative z-10">
-              <div className="w-16 h-16 rounded-2xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 flex items-center justify-center shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]">
-                <svg className="w-8 h-8 text-[var(--primary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-bold text-white truncate max-w-[250px] mb-1">
-                  {selectedFile.name}
-                </p>
-                <span className="inline-flex px-2 py-0.5 rounded bg-white/10 text-white/60 font-mono text-[10px] tracking-widest border border-white/5">
-                  {(selectedFile.size / (1024 * 1024 * 1024)).toFixed(2)} GB
-                </span>
-              </div>
+  // Si está subiendo o terminó, mostramos la pantalla de carga limpia
+  if (status !== 'idle') {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 space-y-6 text-center animate-in fade-in zoom-in-95">
+        {(status === 'uploading' || status === 'processing' || status === 'complete') && (
+          <>
+            <div className="relative w-24 h-24 flex items-center justify-center mb-2">
+              <svg className="w-full h-full -rotate-90">
+                <circle cx="48" cy="48" r="44" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
+                <circle cx="48" cy="48" r="44" stroke="currentColor" strokeWidth="4" fill="transparent"
+                  strokeDasharray={276} strokeDashoffset={276 - (276 * progress) / 100}
+                  className="text-[var(--primary)] transition-all duration-300" strokeLinecap="round" />
+              </svg>
+              <span className="absolute text-xl font-bold text-white">{progress}%</span>
             </div>
-          ) : (
-            <div className="space-y-4 relative z-10 flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-black/40 border border-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <svg className="w-8 h-8 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm text-white/80 font-medium">
-                  Arrastra tu master aquí, o <span className="text-[var(--primary)] cursor-pointer hover:underline">explora</span>
-                </p>
-                <p className="text-[10px] uppercase tracking-widest text-white/40 mt-2 font-mono">
-                  MP4, WebM, MOV, AVI • MAX 5GB
-                </p>
-              </div>
+            <div>
+              <h3 className="text-xl font-semibold text-white tracking-tight mb-1">
+                {status === 'processing' ? 'Procesando en la nube...' : 'Subiendo contenido...'}
+              </h3>
+              <p className="text-sm text-[var(--text-secondary)]">Mantén esta ventana abierta.</p>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* ESTADOS DE PROGRESO Y CARGA */}
-      {(status === 'uploading' || status === 'complete' || status === 'processing') && (
-        <div className="space-y-3 glass-card p-4 rounded-2xl border border-white/5">
-          <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
-            <span className={status === 'processing' ? 'text-blue-400' : 'text-[var(--primary)]'}>
-              {status === 'uploading' && 'Subiendo a S3...'}
-              {status === 'complete' && 'Ingesta completada'}
-              {status === 'processing' && 'Transcodificando video...'}
-            </span>
-            <span className="font-mono text-white">{progress}%</span>
-          </div>
-
-          <div className="h-2 bg-black/50 rounded-full overflow-hidden border border-white/5 relative">
-            <div
-              className={`h-full transition-all duration-300 rounded-full ${status === 'processing' ? 'bg-blue-500 shadow-[0_0_10px_#3b82f6]' : 'bg-[var(--primary)] shadow-[0_0_10px_var(--primary)]'
-                }`}
-              style={{ width: `${progress}%` }}
-            />
-            {/* Animación de brillo sobre la barra */}
-            <div className="absolute top-0 bottom-0 left-0 w-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-          </div>
-
-          {status === 'processing' && (
-            <p className="text-[10px] text-white/40 text-center font-mono uppercase tracking-widest mt-2 animate-pulse">
-              Generando manifiesto HLS. Por favor espere...
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* MENSAJES DE ERROR Y ÉXITO */}
-      {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
-          <svg className="w-5 h-5 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          <p className="text-xs font-mono text-red-400 uppercase tracking-wide">{error}</p>
-        </div>
-      )}
-
-      {status === 'done' && (
-        <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-3">
-          <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          <p className="text-xs font-mono text-green-400 uppercase tracking-wide">Activo procesado y publicado con éxito</p>
-        </div>
-      )}
-
-      {/* CONTROLES / BOTONES */}
-      <div className="flex gap-3 pt-2">
-        {status === 'idle' && (
-          <button
-            type="submit"
-            disabled={!selectedFile || !videoTitle.trim()}
-            className="w-full btn-primary py-3 rounded-xl font-bold uppercase tracking-widest text-xs disabled:opacity-50 disabled:cursor-not-allowed transition-all flex justify-center items-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-            Iniciar Subida
-          </button>
-        )}
-
-        {status === 'error' && (
-          <button
-            type="button"
-            onClick={resetForm}
-            className="w-full bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl font-bold uppercase tracking-widest text-xs transition-all border border-white/10"
-          >
-            Intentar Nuevamente
-          </button>
+          </>
         )}
 
         {status === 'done' && (
-          <button
-            type="button"
-            onClick={resetForm}
-            className="w-full btn-primary py-3 rounded-xl font-bold uppercase tracking-widest text-xs transition-all"
-          >
-            Ingestar Otro Archivo
-          </button>
+          <>
+            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center text-green-500 mb-2 border border-green-500/20">
+              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <h3 className="text-xl font-semibold text-white">¡Video publicado!</h3>
+            <button onClick={resetForm} className="mt-4 px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-medium transition-colors border border-white/10">Subir otro video</button>
+          </>
+        )}
+
+        {status === 'error' && (
+          <>
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 mb-2 border border-red-500/20">
+              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </div>
+            <h3 className="text-xl font-semibold text-white">Error de Subida</h3>
+            <p className="text-sm text-[var(--text-secondary)] max-w-xs">{error}</p>
+            <button onClick={resetForm} className="mt-4 px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-sm font-medium transition-colors border border-white/10">Intentar de nuevo</button>
+          </>
         )}
       </div>
-    </form>
+    )
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex justify-center gap-2 mb-10">
+        {[1, 2, 3].map((s) => (
+          <div key={s} className={`h-1.5 rounded-full transition-all duration-500 ${step === s ? 'w-8 bg-[var(--primary)]' : 'w-2 bg-white/10'}`} />
+        ))}
+      </div>
+
+      <div className="flex-1 flex flex-col justify-center">
+        {step === 1 && (
+          <div
+            onDrop={handleDrop} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onClick={() => fileInputRef.current?.click()}
+            className={`text-center p-12 border-2 border-dashed rounded-3xl cursor-pointer transition-all duration-300 animate-in fade-in slide-in-from-right-4 ${isDragging ? 'border-[var(--primary)] bg-[var(--primary)]/5' : 'border-white/10 bg-white/[0.02] hover:bg-white/[0.04]'
+              }`}
+          >
+            <input ref={fileInputRef} type="file" accept="video/*" onChange={handleInputChange} className="hidden" />
+            <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 text-[var(--text-secondary)] group-hover:text-[var(--primary)] transition-colors">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+            </div>
+            <h2 className="text-xl font-medium tracking-tight mb-2">Elegir contenido</h2>
+            <p className="text-sm text-[var(--text-secondary)]">Arrastra tu video aquí o haz clic para buscar</p>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="text-center max-w-sm mx-auto w-full animate-in fade-in slide-in-from-right-4">
+            <h2 className="text-2xl font-semibold tracking-tight mb-2">Nombrar video</h2>
+            <p className="text-sm text-[var(--text-secondary)] mb-8">¿Cómo se llamará este activo en la plataforma?</p>
+
+            <input
+              autoFocus
+              type="text"
+              value={videoTitle}
+              onChange={(e) => setVideoTitle(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-center text-[var(--text-primary)] text-lg focus:border-[var(--primary)] focus:outline-none transition-all mb-6"
+              placeholder="Ej. Episodio 1"
+            />
+
+            <div className="flex gap-3">
+              <button onClick={() => setStep(1)} className="px-6 py-3 rounded-xl font-medium text-[var(--text-secondary)] hover:text-white bg-white/5 transition-colors">Atrás</button>
+              <button onClick={() => setStep(3)} disabled={!videoTitle} className="flex-1 py-3 bg-[var(--primary)] hover:opacity-90 text-black rounded-xl font-semibold transition-all disabled:opacity-50">Continuar</button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="animate-in fade-in zoom-in-95 max-w-md mx-auto w-full text-center">
+            <h2 className="text-xl font-semibold tracking-tight mb-6">Confirmar Publicación</h2>
+            <div className="bg-black border border-white/10 rounded-2xl overflow-hidden mb-8 relative aspect-video flex flex-col justify-end p-5 text-left">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+              <div className="relative z-20">
+                <h3 className="text-lg font-bold text-white line-clamp-1">{videoTitle}</h3>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setStep(2)} className="px-6 py-3 rounded-xl font-medium text-[var(--text-secondary)] hover:text-white bg-white/5 transition-colors">Editar</button>
+              <button onClick={() => handleSubmit()} className="flex-1 py-3 bg-[var(--primary)] hover:opacity-90 text-black rounded-xl font-semibold transition-all">Subir Video</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {error && step === 1 && (
+        <p className="text-center text-sm text-red-400 mt-6 bg-red-500/10 py-2 rounded-lg border border-red-500/20">{error}</p>
+      )}
+    </div>
   )
 }

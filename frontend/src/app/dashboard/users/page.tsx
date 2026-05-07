@@ -6,9 +6,9 @@ import { getS3Url } from '@/lib/s3'
 import { Input } from '@/components/ui/Input'
 
 const roleColors: Record<string, string> = {
-  admin: 'from-cyan-500 to-blue-600',
-  editor: 'from-purple-500 to-pink-600',
-  viewer: 'from-orange-400 to-red-500'
+  admin: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+  editor: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+  viewer: 'text-white/60 bg-white/5 border-white/10'
 }
 
 const roleLabels: Record<string, string> = {
@@ -29,13 +29,13 @@ export default function UsersAdminPage() {
   const [nameFocused, setNameFocused] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
   const [roleFocused, setRoleFocused] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [userToDelete, setUserToDelete] = useState<string | null>(null)
-  const [deleting, setDeleting] = useState(false)
   const [selectedUserProfile, setSelectedUserProfile] = useState<User | null>(null)
   const [userAssets, setUserAssets] = useState<any[]>([])
   const [userCategories, setUserCategories] = useState<any[]>([])
   const [loadingProfile, setLoadingProfile] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -116,211 +116,178 @@ export default function UsersAdminPage() {
   )
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="min-h-full pb-20 animate-fade-in bg-[#050505]">
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pt-6">
         <div>
-          <h1 className="text-4xl font-black">
-            Directorio de usuarios
+          <h1 className="text-3xl font-semibold tracking-tight text-white mb-1">
+            Usuarios
           </h1>
-          <p className="text-[var(--text-secondary)] mt-2 text-sm max-w-md">
-            Gestiona privilegios de acceso, roles de administración y monitorea la actividad de los usuarios en tiempo real.
+          <p className="text-sm text-white/40">
+            Gestiona accesos y privilegios del sistema.
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
-            <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest">Total Usuarios</p>
-            <p className="text-2xl font-mono font-bold">{users.length}</p>
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="hidden sm:block text-right mr-2">
+            <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Total</p>
+            <p className="text-xl font-semibold text-white">{users.length}</p>
           </div>
           <button
             onClick={handleCreate}
-            className="px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-black font-bold rounded-xl transition-all flex items-center gap-2"
+            className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-xl transition-all active:scale-95 flex items-center gap-2"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 4v16m8-8H4" strokeWidth={2.5} /></svg>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 4v16m8-8H4" strokeWidth={2.5} /></svg>
             Nuevo Usuario
           </button>
         </div>
       </div>
 
-      {/* Error */}
       {error && (
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
+        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm font-medium">
           {error}
         </div>
       )}
 
-      {/* Barra de Herramientas y Filtros */}
-      <div className="flex flex-col md:flex-row gap-4 items-center">
+      <div className="flex flex-col md:flex-row gap-4 items-center mb-8">
         <div className="relative flex-1 w-full">
           <input
             type="text"
-            placeholder="Buscar por email, nombre o UUID..."
+            placeholder="Buscar por email o nombre..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:border-[var(--primary)]/50 focus:outline-none transition-all"
+            className="w-full bg-white/[0.02] border border-white/5 rounded-2xl py-3 pl-12 pr-4 text-white placeholder-white/30 focus:border-purple-500/50 focus:bg-white/[0.04] focus:outline-none transition-all text-sm"
           />
-          <svg className="absolute left-4 top-3.5 w-5 h-5 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeWidth={2} /></svg>
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeWidth={2} /></svg>
         </div>
 
-        <div className="flex bg-white/[0.03] p-1 rounded-2xl border border-white/10 w-full md:w-auto">
+        <div className="flex bg-white/[0.02] p-1 rounded-2xl border border-white/5 w-full md:w-auto shrink-0">
           {['all', 'admin', 'editor', 'viewer'].map((role) => (
             <button
               key={role}
               onClick={() => setFilter(role)}
-              className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-tighter transition-all flex-1 md:flex-none ${filter === role ? 'bg-white/10 text-[var(--primary)]' : 'text-[var(--text-secondary)]'}`}
+              className={`px-5 py-2 rounded-xl text-xs font-semibold capitalize transition-all flex-1 md:flex-none ${filter === role ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white'}`}
             >
-              {role}
+              {role === 'all' ? 'Todos' : role}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Tabla de Usuarios */}
-      <div className="glass-card rounded-3xl border border-white/5 overflow-hidden">
+      <div className="bg-white/[0.01] border border-white/5 rounded-[2rem] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-[var(--text-secondary)]">Cargando...</div>
+          <div className="p-12 text-center flex justify-center">
+            <div className="w-8 h-8 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+          </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="p-8 text-center text-[var(--text-secondary)]">No hay usuarios</div>
+          <div className="p-16 text-center">
+            <p className="text-white/40 text-sm">No se encontraron usuarios.</p>
+          </div>
         ) : (
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-white/[0.02] text-[10px] uppercase tracking-[0.2em] text-[var(--text-secondary)] font-bold">
-                <th className="px-8 py-5">Identidad</th>
-                <th className="px-8 py-5">Acceso / Rol</th>
-                <th className="px-8 py-5">Última Actividad</th>
-                <th className="px-8 py-5 text-right">Gestión</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="group hover:bg-white/[0.02] transition-colors">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${roleColors[user.role]} flex items-center justify-center font-black text-black shadow-lg shadow-black/20`}>
-                        {user.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="font-bold text-lg group-hover:text-[var(--primary)] transition-colors">{user.name}</div>
-                        <div className="text-xs text-[var(--text-secondary)] font-mono">{user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-6">
-                    <span className={`text-[10px] px-2 py-1 rounded-md font-black border uppercase tracking-tighter ${user.role === 'admin'
-                        ? 'border-[var(--primary)]/30 text-[var(--primary)] bg-[var(--primary)]/5'
-                        : 'border-white/10 text-white/40 bg-white/5'
-                      }`}>
+          <div className="divide-y divide-white/5">
+            {filteredUsers.map((user) => (
+              <div key={user.id} className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors group">
+
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-12 h-12 shrink-0 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-white text-lg">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-semibold text-white truncate group-hover:text-purple-400 transition-colors">
+                      {user.name}
+                    </h4>
+                    <p className="text-xs text-white/40 truncate mt-0.5">{user.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6 shrink-0 pl-4">
+                  <div className="hidden md:block text-right">
+                    <span className={`text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-widest border ${roleColors[user.role]}`}>
                       {roleLabels[user.role]}
                     </span>
-                  </td>
-                  <td className="px-8 py-6 font-mono text-xs text-[var(--text-secondary)]">
-                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => openUserProfile(user)}
-                        className="p-2 hover:bg-white/10 rounded-xl text-[var(--text-secondary)] hover:text-[var(--primary)] transition-all"
-                        title="Ver Perfil"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth={2} /></svg>
-                      </button>
-                      <button
-                        onClick={() => handleEdit(user)}
-                        className="p-2 hover:bg-white/10 rounded-xl text-[var(--text-secondary)] hover:text-white transition-all"
-                        title="Editar Usuario"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeWidth={2} /></svg>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user.id)}
-                        className="p-2 hover:bg-red-500/10 rounded-xl text-red-500/50 hover:text-red-500 transition-all"
-                        title="Eliminar Usuario"
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeWidth={2} /></svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+
+                  <div className="hidden lg:block text-xs text-white/30 font-medium">
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}
+                  </div>
+
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => openUserProfile(user)} className="p-2 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors" title="Ver Perfil">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth={1.5} /></svg>
+                    </button>
+                    <button onClick={() => handleEdit(user)} className="p-2 hover:bg-white/10 rounded-full text-white/40 hover:text-white transition-colors" title="Editar">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeWidth={1.5} /></svg>
+                    </button>
+                    <button onClick={() => handleDelete(user.id)} className="p-2 hover:bg-red-500/10 rounded-full text-white/40 hover:text-red-400 transition-colors" title="Eliminar">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeWidth={1.5} /></svg>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="glass-card rounded-3xl border border-white/10 p-8 w-full max-w-md">
-            <h2 className="text-2xl font-black uppercase tracking-tighter mb-6">
-              {editingUser ? 'Editar' : 'Nuevo'} Usuario
-            </h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-50 p-4">
+          <div className="relative bg-[#1c1c1e] border border-white/10 w-full max-w-md p-8 rounded-[2rem] animate-in fade-in zoom-in-95 duration-200 shadow-2xl">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
+              </h2>
+              <p className="text-sm text-white/40 mt-1">Configura las credenciales de acceso.</p>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 transition-all duration-300 ${nameFocused ? 'text-purple-500' : 'text-[var(--text-secondary)]'}`}>Nombre</label>
                 <input
                   type="text"
+                  placeholder="Nombre completo"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  onFocus={() => setNameFocused(true)}
-                  onBlur={() => setNameFocused(false)}
                   required
-                  className="w-full bg-zinc-900 border-2 border-white/10 rounded-xl py-3 px-4 focus:border-purple-500 focus:outline-none focus:shadow-lg focus:shadow-purple-500/30 focus:ring-4 focus:ring-purple-500/20 transition-all text-white"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-white/30 focus:border-purple-500 focus:outline-none transition-all text-sm"
                 />
               </div>
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 transition-all duration-300 ${emailFocused ? 'text-purple-500' : 'text-[var(--text-secondary)]'}`}>Email</label>
                 <input
                   type="email"
+                  placeholder="Correo electrónico"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
                   required
-                  className="w-full bg-zinc-900 border-2 border-white/10 rounded-xl py-3 px-4 focus:border-purple-500 focus:outline-none focus:shadow-lg focus:shadow-purple-500/30 focus:ring-4 focus:ring-purple-500/20 transition-all text-white
-                    [&:-webkit-autofill]:[-webkit-text-fill-color:white]
-                    [&:-webkit-autofill]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]
-                    [&:-webkit-autofill:hover]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]
-                    [&:-webkit-autofill:focus]:shadow-[inset_0_0_0px_1000px_rgb(24_24_27)]"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-white/30 focus:border-purple-500 focus:outline-none transition-all text-sm"
                 />
               </div>
-              <Input
-                type="password"
-                label={`Contraseña ${editingUser ? '(opcional)' : ''}`}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required={!editingUser}
-                showPasswordToggle
-              />
               <div>
-                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 transition-all duration-300 ${roleFocused ? 'text-purple-500' : 'text-[var(--text-secondary)]'}`}>Rol</label>
+                <input
+                  type="password"
+                  placeholder={`Contraseña ${editingUser ? '(dejar en blanco para no cambiar)' : ''}`}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required={!editingUser}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-white/30 focus:border-purple-500 focus:outline-none transition-all text-sm"
+                />
+              </div>
+              <div>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  onFocus={() => setRoleFocused(true)}
-                  onBlur={() => setRoleFocused(false)}
-                  className="w-full bg-zinc-900 border-2 border-white/10 rounded-xl py-3 px-4 focus:border-purple-500 focus:outline-none focus:shadow-lg focus:shadow-purple-500/30 focus:ring-4 focus:ring-purple-500/20 transition-all text-white"
+                  className="w-full bg-[#2c2c2e] border border-white/10 rounded-xl px-4 py-4 text-white focus:border-purple-500 focus:outline-none transition-all text-sm appearance-none"
                 >
-                  <option value="viewer">Viewer</option>
-                  <option value="editor">Editor</option>
-                  <option value="admin">Admin</option>
+                  <option value="viewer">Viewer (Solo lectura)</option>
+                  <option value="editor">Editor (Gestiona contenido)</option>
+                  <option value="admin">Administrador (Acceso total)</option>
                 </select>
               </div>
-              <div className="flex gap-4 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-6 py-3 border border-white/10 rounded-xl font-bold hover:bg-white/5 transition-all"
-                >
+              <div className="flex gap-3 pt-4 border-t border-white/5">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-3.5 rounded-xl text-white/60 hover:text-white hover:bg-white/5 font-medium text-sm transition-all">
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary)]/80 text-black font-bold rounded-xl transition-all"
-                >
-                  {editingUser ? 'Actualizar' : 'Crear'}
+                <button type="submit" className="flex-[2] py-3.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold text-sm transition-all active:scale-95">
+                  {editingUser ? 'Guardar Cambios' : 'Crear Usuario'}
                 </button>
               </div>
             </form>
@@ -328,81 +295,72 @@ export default function UsersAdminPage() {
         </div>
       )}
 
-      {/* User Profile Modal */}
       {selectedUserProfile && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-          <div className="glass-card border border-white/10 w-full max-w-2xl rounded-3xl overflow-hidden max-h-[85vh] flex flex-col">
-            <div className="p-8 border-b border-white/5">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${roleColors[selectedUserProfile.role]} flex items-center justify-center font-black text-black text-2xl shadow-lg`}>
-                    {selectedUserProfile.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold">{selectedUserProfile.name}</h2>
-                    <p className="text-[var(--text-secondary)]">{selectedUserProfile.email}</p>
-                    <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-md font-black border uppercase tracking-tighter ${selectedUserProfile.role === 'admin' ? 'border-[var(--primary)]/30 text-[var(--primary)] bg-[var(--primary)]/5' : 'border-white/10 text-white/40 bg-white/5'}`}>
-                      {roleLabels[selectedUserProfile.role]}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedUserProfile(null)}
-                  className="p-2 hover:bg-white/10 rounded-xl text-[var(--text-secondary)] transition-all"
-                >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" strokeWidth={2} /></svg>
-                </button>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xl flex items-center justify-center z-[100] p-4">
+          <div className="relative bg-[#1c1c1e] border border-white/10 w-full max-w-lg rounded-[2rem] overflow-hidden flex flex-col max-h-[85vh] shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+
+            <div className="p-8 pb-6 border-b border-white/5 bg-white/[0.01] text-center relative">
+              <button onClick={() => setSelectedUserProfile(null)} className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" strokeWidth={2} /></svg>
+              </button>
+
+              <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center font-bold text-white text-4xl shadow-lg mb-4">
+                {selectedUserProfile.name.charAt(0).toUpperCase()}
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-white">{selectedUserProfile.name}</h2>
+              <p className="text-sm text-white/40 mt-1">{selectedUserProfile.email}</p>
+              <div className="mt-4">
+                <span className={`inline-flex text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest border ${roleColors[selectedUserProfile.role]}`}>
+                  {roleLabels[selectedUserProfile.role]}
+                </span>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-8">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-4">Contenido de este usuario</h3>
+
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
               {loadingProfile ? (
-                <div className="text-center py-8 text-[var(--text-secondary)]">Cargando...</div>
+                <div className="text-center py-8">
+                  <div className="w-6 h-6 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mx-auto" />
+                </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <div>
-                    <p className="text-xs font-bold text-white/30 uppercase mb-3">Videos subidos</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {userAssets.slice(0, 5).map(asset => (
-                        <div key={asset.id} className="glass-card rounded-xl p-3 border border-white/5">
-                          <div className="aspect-video rounded-lg bg-gradient-to-br from-[var(--primary)]/20 to-transparent mb-2 flex items-center justify-center">
-                            {asset.thumbnailKey ? (
-                              <img src={getS3Url(asset.thumbnailKey)} alt={asset.title} className="w-full h-full object-cover rounded-lg" />
-                            ) : (
-                              <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            )}
+                    <h3 className="text-xs font-bold tracking-widest text-white/30 uppercase mb-4">Videos Subidos</h3>
+                    {userAssets.length === 0 ? (
+                      <p className="text-sm text-white/20">Sin actividad reciente.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {userAssets.map(asset => (
+                          <div key={asset.id} className="flex items-center gap-4 p-3 bg-white/[0.02] border border-white/5 rounded-2xl">
+                            <div className="w-20 shrink-0 aspect-video rounded-lg bg-black overflow-hidden relative">
+                              {asset.thumbnailKey ? (
+                                <img src={`http://localhost:9000/streamflow/${asset.thumbnailKey}`} alt={asset.title} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center"><svg className="w-4 h-4 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-white truncate">{asset.title}</p>
+                              <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">{asset.status}</p>
+                            </div>
                           </div>
-                          <p className="text-xs font-medium truncate">{asset.title}</p>
-                          <p className="text-[10px] text-[var(--text-secondary)] capitalize">{asset.status}</p>
-                        </div>
-                      ))}
-                      {userAssets.length === 0 && (
-                        <div className="col-span-full text-center py-4 text-[var(--text-secondary)] text-sm">Sin videos</div>
-                      )}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
+
                   <div>
-                    <p className="text-xs font-bold text-white/30 uppercase mb-3">Carpetas creadas</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {userCategories.slice(0, 5).map(cat => (
-                        <div key={cat.id} className="glass-card rounded-xl p-4 border border-white/5 flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                            </svg>
+                    <h3 className="text-xs font-bold tracking-widest text-white/30 uppercase mb-4">Colecciones Creadas</h3>
+                    {userCategories.length === 0 ? (
+                      <p className="text-sm text-white/20">No ha creado colecciones.</p>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-3">
+                        {userCategories.map(cat => (
+                          <div key={cat.id} className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+                            <p className="font-semibold text-sm text-white truncate">{cat.name}</p>
                           </div>
-                          <div>
-                            <p className="font-medium text-sm">{cat.name}</p>
-                            <p className="text-xs text-[var(--text-secondary)]">{userAssets.filter(a => a.categoryId === cat.id).length} videos</p>
-                          </div>
-                        </div>
-                      ))}
-                      {userCategories.length === 0 && (
-                        <div className="col-span-full text-center py-4 text-[var(--text-secondary)] text-sm">Sin carpetas</div>
-                      )}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -413,38 +371,35 @@ export default function UsersAdminPage() {
 
       {showDeleteModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => !deleting && setShowDeleteModal(false)} />
-          <div className="relative glass-card border border-white/10 w-full max-w-md rounded-[2rem] overflow-hidden animate-slide-in shadow-2xl">
-            <div className="p-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Eliminar Usuario</h3>
-              <p className="text-white/60 text-sm mb-8">
-                ¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => { setShowDeleteModal(false); setUserToDelete(null); }}
-                  disabled={deleting}
-                  className="flex-1 px-4 py-3 rounded-xl border border-white/10 text-white/70 hover:text-white hover:bg-white/5 transition-all font-medium text-sm"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={confirmDeleteUser}
-                  disabled={deleting}
-                  className="flex-1 px-4 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-all font-medium text-sm flex items-center justify-center gap-2"
-                >
-                  {deleting ? (
-                    <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    'Eliminar'
-                  )}
-                </button>
-              </div>
+          <div className="absolute inset-0 bg-transparent" onClick={() => !deleting && setShowDeleteModal(false)} />
+
+          <div className="relative bg-[#1c1c1e] border border-white/10 w-full max-w-sm rounded-[2rem] p-8 text-center animate-in fade-in zoom-in-95 duration-200 shadow-2xl">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+
+            <h3 className="text-xl font-bold text-white mb-2">Eliminar Usuario</h3>
+            <p className="text-white/40 text-sm mb-8 leading-relaxed">
+              ¿Estás seguro de que deseas eliminar este usuario? No podrás deshacer esta acción.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={confirmDeleteUser}
+                disabled={deleting}
+                className="w-full py-3.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-all"
+              >
+                {deleting ? 'Eliminando...' : 'Eliminar usuario'}
+              </button>
+              <button
+                onClick={() => { setShowDeleteModal(false); setUserToDelete(null); }}
+                disabled={deleting}
+                className="w-full py-3.5 rounded-xl bg-transparent text-white/60 hover:text-white transition-all font-medium text-sm"
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>
