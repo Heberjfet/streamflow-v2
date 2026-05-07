@@ -35,6 +35,9 @@ export default function UsersAdminPage() {
   const [userAssets, setUserAssets] = useState<any[]>([])
   const [userCategories, setUserCategories] = useState<any[]>([])
   const [loadingProfile, setLoadingProfile] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchUsers()
