@@ -245,7 +245,6 @@ export default function LogsPage() {
                   <span className={`text-xs px-2 py-1 rounded ${statusColors[asset.status] || 'bg-white/10 text-white/60'}`}>
                     {asset.status.toUpperCase()}
                   </span>
-                  <span className="text-xs font-mono text-white/40">{asset.views} views</span>
                 </div>
               </div>
             ))}
