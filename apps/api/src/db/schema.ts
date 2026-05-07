@@ -59,8 +59,6 @@ export const categories = pgTable('categories', {
   slug: varchar('slug', { length: 255 }).notNull(),
   description: text('description'),
   createdAt: timestamp('created_at').defaultNow()
-}, (table) => ({
-  userSlugIdx: unique().on(table.userId, table.slug)
 }));
 
 export const assetCategories = pgTable('asset_categories', {
