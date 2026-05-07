@@ -18,7 +18,8 @@ async function buildApp() {
   const fastify = Fastify({
     logger: {
       level: 'info'
-    }
+    },
+    bodyLimit: 10 * 1024 * 1024 * 1024
   });
 
   const allowedOrigins = process.env.CORS_ORIGINS
