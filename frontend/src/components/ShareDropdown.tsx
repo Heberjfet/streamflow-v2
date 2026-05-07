@@ -35,10 +35,25 @@ export function ShareDropdown({ playbackId, className = '' }: ShareDropdownProps
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isOpen])
 
+  const copyToClipboard = (text: string) => {
+    if (navigator.clipboard) {
+      return navigator.clipboard.writeText(text)
+    }
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    return Promise.resolve()
+  }
+
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
     try {
-      await navigator.clipboard.writeText(getPublicUrl())
+      await copyToClipboard(getPublicUrl())
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
